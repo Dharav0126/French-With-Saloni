@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>French with Saloni</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy:  #0A2342;
+      --blue:  #1355A0;
+      --sky:   #2E7FD9;
+      --light: #5BA4F5;
+      --pale:  #D6E8FF;
+      --frost: #EEF5FF;
+      --white: #FFFFFF;
+      --gold:  #F0C040;
+      --muted: #5E7A99;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Nunito',sans-serif;background:var(--white);color:var(--navy);overflow-x:hidden;}
+    ::-webkit-scrollbar{width:5px;}
+    ::-webkit-scrollbar-track{background:var(--frost);}
+    ::-webkit-scrollbar-thumb{background:var(--sky);border-radius:3px;}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:1rem 5vw;background:rgba(255,255,255,0.95);backdrop-filter:blur(14px);border-bottom:1px solid rgba(19,85,160,0.1);box-shadow:0 2px 20px rgba(10,35,66,0.06);}
+    .nav-logo{display:flex;align-items:center;gap:0.7rem;}
+    /* ── LOGO: Replace .logo-slot img src with your own logo file ── */
+    .logo-slot{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--sky));display:flex;align-items:center;justify-content:center;font-family:'Libre Baskerville',serif;font-style:italic;font-size:1.4rem;color:#fff;font-weight:700;flex-shrink:0;}
+    .logo-wordmark{font-family:'Libre Baskerville',serif;font-size:1.12rem;color:var(--navy);line-height:1.2;}
+    .logo-wordmark span{color:var(--sky);font-style:italic;}
+    .nav-links{display:flex;align-items:center;gap:2.2rem;list-style:none;}
+    .nav-links a{text-decoration:none;font-size:0.88rem;font-weight:600;letter-spacing:0.04em;color:var(--navy);opacity:0.65;transition:opacity .25s,color .25s;}
+    .nav-links a:hover{opacity:1;color:var(--sky);}
+    .nav-cta{background:var(--blue);color:#fff!important;opacity:1!important;padding:.55rem 1.5rem;border-radius:6px;font-weight:700!important;transition:background .25s,transform .2s!important;}
+    .nav-cta:hover{background:var(--sky)!important;transform:translateY(-1px);}
+
+    /* HERO */
+    .hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:4rem;padding:7rem 8vw 5rem;background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 55%,var(--sky) 100%);position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 15%,rgba(255,255,255,0.06),transparent 40%),radial-gradient(ellipse at 10% 85%,rgba(91,164,245,0.12),transparent 35%);pointer-events:none;}
+    .hero-ring{position:absolute;border-radius:50%;border:70px solid rgba(255,255,255,0.03);}
+    .hero-ring-1{width:600px;height:600px;top:-100px;right:-100px;}
+    .hero-ring-2{width:400px;height:400px;bottom:-80px;left:-80px;border-color:rgba(91,164,245,0.07);}
+    .hero-content{position:relative;z-index:2;}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:.7rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:100px;padding:.4rem 1rem .4rem .5rem;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pale);margin-bottom:1.8rem;animation:fadeUp .7s ease .1s both;}
+    .flag-mini{display:flex;width:22px;height:14px;border-radius:3px;overflow:hidden;flex-shrink:0;}
+    .f-b{width:33.3%;background:#002395;}
+    .f-w{width:33.3%;background:#fff;}
+    .f-r{width:33.3%;background:#ED2939;}
+    .hero-title{font-family:'Libre Baskerville',serif;font-size:clamp(2.5rem,4.2vw,4.6rem);line-height:1.1;color:#fff;margin-bottom:1.4rem;animation:fadeUp .7s ease .2s both;}
+    .hero-title .accent{color:var(--gold);font-style:italic;}
+    .hero-title .soft{color:rgba(255,255,255,.55);}
+    .hero-sub{font-family:'Lora',serif;font-size:1.12rem;color:rgba(255,255,255,.7);line-height:1.82;max-width:500px;margin-bottom:2.5rem;animation:fadeUp .7s ease .3s both;}
+    .hero-actions{display:flex;gap:1rem;flex-wrap:wrap;animation:fadeUp .7s ease .4s both;}
+    .btn-white{background:#fff;color:var(--blue);padding:.9rem 2.2rem;border-radius:8px;font-size:.9rem;font-weight:700;letter-spacing:.04em;text-decoration:none;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+    .btn-white:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.25);}
+    .btn-ghost{background:transparent;color:#fff;padding:.9rem 2.2rem;border-radius:8px;font-size:.9rem;font-weight:600;text-decoration:none;border:2px solid rgba(255,255,255,.4);transition:background .25s,border-color .25s,transform .2s;}
+    .btn-ghost:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.8);transform:translateY(-2px);}
+    .hero-stats{display:flex;gap:2.5rem;margin-top:3rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,.12);animation:fadeUp .7s ease .5s both;}
+    .stat-num{font-family:'Libre Baskerville',serif;font-size:2rem;font-weight:700;color:var(--gold);line-height:1;}
+    .stat-lbl{font-size:.76rem;color:rgba(255,255,255,.5);margin-top:.2rem;letter-spacing:.05em;text-transform:uppercase;}
+
+    /* HERO VISUAL */
+    .hero-visual{position:relative;z-index:2;animation:fadeUp .8s ease .35s both;}
+    .video-card{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:16/9;box-shadow:0 30px 80px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.1);}
+    /* ── HERO VIDEO: swap .hero-vid-placeholder with your <video> or <iframe> ── */
+    .hero-vid-placeholder{width:100%;height:100%;background:linear-gradient(145deg,#0d2d5a,#1a4a8a 60%,#2060b0);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
+    .hero-vid-placeholder::before{content:'Français';position:absolute;font-family:'Libre Baskerville',serif;font-size:7rem;font-style:italic;color:rgba(255,255,255,.04);pointer-events:none;}
+    .play-ring{width:78px;height:78px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 0 rgba(255,255,255,.3);animation:pulse 2.5s ease-in-out infinite;transition:transform .3s;}
+    .play-ring:hover{transform:scale(1.1);}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.3);}50%{box-shadow:0 0 0 18px rgba(255,255,255,0);}}
+    .tri{width:0;height:0;border-top:13px solid transparent;border-bottom:13px solid transparent;border-left:22px solid var(--blue);margin-left:4px;}
+    .play-outer{display:flex;flex-direction:column;align-items:center;gap:.9rem;position:relative;z-index:2;}
+    .play-hint{font-size:.82rem;font-weight:600;color:rgba(255,255,255,.75);letter-spacing:.07em;text-transform:uppercase;}
+    .hero-badge{position:absolute;bottom:-1rem;left:2rem;background:#fff;padding:.85rem 1.4rem;border-radius:10px;box-shadow:0 8px 28px rgba(10,35,66,.2);display:flex;align-items:center;gap:.7rem;}
+    .badge-ico{font-size:1.3rem;}
+    .badge-title{font-size:.82rem;font-weight:700;color:var(--navy);}
+    .badge-sub{font-size:.7rem;color:var(--muted);margin-top:.1rem;}
+
+    /* INTRO VIDEO SECTION */
+    .intro-section{padding:8rem 8vw;background:var(--frost);position:relative;overflow:hidden;}
+    .intro-section::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--navy),var(--sky),var(--gold));}
+    .intro-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1.15fr;gap:5rem;align-items:center;}
+    .intro-eyebrow{font-size:.76rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--sky);margin-bottom:.9rem;}
+    .intro-title{font-family:'Libre Baskerville',serif;font-size:clamp(1.8rem,2.8vw,2.6rem);line-height:1.2;color:var(--navy);margin-bottom:1rem;}
+    .intro-desc{font-family:'Lora',serif;font-size:1.05rem;color:var(--muted);line-height:1.85;margin-bottom:1.8rem;}
+    .checklist{list-style:none;display:flex;flex-direction:column;gap:.7rem;margin-bottom:2.2rem;}
+    .checklist li{display:flex;align-items:center;gap:.7rem;font-size:.9rem;font-weight:500;color:var(--navy);}
+    .chk{width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .btn-blue{display:inline-block;background:var(--blue);color:#fff;padding:.9rem 2.2rem;border-radius:8px;font-size:.9rem;font-weight:700;text-decoration:none;letter-spacing:.04em;transition:background .25s,transform .2s;}
+    .btn-blue:hover{background:var(--sky);transform:translateY(-2px);}
+
+    /* MAIN VIDEO FRAME */
+    .main-vid-frame{border-radius:18px;overflow:hidden;aspect-ratio:16/9;box-shadow:0 24px 70px rgba(10,35,66,.15);background:var(--navy);position:relative;}
+    /*
+    ══════════════════════════════════════════════════════════
+    ADD YOUR INTRO VIDEO — two easy options:
+
+    OPTION A  YouTube / Vimeo embed
+    ──────────────────────────────────────────────────────────
+    Delete the .vid-placeholder div and paste:
+
+      <iframe style="position:absolute;inset:0;width:100%;height:100%;border:0"
+        src="https://www.youtube.com/embed/YOUR_VIDEO_ID?rel=0"
+        allow="autoplay;encrypted-media" allowfullscreen>
+      </iframe>
+
+    OPTION B  Local MP4 file
+    ──────────────────────────────────────────────────────────
+    Delete the .vid-placeholder div and paste:
+
+      <video controls poster="thumbnail.jpg"
+             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <source src="intro-saloni.mp4" type="video/mp4">
+      </video>
+    ══════════════════════════════════════════════════════════
+    */
+    .vid-placeholder{position:absolute;inset:0;background:linear-gradient(140deg,var(--navy),var(--blue) 65%,var(--sky));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1rem;cursor:pointer;}
+    .vid-placeholder:hover .main-play{transform:scale(1.1);}
+    .vid-placeholder::before{content:'Saloni';position:absolute;font-family:'Libre Baskerville',serif;font-size:8rem;font-style:italic;color:rgba(255,255,255,.04);pointer-events:none;}
+    .vid-add-badge{position:absolute;top:1rem;right:1rem;background:var(--gold);color:var(--navy);font-size:.7rem;font-weight:700;padding:.3rem .8rem;border-radius:5px;letter-spacing:.06em;text-transform:uppercase;}
+    .main-play{width:86px;height:86px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 40px rgba(0,0,0,.3);transition:transform .3s;}
+    .main-play .tri{border-left-width:26px;border-top-width:15px;border-bottom-width:15px;}
+    .vid-label{font-size:.88rem;font-weight:600;color:rgba(255,255,255,.8);letter-spacing:.06em;}
+    .vid-sublabel{font-size:.76rem;color:rgba(255,255,255,.4);}
+
+    /* FEATURES */
+    .section{padding:7rem 8vw;}
+    .sec-head{text-align:center;max-width:620px;margin:0 auto 5rem;}
+    .eyebrow{font-size:.76rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--sky);display:block;margin-bottom:.9rem;}
+    .sec-title{font-family:'Libre Baskerville',serif;font-size:clamp(1.9rem,3vw,2.7rem);line-height:1.2;color:var(--navy);margin-bottom:1rem;}
+    .sec-desc{font-family:'Lora',serif;font-size:1.05rem;color:var(--muted);line-height:1.75;}
+    .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.8rem;max-width:1100px;margin:0 auto;}
+    .feat-card{background:#fff;border:1px solid rgba(19,85,160,.1);border-radius:14px;padding:2.2rem;transition:transform .3s,box-shadow .3s,border-color .3s;position:relative;overflow:hidden;}
+    .feat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--sky));transform:scaleX(0);transition:transform .3s;transform-origin:left;}
+    .feat-card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(10,35,66,.1);border-color:rgba(46,127,217,.25);}
+    .feat-card:hover::after{transform:scaleX(1);}
+    .feat-icon{width:50px;height:50px;border-radius:12px;background:var(--pale);display:flex;align-items:center;justify-content:center;font-size:1.45rem;margin-bottom:1.1rem;}
+    .feat-title{font-family:'Libre Baskerville',serif;font-size:1.08rem;color:var(--navy);margin-bottom:.55rem;}
+    .feat-desc{font-size:.87rem;color:var(--muted);line-height:1.7;}
+
+    /* LEVELS */
+    .levels-sec{background:var(--navy);padding:7rem 8vw;}
+    .levels-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.4rem;max-width:1100px;margin:0 auto;}
+    .lvl-card{border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:2rem 1.6rem;cursor:pointer;transition:all .3s;background:rgba(255,255,255,.04);}
+    .lvl-card:hover,.lvl-card.active{background:rgba(46,127,217,.15);border-color:var(--sky);transform:translateY(-4px);}
+    .lvl-tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.25rem .7rem;border-radius:20px;background:rgba(91,164,245,.18);color:var(--light);margin-bottom:1rem;}
+    .lvl-name{font-family:'Libre Baskerville',serif;font-size:1.4rem;color:#fff;margin-bottom:.45rem;}
+    .lvl-desc{font-size:.82rem;color:rgba(255,255,255,.4);line-height:1.6;margin-bottom:1.1rem;}
+    .lvl-topics{display:flex;flex-direction:column;gap:.4rem;}
+    .topic-row{font-size:.8rem;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:.5rem;}
+    .topic-row::before{content:'›';color:var(--sky);font-size:1rem;font-weight:700;}
+
+    /* INSTRUCTOR */
+    .instr-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;}
+    .instr-shape{width:100%;padding-bottom:110%;border-radius:40% 60% 55% 45%/50% 40% 60% 50%;background:linear-gradient(135deg,var(--pale),rgba(19,85,160,.15));position:relative;overflow:hidden;}
+    .instr-mono{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Libre Baskerville',serif;font-size:11rem;font-style:italic;color:rgba(19,85,160,.07);user-select:none;}
+    .instr-badge{position:absolute;background:#fff;border-radius:12px;padding:1rem 1.4rem;box-shadow:0 10px 35px rgba(10,35,66,.12);}
+    .ib1{bottom:2rem;left:-2.5rem;}
+    .ib2{top:2rem;right:-2rem;}
+    .ib-val{font-family:'Libre Baskerville',serif;font-size:1.55rem;font-weight:700;color:var(--blue);line-height:1;}
+    .ib-lbl{font-size:.7rem;color:var(--muted);margin-top:.2rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+    .instr-bio{font-family:'Lora',serif;font-size:1.04rem;color:var(--muted);line-height:1.85;margin:1rem 0 1.8rem;}
+    .creds{list-style:none;display:flex;flex-direction:column;gap:.7rem;margin-bottom:2rem;}
+    .cred-item{display:flex;align-items:flex-start;gap:.75rem;font-size:.9rem;color:var(--navy);}
+    .cred-dot{width:8px;height:8px;border-radius:50%;background:var(--sky);flex-shrink:0;margin-top:.35rem;}
+
+    /* TESTIMONIALS */
+    .testi-sec{background:var(--frost);padding:7rem 8vw;}
+    .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.8rem;max-width:1100px;margin:0 auto;}
+    .testi-card{background:#fff;border-radius:14px;padding:2.2rem;border:1px solid rgba(19,85,160,.07);transition:transform .3s,box-shadow .3s;}
+    .testi-card:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(10,35,66,.09);}
+    .qmark{font-family:'Libre Baskerville',serif;font-size:4rem;color:var(--pale);line-height:1;margin-bottom:.4rem;}
+    .testi-text{font-family:'Lora',serif;font-size:1rem;color:var(--muted);line-height:1.75;margin-bottom:1.5rem;}
+    .stars{color:var(--gold);font-size:.9rem;letter-spacing:.1em;margin-bottom:.8rem;}
+    .testi-author{display:flex;align-items:center;gap:.8rem;}
+    .avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--sky),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Libre Baskerville',serif;font-weight:700;font-size:1rem;color:#fff;flex-shrink:0;}
+    .auth-name{font-weight:700;font-size:.9rem;color:var(--navy);}
+    .auth-detail{font-size:.76rem;color:var(--muted);margin-top:.1rem;}
+
+    /* COURSES / PRICING */
+    .courses-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2rem;max-width:1100px;margin:0 auto;}
+    .course-card{border:1.5px solid rgba(19,85,160,.13);border-radius:18px;padding:2.4rem 2.2rem;background:#fff;transition:transform .3s,box-shadow .3s;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+    .course-card::after{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--blue),var(--sky));opacity:0;transition:opacity .3s;}
+    .course-card:hover{transform:translateY(-6px);box-shadow:0 22px 55px rgba(10,35,66,.12);}
+    .course-card:hover::after{opacity:1;}
+    .course-card.popular{background:linear-gradient(150deg,var(--navy) 0%,var(--blue) 100%);border-color:transparent;box-shadow:0 24px 60px rgba(10,35,66,.28);}
+    .course-card.popular::after{opacity:1;background:linear-gradient(90deg,var(--gold),#ffe080);}
+    .pop-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--gold);color:var(--navy);font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .85rem;border-radius:20px;margin-bottom:1rem;width:fit-content;}
+    .course-tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.28rem .75rem;border-radius:20px;background:var(--pale);color:var(--blue);margin-bottom:1rem;}
+    .popular .course-tag{background:rgba(91,164,245,.2);color:var(--light);}
+    .course-name{font-family:'Libre Baskerville',serif;font-size:1.5rem;color:var(--navy);line-height:1.25;margin-bottom:.6rem;}
+    .popular .course-name{color:#fff;}
+    .course-price-row{display:flex;align-items:baseline;gap:.6rem;margin-bottom:.3rem;}
+    .course-price{font-family:'Libre Baskerville',serif;font-size:2.5rem;font-weight:700;color:var(--blue);line-height:1;}
+    .popular .course-price{color:var(--gold);}
+    .course-price sup{font-size:1.1rem;vertical-align:super;}
+    .course-price-orig{font-family:'Libre Baskerville',serif;font-size:1.3rem;color:var(--muted);text-decoration:line-through;opacity:.6;}
+    .popular .course-price-orig{color:rgba(255,255,255,.45);}
+    .course-period{font-size:.8rem;color:var(--muted);margin-bottom:1.5rem;}
+    .popular .course-period{color:rgba(255,255,255,.45);}
+    .schedule-block{background:var(--frost);border-radius:10px;padding:1.1rem 1.3rem;margin-bottom:1.4rem;}
+    .popular .schedule-block{background:rgba(255,255,255,.08);}
+    .schedule-title{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sky);margin-bottom:.7rem;}
+    .popular .schedule-title{color:var(--light);}
+    .schedule-row{display:flex;gap:.5rem;align-items:flex-start;margin-bottom:.45rem;}
+    .schedule-row:last-child{margin-bottom:0;}
+    .sched-label{font-size:.76rem;font-weight:700;color:var(--navy);min-width:70px;padding-top:.05rem;}
+    .popular .sched-label{color:rgba(255,255,255,.7);}
+    .sched-val{font-size:.78rem;color:var(--muted);line-height:1.5;}
+    .popular .sched-val{color:rgba(255,255,255,.5);}
+    .reach-out{font-size:.78rem;color:var(--sky);font-style:italic;margin-top:.6rem;}
+    .popular .reach-out{color:var(--light);}
+    .course-feats{list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.8rem;flex:1;}
+    .course-feats li{font-size:.87rem;color:var(--navy);display:flex;align-items:center;gap:.6rem;}
+    .popular .course-feats li{color:rgba(255,255,255,.8);}
+    .course-feats li::before{content:'✓';color:var(--sky);font-weight:700;font-size:.8rem;flex-shrink:0;}
+    .popular .course-feats li::before{color:var(--gold);}
+    .btn-course{display:block;text-align:center;padding:.9rem 1.5rem;border-radius:9px;font-size:.88rem;font-weight:700;text-decoration:none;letter-spacing:.04em;transition:background .25s,transform .2s,box-shadow .2s;margin-top:auto;}
+    .btn-course-blue{background:var(--blue);color:#fff;}
+    .btn-course-blue:hover{background:var(--sky);transform:translateY(-2px);}
+    .btn-course-gold{background:var(--gold);color:var(--navy);}
+    .btn-course-gold:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 6px 20px rgba(240,192,64,.35);}
+    .btn-course-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.3);}
+    .btn-course-outline:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.6);transform:translateY(-2px);}
+
+    /* CTA */
+    .cta-sec{background:linear-gradient(110deg,var(--navy),var(--blue) 60%,var(--sky));padding:6rem 8vw;text-align:center;position:relative;overflow:hidden;}
+    .cta-sec::before{content:'OUI';position:absolute;font-family:'Libre Baskerville',serif;font-size:22rem;font-style:italic;color:rgba(255,255,255,.025);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap;}
+    .cta-title{font-family:'Libre Baskerville',serif;font-size:clamp(1.9rem,3.5vw,3.2rem);color:#fff;margin-bottom:1rem;position:relative;}
+    .cta-sub{font-family:'Lora',serif;font-size:1.12rem;color:rgba(255,255,255,.62);margin-bottom:2.5rem;position:relative;}
+
+    /* FOOTER */
+    footer{background:var(--navy);color:#fff;padding:5rem 8vw 2rem;}
+    .foot-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;padding-bottom:3rem;border-bottom:1px solid rgba(255,255,255,.08);}
+    .foot-brand{font-family:'Libre Baskerville',serif;font-size:1.3rem;margin-bottom:.8rem;}
+    .foot-brand span{color:var(--light);font-style:italic;}
+    .foot-tag{font-family:'Lora',serif;font-size:.92rem;color:rgba(255,255,255,.38);line-height:1.7;max-width:240px;margin-bottom:1.5rem;}
+    .socials{display:flex;gap:.6rem;}
+    .soc-btn{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;text-decoration:none;color:rgba(255,255,255,.55);font-size:.82rem;transition:background .25s,color .25s;}
+    .soc-btn:hover{background:var(--sky);color:#fff;}
+    .foot-col-title{font-size:.73rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.32);margin-bottom:1.2rem;}
+    .foot-links{list-style:none;display:flex;flex-direction:column;gap:.55rem;}
+    .foot-links a{text-decoration:none;color:rgba(255,255,255,.58);font-size:.87rem;transition:color .25s;}
+    .foot-links a:hover{color:var(--light);}
+    .foot-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:1.8rem;font-size:.78rem;color:rgba(255,255,255,.28);}
+
+    /* ANIMATIONS */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+
+    /* RESPONSIVE */
+    @media(max-width:1024px){
+      .hero{grid-template-columns:1fr;padding:6rem 6vw 4rem;}
+      .hero-visual{max-width:500px;}
+      .features-grid,.levels-grid,.courses-grid{grid-template-columns:1fr;}
+      .testi-grid{grid-template-columns:1fr;max-width:480px;margin:0 auto;}
+      .instr-grid,.intro-inner{grid-template-columns:1fr;gap:3rem;}
+      .foot-top{grid-template-columns:1fr 1fr;}
+      nav{padding:1rem 5vw;}
+      .nav-links{display:none;}
+    }
+    @media(max-width:600px){
+      .features-grid,.levels-grid{grid-template-columns:1fr;}
+      .section{padding:5rem 5vw;}
+      .hero-stats{gap:1.5rem;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <!--
+      ══════════════════════════════════════════════
+      YOUR LOGO GOES HERE
+      Replace the .logo-slot div with:
+        <img src="your-logo.png" alt="French with Saloni" style="height:44px">
+      ══════════════════════════════════════════════
+    -->
+      <img src="./Images/French_with_Saloni_Curved.png" alt="French with Saloni" style="height:2em">
+    <!-- <div class="logo-slot">S</div> -->
+    <div class="logo-wordmark">French with <span>Saloni</span></div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#courses">Courses</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#intro-video">Intro Video</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#" class="nav-cta">Start Free Trial</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-ring hero-ring-1"></div>
+  <div class="hero-ring hero-ring-2"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <div class="flag-mini"><div class="f-b"></div><div class="f-w"></div><div class="f-r"></div></div>
+      Learn Authentic French
+    </div>
+    <h1 class="hero-title">
+      Speak French<br/>
+      <span class="accent">avec confiance</span><br/>
+      <span class="soft">with Saloni</span>
+    </h1>
+    <p class="hero-sub">
+      From bonjour to fluency — an immersive, structured, and deeply human approach to learning the world's most beautiful language.
+    </p>
+    <div class="hero-actions">
+      <a href="#courses" class="btn-white">Explore Courses</a>
+      <a href="#intro-video" class="btn-ghost">▶ Watch Intro</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-num">12K+</div><div class="stat-lbl">Students</div></div>
+      <div><div class="stat-num">98%</div><div class="stat-lbl">Success Rate</div></div>
+      <div><div class="stat-num">8+</div><div class="stat-lbl">Years Teaching</div></div>
+      <div><div class="stat-num">A1→C1</div><div class="stat-lbl">All Levels</div></div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="video-card">
+      <!--
+        ══════════════════════════════════════════════
+        HERO VIDEO / PHOTO
+        Swap .hero-vid-placeholder with:
+          <video autoplay muted loop playsinline style="width:100%;display:block">
+            <source src="hero-clip.mp4" type="video/mp4">
+          </video>
+        — or —
+          <img src="saloni-photo.jpg" style="width:100%;display:block;object-fit:cover">
+        ══════════════════════════════════════════════
+      -->
+      <div class="hero-vid-placeholder">
+        <div class="play-outer">
+          <div class="play-ring"><div class="tri"></div></div>
+          <div class="play-hint">Watch Preview</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-badge">
+      <div class="badge-ico">🎓</div>
+      <div>
+        <div class="badge-title">DELF Certified Teacher</div>
+        <div class="badge-sub">Sorbonne Graduate · 8 yrs exp.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTRO VIDEO SECTION -->
+<section class="intro-section" id="intro-video">
+  <div class="intro-inner">
+    <div>
+      <div class="intro-eyebrow">Meet Saloni</div>
+      <h2 class="intro-title">Your personal intro to<br/><em style="font-style:italic;color:var(--sky)">French with Saloni</em></h2>
+      <p class="intro-desc">Before you dive in, hear directly from Saloni — her teaching philosophy, how her method works, and what to expect on your journey to fluency.</p>
+      <ul class="checklist">
+        <li><div class="chk">✓</div> Saloni's story and why she teaches French</li>
+        <li><div class="chk">✓</div> What makes this course genuinely different</li>
+        <li><div class="chk">✓</div> A walkthrough of a sample lesson</li>
+        <li><div class="chk">✓</div> How to find your level and get started</li>
+      </ul>
+      <a href="#courses" class="btn-blue">Start Learning →</a>
+    </div>
+
+    <div class="main-vid-frame">
+      <!--
+        ══════════════════════════════════════════════════════
+        ★  ADD YOUR INTRO VIDEO HERE  ★
+
+        YouTube embed — paste inside this div:
+          <iframe style="position:absolute;inset:0;width:100%;height:100%;border:0"
+            src="https://www.youtube.com/embed/YOUR_VIDEO_ID?rel=0"
+            allow="autoplay;encrypted-media" allowfullscreen></iframe>
+
+        Local MP4 — paste inside this div:
+          <video controls poster="thumb.jpg"
+            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            <source src="intro-saloni.mp4" type="video/mp4">
+          </video>
+        ══════════════════════════════════════════════════════
+      -->
+      <div class="vid-placeholder">
+        <div class="vid-add-badge">Add Video Here</div>
+        <div class="main-play"><div class="tri"></div></div>
+        <div class="vid-label">Intro Video</div>
+        <div class="vid-sublabel">Replace this placeholder with your video</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="courses">
+  <div class="sec-head">
+    <span class="eyebrow">Why French with Saloni</span>
+    <h2 class="sec-title">A method built for real fluency</h2>
+    <p class="sec-desc">More than vocabulary lists — a complete system combining grammar, culture, and real conversation practice.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card"><div class="feat-icon">🎙️</div><h3 class="feat-title">Authentic Pronunciation</h3><p class="feat-desc">Master liaisons, nasal vowels, and the rhythm of natural spoken French with expert audio guidance.</p></div>
+    <div class="feat-card"><div class="feat-icon">🇫🇷</div><h3 class="feat-title">Cultural Immersion</h3><p class="feat-desc">Cinema, cuisine, literature, and everyday life woven into every lesson — language and culture are inseparable.</p></div>
+    <div class="feat-card"><div class="feat-icon">💬</div><h3 class="feat-title">Live Speaking Sessions</h3><p class="feat-desc">Weekly group conversations with Saloni where you practise in a warm, low-pressure environment.</p></div>
+    <div class="feat-card"><div class="feat-icon">📈</div><h3 class="feat-title">Structured Progression</h3><p class="feat-desc">Clear A1 → B2 roadmap aligned with DELF standards so you always know exactly where you stand.</p></div>
+    <div class="feat-card"><div class="feat-icon">📝</div><h3 class="feat-title">DELF / DALF Prep</h3><p class="feat-desc">Dedicated exam modules with mock tests, graded writing, and intensive oral coaching.</p></div>
+    <div class="feat-card"><div class="feat-icon">✍️</div><h3 class="feat-title">Personal Feedback</h3><p class="feat-desc">Saloni reviews your written and spoken work with detailed, actionable corrections every step of the way.</p></div>
+  </div>
+</section>
+
+<!-- LEVELS -->
+<section class="levels-sec">
+  <div class="sec-head" style="max-width:680px;margin:0 auto 4rem;">
+    <span class="eyebrow" style="color:var(--light);">Your Journey</span>
+    <h2 class="sec-title" style="color:#fff;">Find your level &amp; begin</h2>
+    <p class="sec-desc" style="color:rgba(255,255,255,.4);">Every learner starts somewhere. There's a course perfectly suited to where you are right now.</p>
+  </div>
+  <div class="levels-grid">
+    <div class="lvl-card">
+      <div class="lvl-tag">A1–A2</div>
+      <div class="lvl-name">Débutant</div>
+      <p class="lvl-desc">Zero French to everyday conversation.</p>
+      <div class="lvl-topics">
+        <div class="topic-row">Greetings &amp; introductions</div>
+        <div class="topic-row">Numbers, time &amp; dates</div>
+        <div class="topic-row">Present tense essentials</div>
+        <div class="topic-row">Travel &amp; shopping basics</div>
+      </div>
+    </div>
+    <div class="lvl-card active">
+      <div class="lvl-tag">B1</div>
+      <div class="lvl-name">Intermédiaire</div>
+      <p class="lvl-desc">Hold your ground in real conversations.</p>
+      <div class="lvl-topics">
+        <div class="topic-row">Past &amp; future tenses</div>
+        <div class="topic-row">Expressing opinions</div>
+        <div class="topic-row">French media &amp; news</div>
+        <div class="topic-row">DELF B1 preparation</div>
+      </div>
+    </div>
+    <div class="lvl-card">
+      <div class="lvl-tag">B2</div>
+      <div class="lvl-name">Avancé</div>
+      <p class="lvl-desc">Nuanced discussion on complex topics.</p>
+      <div class="lvl-topics">
+        <div class="topic-row">Subjunctive &amp; conditionals</div>
+        <div class="topic-row">Academic writing</div>
+        <div class="topic-row">Literary French</div>
+        <div class="topic-row">DELF B2 preparation</div>
+      </div>
+    </div>
+    <div class="lvl-card">
+      <div class="lvl-tag">C1+</div>
+      <div class="lvl-name">Expert</div>
+      <p class="lvl-desc">Near-native expression &amp; comprehension.</p>
+      <div class="lvl-topics">
+        <div class="topic-row">Idiomatic expressions</div>
+        <div class="topic-row">Regional accents &amp; argot</div>
+        <div class="topic-row">Advanced literature</div>
+        <div class="topic-row">DALF preparation</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTRUCTOR -->
+<section class="section" id="about">
+  <div class="instr-grid">
+    <div style="position:relative;">
+      <div class="instr-shape"><div class="instr-mono">S</div></div>
+      <div class="instr-badge ib1"><div class="ib-val">200K+</div><div class="ib-lbl">Podcast Listeners</div></div>
+      <div class="instr-badge ib2"><div class="ib-val">Sorbonne</div><div class="ib-lbl">Graduate</div></div>
+    </div>
+    <div>
+      <span class="eyebrow">Your Teacher</span>
+      <h2 class="sec-title" style="text-align:left;font-size:2.4rem;">Bonjour, <em style="font-style:italic;color:var(--sky)">je suis Saloni</em></h2>
+      <p class="instr-bio">With an M.A. in French Literature from the Sorbonne and over eight years teaching across three continents, Saloni has guided thousands of students from their very first "bonjour" to near-native fluency. Her method blends rigorous linguistics with storytelling, music, and cultural richness.</p>
+      <ul class="creds">
+        <li class="cred-item"><div class="cred-dot"></div>M.A. French Literature, Université Paris-Sorbonne</li>
+        <li class="cred-item"><div class="cred-dot"></div>Certified DELF / DALF Examiner</li>
+        <li class="cred-item"><div class="cred-dot"></div>8+ years teaching A1 through C1 levels</li>
+        <li class="cred-item"><div class="cred-dot"></div>Host of "Café Français" podcast — 200K+ listeners</li>
+        <li class="cred-item"><div class="cred-dot"></div>Featured in Le Monde, BBC Languages &amp; Duolingo Blog</li>
+      </ul>
+      <a href="#intro-video" class="btn-blue">Watch My Intro ▶</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi-sec">
+  <div class="sec-head">
+    <span class="eyebrow">Student Stories</span>
+    <h2 class="sec-title">They found their French voice</h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <div class="qmark">"</div>
+      <p class="testi-text">Saloni makes grammar feel intuitive. I went from tourist French to full conversations in six months — something I never thought was possible.</p>
+      <div class="testi-author"><div class="avatar">P</div><div><div class="auth-name">Priya Mehta</div><div class="auth-detail">B2 Level · Mumbai</div></div></div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <div class="qmark">"</div>
+      <p class="testi-text">The cultural content is what sets this apart. I don't just feel like I'm learning a language — I feel like I'm being welcomed into a whole world.</p>
+      <div class="testi-author"><div class="avatar">J</div><div><div class="auth-name">James Holloway</div><div class="auth-detail">B1 Level · London</div></div></div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <div class="qmark">"</div>
+      <p class="testi-text">Passed my DELF B2 on the first attempt. Saloni's feedback on my written work was incredibly detailed and genuinely transformed my writing.</p>
+      <div class="testi-author"><div class="avatar">A</div><div><div class="auth-name">Ananya Sharma</div><div class="auth-detail">DELF B2 · Delhi</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- COURSES / PRICING -->
+<section class="section" id="pricing">
+  <div class="sec-head">
+    <span class="eyebrow">Courses &amp; Pricing</span>
+    <h2 class="sec-title">Choose your path to French fluency</h2>
+    <p class="sec-desc">Every course is live, instructor-led, and built around your goals. Pick the schedule that works for you.</p>
+  </div>
+
+  <div class="courses-grid">
+
+    <!-- Card 1: Zero to CLB 7 in 6 months -->
+    <div class="course-card">
+      <div class="course-tag">Beginner Friendly</div>
+      <h3 class="course-name">Zero to CLB 7<br/><span style="font-size:1rem;font-weight:400;font-style:italic;color:var(--muted)">in 6 months</span></h3>
+      <div class="course-price-row">
+        <div class="course-price"><sup>$</sup>299</div>
+      </div>
+      <div class="course-period">per month</div>
+      <div class="schedule-block">
+        <div class="schedule-title">📅 Schedule — 4 classes/week (1 hr each)</div>
+        <div class="schedule-row">
+          <div class="sched-label">Weekdays</div>
+          <div class="sched-val">Mon, Wed, Thu, Fri</div>
+        </div>
+        <div class="schedule-row">
+          <div class="sched-label">Weekends</div>
+          <div class="sched-val">Sat &amp; Sun — 2 hours each</div>
+        </div>
+        <div class="reach-out">Need a different schedule? Please reach out to us!</div>
+      </div>
+      <ul class="course-feats">
+        <li>Start from absolute zero</li>
+        <li>Reach CLB 7 in 6 months</li>
+        <li>4 live classes per week</li>
+        <li>Flexible weekday + weekend options</li>
+      </ul>
+      <a href="#" class="btn-course btn-course-blue">Enroll Now →</a>
+    </div>
+
+    <!-- Card 2: TEF Preparation (Most Popular) -->
+    <div class="course-card popular">
+      <div class="pop-badge">⭐ Most Popular</div>
+      <div class="course-tag">Best Results</div>
+      <h3 class="course-name">TEF Preparation<br/><span style="font-size:1rem;font-weight:400;font-style:italic;color:rgba(255,255,255,.5)">Intensive Program</span></h3>
+      <div class="course-price-row">
+        <div class="course-price"><sup>$</sup>500</div>
+        <div class="course-price-orig">$600</div>
+      </div>
+      <div class="course-period">per month</div>
+      <div class="schedule-block">
+        <div class="schedule-title">📅 Schedule — 5 classes/week (1 hr each)</div>
+        <div class="schedule-row">
+          <div class="sched-label">Weekdays</div>
+          <div class="sched-val">Mon – Fri, 9 PM – 10 PM EST</div>
+        </div>
+        <div class="reach-out">Need a different schedule? Please reach out!</div>
+      </div>
+      <ul class="course-feats">
+        <li>Intensive TEF exam preparation</li>
+        <li>5 live classes every week</li>
+        <li>Proven results &amp; top scores</li>
+        <li>Mock tests &amp; detailed feedback</li>
+        <li>Save $100/month vs regular price</li>
+      </ul>
+      <a href="#" class="btn-course btn-course-gold">Enroll Now →</a>
+    </div>
+
+    <!-- Card 3: Zero to CLB 7 in 4 months -->
+    <div class="course-card">
+      <div class="course-tag">Accelerated</div>
+      <h3 class="course-name">Zero to CLB 7<br/><span style="font-size:1rem;font-weight:400;font-style:italic;color:var(--muted)">in 4 months</span></h3>
+      <div class="course-price-row">
+        <div class="course-price"><sup>$</sup>399</div>
+        <div class="course-price-orig">$499</div>
+      </div>
+      <div class="course-period">per month</div>
+      <div class="schedule-block">
+        <div class="schedule-title">📅 Schedule — Weekends Only</div>
+        <div class="schedule-row">
+          <div class="sched-label">Saturday</div>
+          <div class="sched-val">2-hour session</div>
+        </div>
+        <div class="schedule-row">
+          <div class="sched-label">Sunday</div>
+          <div class="sched-val">2-hour session</div>
+        </div>
+        <div class="reach-out">Need a different schedule? Please reach out to us!</div>
+      </div>
+      <ul class="course-feats">
+        <li>Weekend-only schedule</li>
+        <li>Reach CLB 7 in just 4 months</li>
+        <li>4 hours of live class per week</li>
+        <li>Save $100/month vs regular price</li>
+      </ul>
+      <a href="#" class="btn-course btn-course-blue">Enroll Now →</a>
+    </div>
+
+    <!-- Card 4: 1-on-1 -->
+    <div class="course-card">
+      <div class="course-tag">Premium · 1-on-1</div>
+      <h3 class="course-name">Private Classes<br/><span style="font-size:1rem;font-weight:400;font-style:italic;color:var(--muted)">CLB 7 Goal</span></h3>
+      <div class="course-price-row">
+        <div class="course-price"><sup>$</sup>895</div>
+      </div>
+      <div class="course-period">per month</div>
+      <div class="schedule-block">
+        <div class="schedule-title">📅 Schedule — 6 classes/week</div>
+        <div class="schedule-row">
+          <div class="sched-label">Timings</div>
+          <div class="sched-val">Fully custom — built around your calendar</div>
+        </div>
+        <div class="reach-out">Reach out to book your personalised schedule!</div>
+      </div>
+      <ul class="course-feats">
+        <li>100% personalised 1-on-1 sessions</li>
+        <li>6 classes per week with Saloni</li>
+        <li>Fully flexible custom timings</li>
+        <li>Fastest path to CLB 7</li>
+      </ul>
+      <a href="#" class="btn-course btn-course-blue">Book a Call →</a>
+    </div>
+
+  </div><!-- /courses-grid -->
+</section>
+
+<!-- CTA -->
+<section class="cta-sec">
+  <h2 class="cta-title">Votre histoire française commence aujourd'hui</h2>
+  <p class="cta-sub">Join 12,000+ students. Your first 7 days are completely free.</p>
+  <a href="#" class="btn-white" style="display:inline-block;font-size:.95rem;padding:1rem 3rem;">Begin Your Journey →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-top">
+    <div>
+      <div class="foot-brand">French with <span>Saloni</span></div>
+      <p class="foot-tag">Making the beauty of French accessible to every curious mind, one lesson at a time.</p>
+      <div class="socials">
+        <a href="#" class="soc-btn" title="YouTube">▶</a>
+        <a href="#" class="soc-btn" title="Instagram">📷</a>
+        <a href="#" class="soc-btn" title="Spotify">🎙</a>
+        <a href="#" class="soc-btn">in</a>
+      </div>
+    </div>
+    <div>
+      <div class="foot-col-title">Learn</div>
+      <ul class="foot-links">
+        <li><a href="#">All Courses</a></li>
+        <li><a href="#">Live Sessions</a></li>
+        <li><a href="#">DELF Prep</a></li>
+        <li><a href="#">Free Resources</a></li>
+        <li><a href="#">Podcast</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="foot-col-title">About</div>
+      <ul class="foot-links">
+        <li><a href="#">About Saloni</a></li>
+        <li><a href="#">Teaching Method</a></li>
+        <li><a href="#">Student Stories</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="foot-col-title">Support</div>
+      <ul class="foot-links">
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Refund Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2025 French with Saloni. All rights reserved.</span>
+    <span>Fait avec ❤️ pour l'amour du français</span>
+  </div>
+</footer>
+
+</body>
+</html>
