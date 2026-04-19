@@ -2518,7 +2518,7 @@
 
     <script>
       // ── CONFIG ─────────────────────────────────────────
-      const API = "http://localhost:3000";
+      const API = window.location.origin;
 
       // ── TOKEN HELPERS ──────────────────────────────────
       const getToken = () => localStorage.getItem("fws_token");
@@ -2723,23 +2723,41 @@
       }
 
       // ── ENROLL BUTTON ──────────────────────────────────
-      function handleEnroll(course) {
+      async function handleEnroll(course) {
         const token = getToken();
         if (!token) {
-          // Not logged in — open register modal with course pre-selected
           openModal("register");
           setTimeout(() => {
             document.getElementById("register-course").value = course;
           }, 100);
           showToast("Create an account to enroll in this course.", "success");
-        } else {
-          // Logged in — payment coming soon
-          showToast(
-            "Redirecting to payment... (Stripe coming soon!)",
-            "success",
-          );
-          // TODO: call createCheckoutSession when Stripe is ready
-          // handlePayment(course)
+          return;
+        }
+
+        // Logged in — create Stripe checkout session
+        try {
+          showToast("Redirecting to payment...", "success");
+
+          const res = await fetch(`${API}/payment/create-checkout-session`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ course }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            showToast(data.error || "Failed to start checkout.", "error");
+            return;
+          }
+
+          // Redirect to Stripe hosted checkout page
+          window.location.href = data.url;
+        } catch (err) {
+          showToast("Something went wrong. Please try again.", "error");
         }
       }
 
