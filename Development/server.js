@@ -36,7 +36,7 @@ app.use('/contact',     contactRoutes)
 app.get('/health', (_, res) => res.json({ status: 'ok' }))
 
 // ── Catch-all — serve index.html
-app.get('*', (req, res) => {
+app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'))
 })
 
