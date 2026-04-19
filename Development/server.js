@@ -19,7 +19,21 @@ const app = express()
 app.use('/payment/webhook', express.raw({ type: 'application/json' }))
 
 // ── Middleware
-app.use(helmet())
+// ── Middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:     ["'self'"],
+      scriptSrc:      ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      scriptSrcAttr:  ["'unsafe-inline'"],
+      styleSrc:       ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:        ["'self'", "https://fonts.gstatic.com"],
+      imgSrc:         ["'self'", "data:", "https:"],
+      connectSrc:     ["'self'", "https://*.supabase.co", "https://api.stripe.com"],
+      frameSrc:       ["'self'", "https://js.stripe.com", "https://checkout.stripe.com"],
+    }
+  }
+}))
 app.use(cors())
 app.use(express.json())
 
