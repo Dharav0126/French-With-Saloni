@@ -1,7 +1,7 @@
 export const COURSES = {
   'tef': {
     name:        'TEF Preparation',
-    amount:      50000,
+    amount:      1000,
     currency:    'usd',
     description: 'Intensive TEF program · 5 classes/week Mon–Fri 9PM–10PM EST'
   },
