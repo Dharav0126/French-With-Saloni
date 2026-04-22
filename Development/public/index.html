@@ -1835,7 +1835,6 @@
         <li><a href="#courses">Courses</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#intro-video">Intro Video</a></li>
-        <li><a href="#pricing">Pricing</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
       <!-- Logged OUT state -->
@@ -1855,10 +1854,23 @@
       <div class="hero-ring hero-ring-2"></div>
       <div class="hero-content">
         <div class="hero-eyebrow">
-          <div class="flag-mini">
-            <div class="f-b"></div>
-            <div class="f-w"></div>
-            <div class="f-r"></div>
+          <div class="flag-mini" style="position: relative; overflow: hidden">
+            <div style="width: 25%; background: #d80621; height: 100%"></div>
+            <div
+              style="
+                width: 50%;
+                background: #fff;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <span style="color: #d80621; font-size: 0.55rem; line-height: 1"
+                >🍁</span
+              >
+            </div>
+            <div style="width: 25%; background: #d80621; height: 100%"></div>
           </div>
           Learn Authentic French
         </div>
@@ -1898,68 +1910,113 @@
       </div>
       <div class="hero-visual">
         <div class="video-card">
-          <div class="hero-vid-placeholder">
-            <div class="play-outer">
-              <div class="play-ring"><div class="tri"></div></div>
-              <div class="play-hint">Watch Preview</div>
-            </div>
-          </div>
+          <video
+            controls
+            style="
+              width: 100%;
+              height: 100%;
+              object-fit: contain;
+              background: #000;
+              display: block;
+            "
+          >
+            <source src="./videos/intro.mp4" type="video/mp4" />
+          </video>
         </div>
         <div class="hero-badge">
           <div class="badge-ico">🎓</div>
           <div>
-            <div class="badge-title">DELF Certified Teacher</div>
-            <div class="badge-sub">Sorbonne Graduate · 8 yrs exp.</div>
+            <div class="badge-title">TEF Certified Teacher</div>
+            <div class="badge-sub">CLB C1</div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- INTRO VIDEO -->
+    <!-- TEF RESULTS SECTION -->
     <section class="intro-section" id="intro-video">
       <div class="intro-inner">
         <div>
-          <div class="intro-eyebrow">Meet Saloni</div>
+          <div class="intro-eyebrow">Proven Results</div>
           <h2 class="intro-title">
-            Your personal intro to<br /><em
-              style="font-style: italic; color: var(--sky)"
-              >French with Saloni</em
+            Saloni scored in the<br />
+            <em style="font-style: italic; color: var(--sky)"
+              >top percentile on TEF Canada</em
             >
           </h2>
           <p class="intro-desc">
-            Before you dive in, hear directly from Saloni — her teaching
-            philosophy, how her method works, and what to expect on your journey
-            to fluency.
+            Saloni doesn't just teach the TEF — she has taken it herself and
+            scored at the highest level. When you learn with her, you're
+            learning from someone who knows exactly what it takes to succeed.
           </p>
           <ul class="checklist">
             <li>
               <div class="chk">✓</div>
-              Saloni's story and why she teaches French
+              Real exam experience — not just theory
             </li>
             <li>
               <div class="chk">✓</div>
-              What makes this course genuinely different
+              Knows every section of the TEF inside out
             </li>
             <li>
               <div class="chk">✓</div>
-              A walkthrough of a sample lesson
+              Teaches proven strategies that actually work
             </li>
             <li>
               <div class="chk">✓</div>
-              How to find your level and get started
+              Her students consistently achieve CLB 7+
             </li>
           </ul>
           <button class="btn-blue" onclick="openModal('register')">
             Start Learning →
           </button>
         </div>
-        <div class="main-vid-frame">
-          <div class="vid-placeholder">
-            <div class="vid-add-badge">Add Video Here</div>
-            <div class="main-play"><div class="tri"></div></div>
-            <div class="vid-label">Intro Video</div>
-            <div class="vid-sublabel">
-              Replace this placeholder with your video
+
+        <!-- TEF Result Image -->
+        <div
+          style="
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 24px 70px rgba(10, 35, 66, 0.15);
+            position: relative;
+          "
+        >
+          <img
+            src="./Images/Result.jpeg"
+            alt="Saloni's TEF Result"
+            style="
+              width: 100%;
+              display: block;
+              object-fit: cover;
+              border-radius: 18px;
+            "
+          />
+          <!-- Badge overlay -->
+          <div
+            style="
+              position: absolute;
+              bottom: 1.5rem;
+              left: 1.5rem;
+              background: white;
+              padding: 0.8rem 1.2rem;
+              border-radius: 10px;
+              box-shadow: 0 8px 24px rgba(10, 35, 66, 0.15);
+              display: flex;
+              align-items: center;
+              gap: 0.7rem;
+            "
+          >
+            <div style="font-size: 1.5rem">🏆</div>
+            <div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: #0a2342">
+                TEF Canada
+              </div>
+              <div
+                style="font-size: 0.7rem; color: #5e7a99; margin-top: 0.1rem"
+              >
+                Top Percentile Score
+              </div>
             </div>
           </div>
         </div>
@@ -1967,7 +2024,7 @@
     </section>
 
     <!-- FEATURES -->
-    <section class="section" id="courses">
+    <section class="section" id="about">
       <div class="sec-head">
         <span class="eyebrow">Why French with Saloni</span>
         <h2 class="sec-title">A method built for real fluency</h2>
@@ -1986,7 +2043,26 @@
           </p>
         </div>
         <div class="feat-card">
-          <div class="feat-icon">🇫🇷</div>
+          <div class="feat-icon">
+            <div class="flag-mini" style="position: relative; overflow: hidden">
+              <div style="width: 25%; background: #d80621; height: 100%"></div>
+              <div
+                style="
+                  width: 50%;
+                  background: #fff;
+                  height: 100%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <span style="color: #d80621; font-size: 0.55rem; line-height: 1"
+                  >🍁</span
+                >
+              </div>
+              <div style="width: 25%; background: #d80621; height: 100%"></div>
+            </div>
+          </div>
           <h3 class="feat-title">Cultural Immersion</h3>
           <p class="feat-desc">
             Cinema, cuisine, literature, and everyday life woven into every
@@ -2005,13 +2081,13 @@
           <div class="feat-icon">📈</div>
           <h3 class="feat-title">Structured Progression</h3>
           <p class="feat-desc">
-            Clear A1 → B2 roadmap aligned with DELF standards so you always know
+            Clear A1 → B2 roadmap aligned with TEF standards so you always know
             exactly where you stand.
           </p>
         </div>
         <div class="feat-card">
           <div class="feat-icon">📝</div>
-          <h3 class="feat-title">DELF / DALF Prep</h3>
+          <h3 class="feat-title">TEF Prep</h3>
           <p class="feat-desc">
             Dedicated exam modules with mock tests, graded writing, and
             intensive oral coaching.
@@ -2029,7 +2105,7 @@
     </section>
 
     <!-- LEVELS -->
-    <section class="levels-sec">
+    <!-- <section class="levels-sec">
       <div class="sec-head" style="max-width: 680px; margin: 0 auto 4rem">
         <span class="eyebrow" style="color: var(--light)">Your Journey</span>
         <h2 class="sec-title" style="color: #fff">
@@ -2086,7 +2162,7 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
     <!-- INSTRUCTOR -->
     <section class="section" id="about">
@@ -2094,12 +2170,12 @@
         <div style="position: relative">
           <div class="instr-shape"><div class="instr-mono">S</div></div>
           <div class="instr-badge ib1">
-            <div class="ib-val">200K+</div>
-            <div class="ib-lbl">Podcast Listeners</div>
+            <div class="ib-val">C1</div>
+            <div class="ib-lbl">TEF Canada Score</div>
           </div>
           <div class="instr-badge ib2">
-            <div class="ib-val">Sorbonne</div>
-            <div class="ib-lbl">Graduate</div>
+            <div class="ib-val">2023</div>
+            <div class="ib-lbl">Certified</div>
           </div>
         </div>
         <div>
@@ -2111,33 +2187,44 @@
             >
           </h2>
           <p class="instr-bio">
-            With an M.A. in French Literature from the Sorbonne and over eight
-            years teaching across three continents, Saloni has guided thousands
-            of students from their very first "bonjour" to near-native fluency.
+            French changed my life — and yours could be next. I simply started
+            learning French on weekends, just to use my free time better. What
+            seemed like a small step turned into a life-changing decision.
+          </p>
+          <p class="instr-bio" style="margin-top: -1rem">
+            French helped me land all three of my jobs, and in 2023 I achieved
+            C1 in TEF Canada. Since then I've been helping school students and
+            professionals unlock the same opportunities — whether it's exams
+            like DELF/TEF or career and PR goals.
+          </p>
+          <p
+            class="instr-bio"
+            style="margin-top: -1rem; font-style: italic; color: var(--blue)"
+          >
+            Learning a new language doesn't just add a skill — it opens doors
+            you didn't even know existed.
           </p>
           <ul class="creds">
             <li class="cred-item">
               <div class="cred-dot"></div>
-              M.A. French Literature, Université Paris-Sorbonne
+              Achieved C1 in TEF Canada (2023)
             </li>
             <li class="cred-item">
               <div class="cred-dot"></div>
-              Certified DELF / DALF Examiner
+              French helped land 3 career opportunities
             </li>
             <li class="cred-item">
               <div class="cred-dot"></div>
-              8+ years teaching A1 through C1 levels
+              Helps students with DELF, TEF, career &amp; PR goals
             </li>
             <li class="cred-item">
               <div class="cred-dot"></div>
-              Host of "Café Français" podcast — 200K+ listeners
-            </li>
-            <li class="cred-item">
-              <div class="cred-dot"></div>
-              Featured in Le Monde, BBC Languages &amp; Duolingo Blog
+              Teaching school students and working professionals
             </li>
           </ul>
-          <a href="#intro-video" class="btn-blue">Watch My Intro ▶</a>
+          <button class="btn-blue" onclick="openModal('register')">
+            Start Your Journey →
+          </button>
         </div>
       </div>
     </section>
@@ -2198,7 +2285,7 @@
     </section>
 
     <!-- COURSES / PRICING -->
-    <section class="section" id="pricing">
+    <section class="section" id="courses">
       <div class="sec-head">
         <span class="eyebrow">Courses &amp; Pricing</span>
         <h2 class="sec-title">Choose your path to French fluency</h2>
@@ -2207,7 +2294,8 @@
         </p>
       </div>
       <div class="courses-grid">
-        <div class="course-card">
+        <div class="course-card popular">
+          <div class="pop-badge">⭐ Most Popular</div>
           <div class="course-tag">Beginner Friendly</div>
           <h3 class="course-name">
             Zero to CLB 7<br /><span
@@ -2254,8 +2342,7 @@
           </button>
         </div>
 
-        <div class="course-card popular">
-          <div class="pop-badge">⭐ Most Popular</div>
+        <div class="course-card">
           <div class="course-tag">Best Results</div>
           <h3 class="course-name">
             TEF Preparation<br /><span
@@ -2346,7 +2433,7 @@
           </button>
         </div>
 
-        <div class="course-card">
+        <!-- <div class="course-card">
           <div class="course-tag">Premium · 1-on-1</div>
           <h3 class="course-name">
             Private Classes<br /><span
@@ -2387,7 +2474,7 @@
           >
             Book a Call →
           </button>
-        </div>
+        </div> -->
       </div>
     </section>
 

@@ -3,7 +3,7 @@ import supabase from '../lib/supabase.js'
 
 const router = Router()
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res) => {  // ← must be POST
   const { full_name, email, course, message } = req.body
 
   if (!full_name || !email || !message) {
