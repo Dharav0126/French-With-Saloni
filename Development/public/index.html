@@ -1821,6 +1821,88 @@
       </div>
     </div>
 
+    <!-- ── REVIEW MODAL ── -->
+    <div class="modal-overlay" id="reviewModal">
+      <div class="modal">
+        <div class="modal-header">
+          <button class="modal-close" onclick="closeReviewModal()">✕</button>
+          <div class="modal-title">Leave a Review</div>
+          <div class="modal-sub">
+            Share your experience with French with Saloni
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="form-error" id="review-error"></div>
+          <div class="form-success" id="review-success"></div>
+
+          <!-- Star Rating -->
+          <div class="form-group">
+            <label class="form-label">Your Rating</label>
+            <div
+              id="star-rating"
+              style="display: flex; gap: 0.5rem; margin-top: 0.3rem"
+            >
+              <span
+                class="star"
+                data-value="1"
+                onclick="setRating(1)"
+                style="font-size: 2rem; cursor: pointer; color: #ccc"
+                >★</span
+              >
+              <span
+                class="star"
+                data-value="2"
+                onclick="setRating(2)"
+                style="font-size: 2rem; cursor: pointer; color: #ccc"
+                >★</span
+              >
+              <span
+                class="star"
+                data-value="3"
+                onclick="setRating(3)"
+                style="font-size: 2rem; cursor: pointer; color: #ccc"
+                >★</span
+              >
+              <span
+                class="star"
+                data-value="4"
+                onclick="setRating(4)"
+                style="font-size: 2rem; cursor: pointer; color: #ccc"
+                >★</span
+              >
+              <span
+                class="star"
+                data-value="5"
+                onclick="setRating(5)"
+                style="font-size: 2rem; cursor: pointer; color: #ccc"
+                >★</span
+              >
+            </div>
+          </div>
+
+          <!-- Review Text -->
+          <div class="form-group">
+            <label class="form-label">Your Review</label>
+            <textarea
+              class="form-textarea"
+              id="review-text"
+              placeholder="Share your experience — what did you achieve? How did Saloni help you?"
+              style="min-height: 140px"
+            >
+            </textarea>
+          </div>
+
+          <button
+            class="form-btn"
+            id="review-btn"
+            onclick="handleSubmitReview()"
+          >
+            Submit Review
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- NAV -->
     <nav>
       <div class="nav-logo">
@@ -1834,7 +1916,7 @@
       <ul class="nav-links">
         <li><a href="#courses">Courses</a></li>
         <li><a href="#about">About</a></li>
-        <li><a href="#intro-video">Intro Video</a></li>
+        <li><a href="#intro-video">Reviews</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
       <!-- Logged OUT state -->
@@ -2024,7 +2106,7 @@
     </section>
 
     <!-- FEATURES -->
-    <section class="section" id="about">
+    <section class="section" id="">
       <div class="sec-head">
         <span class="eyebrow">Why French with Saloni</span>
         <h2 class="sec-title">A method built for real fluency</h2>
@@ -2230,57 +2312,36 @@
     </section>
 
     <!-- TESTIMONIALS -->
+    <!-- TESTIMONIALS -->
     <section class="testi-sec">
       <div class="sec-head">
         <span class="eyebrow">Student Stories</span>
         <h2 class="sec-title">They found their French voice</h2>
       </div>
-      <div class="testi-grid">
-        <div class="testi-card">
-          <div class="stars">★★★★★</div>
-          <div class="qmark">"</div>
-          <p class="testi-text">
-            Saloni makes grammar feel intuitive. I went from tourist French to
-            full conversations in six months.
-          </p>
-          <div class="testi-author">
-            <div class="avatar">P</div>
-            <div>
-              <div class="auth-name">Priya Mehta</div>
-              <div class="auth-detail">B2 Level · Mumbai</div>
-            </div>
-          </div>
+      <div class="testi-grid" id="reviews-grid">
+        <!-- Reviews load dynamically -->
+        <div
+          style="
+            text-align: center;
+            grid-column: 1/-1;
+            color: var(--muted);
+            padding: 2rem;
+          "
+        >
+          Loading reviews...
         </div>
-        <div class="testi-card">
-          <div class="stars">★★★★★</div>
-          <div class="qmark">"</div>
-          <p class="testi-text">
-            The cultural content is what sets this apart. I feel like I'm being
-            welcomed into a whole world.
-          </p>
-          <div class="testi-author">
-            <div class="avatar">J</div>
-            <div>
-              <div class="auth-name">James Holloway</div>
-              <div class="auth-detail">B1 Level · London</div>
-            </div>
-          </div>
-        </div>
-        <div class="testi-card">
-          <div class="stars">★★★★★</div>
-          <div class="qmark">"</div>
-          <p class="testi-text">
-            Passed my TEF B2 on the first attempt. Saloni's feedback genuinely
-            transformed my writing.
-          </p>
-          <div class="testi-author">
-            <div class="avatar">A</div>
-            <div>
-              <div class="auth-name">Ananya Sharma</div>
-              <div class="auth-detail">TEF B2 · Delhi</div>
-            </div>
-          </div>
-        </div>
+      </div>
+
+      <!-- Leave a review button — only shows when logged in and enrolled -->
+      <div style="text-align: center; margin-top: 3rem" id="review-btn-wrap">
+        <button
+          class="btn-blue"
+          id="leave-review-btn"
+          onclick="openReviewModal()"
+          style="display: none"
+        >
+          ✍️ Leave a Review
+        </button>
       </div>
     </section>
 
@@ -2541,9 +2602,7 @@
     <!-- CTA -->
     <section class="cta-sec">
       <h2 class="cta-title">Votre histoire française commence aujourd'hui</h2>
-      <p class="cta-sub">
-        Join 12,000+ students. Your first 7 days are completely free.
-      </p>
+      <p class="cta-sub">Join 12,000+ students. Free Demo Provided.</p>
       <button
         class="btn-white"
         onclick="openModal('register')"

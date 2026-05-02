@@ -9,6 +9,7 @@ import authRoutes from './routes/auth.js'
 import paymentRoutes from './routes/payment.js'
 import enrollmentRoutes from './routes/enrollment.js'
 import contactRoutes from './routes/contact.js'
+import reviewRoutes from './routes/reviews.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname  = path.dirname(__filename)
@@ -45,6 +46,7 @@ app.use('/auth',        authRoutes)
 app.use('/payment',     paymentRoutes)
 app.use('/enrollments', enrollmentRoutes)
 app.use('/contact',     contactRoutes)
+app.use('/reviews', reviewRoutes)
 
 // ── Health check
 app.get('/health', (_, res) => res.json({ status: 'ok' }))
