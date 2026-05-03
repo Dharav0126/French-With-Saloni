@@ -2744,12 +2744,12 @@
           authBtn.style.display = "none";
           navUser.classList.add("visible");
           navUserName.textContent = `👋 ${user.full_name?.split(" ")[0] || "Student"}`;
+          checkEnrollmentForReview();
         } else {
           authBtn.style.display = "block";
           navUser.classList.remove("visible");
         }
       }
-
       // ── REGISTER ───────────────────────────────────────
       async function handleRegister() {
         hideFormMessages("register");
@@ -2972,9 +2972,161 @@
             handleRegister();
         }
       });
+      // ── REVIEW MODAL ───────────────────────────────────
+      let selectedRating = 0;
+
+      function setRating(value) {
+        selectedRating = value;
+        document.querySelectorAll(".star").forEach((star) => {
+          star.style.color =
+            parseInt(star.dataset.value) <= value ? "#F0C040" : "#ccc";
+        });
+      }
+
+      function openReviewModal() {
+        const token = getToken();
+        if (!token) {
+          openModal("login");
+          return;
+        }
+        document.getElementById("reviewModal").classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeReviewModal() {
+        document.getElementById("reviewModal").classList.remove("open");
+        document.body.style.overflow = "";
+      }
+
+      document
+        .getElementById("reviewModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeReviewModal();
+        });
+
+      async function handleSubmitReview() {
+        const review_text = document.getElementById("review-text").value.trim();
+        document.getElementById("review-error").classList.remove("visible");
+        document.getElementById("review-success").classList.remove("visible");
+
+        if (!selectedRating) {
+          document.getElementById("review-error").textContent =
+            "Please select a star rating.";
+          document.getElementById("review-error").classList.add("visible");
+          return;
+        }
+        if (!review_text) {
+          document.getElementById("review-error").textContent =
+            "Please write your review.";
+          document.getElementById("review-error").classList.add("visible");
+          return;
+        }
+
+        const btn = document.getElementById("review-btn");
+        btn.disabled = true;
+        btn.textContent = "Submitting...";
+
+        try {
+          const res = await fetch(`${API}/reviews`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${getToken()}`,
+            },
+            body: JSON.stringify({ rating: selectedRating, review_text }),
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            document.getElementById("review-error").textContent =
+              data.error || "Failed to submit review.";
+            document.getElementById("review-error").classList.add("visible");
+          } else {
+            document.getElementById("review-success").textContent =
+              "🎉 Review submitted! It will appear after approval.";
+            document.getElementById("review-success").classList.add("visible");
+            document.getElementById("review-text").value = "";
+            selectedRating = 0;
+            setRating(0);
+            setTimeout(() => closeReviewModal(), 2500);
+          }
+        } catch {
+          document.getElementById("review-error").textContent =
+            "Server error. Please try again.";
+          document.getElementById("review-error").classList.add("visible");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Submit Review";
+        }
+      }
 
       // ── INIT ───────────────────────────────────────────
       updateNavState();
+      // ── LOAD REVIEWS ───────────────────────────────────
+      async function loadReviews() {
+        try {
+          const res = await fetch(`${API}/reviews`);
+          const data = await res.json();
+          const grid = document.getElementById("reviews-grid");
+
+          if (!data.reviews || data.reviews.length === 0) {
+            grid.innerHTML = `
+        <div style="text-align:center;grid-column:1/-1;color:var(--muted);padding:2rem;">
+          No reviews yet — be the first to share your experience!
+        </div>`;
+            return;
+          }
+
+          grid.innerHTML = data.reviews
+            .map(
+              (r) => `
+      <div class="testi-card">
+        <div class="stars">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</div>
+        <div class="qmark">"</div>
+        <p class="testi-text">${r.review_text}</p>
+        <div class="testi-author">
+          <div class="avatar">${r.full_name.charAt(0).toUpperCase()}</div>
+          <div>
+            <div class="auth-name">${r.full_name}</div>
+            <div class="auth-detail">${formatCourse(r.course)}</div>
+          </div>
+        </div>
+      </div>
+    `,
+            )
+            .join("");
+        } catch (err) {
+          console.error("Failed to load reviews:", err);
+        }
+      }
+
+      function formatCourse(course) {
+        const map = {
+          tef: "TEF Preparation",
+          "clb7-6mo": "Zero to CLB 7 — 6 months",
+          "clb7-4mo": "Zero to CLB 7 — 4 months",
+          "1on1": "1-on-1 Private Classes",
+        };
+        return map[course] || course;
+      }
+      loadReviews();
+
+      // ── SHOW REVIEW BUTTON IF ENROLLED ─────────────────
+      async function checkEnrollmentForReview() {
+        const token = getToken();
+        if (!token) return;
+
+        try {
+          const res = await fetch(`${API}/enrollments/check`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (res.ok) {
+            document.getElementById("leave-review-btn").style.display =
+              "inline-block";
+          }
+        } catch {}
+      }
     </script>
   </body>
 </html>

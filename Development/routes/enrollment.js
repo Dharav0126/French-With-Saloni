@@ -7,10 +7,24 @@ import {
 } from '../controllers/enrollmentController.js'
 import verifyJWT from '../middleware/verifyJWT.js'
 import isAdmin from '../middleware/isAdmin.js'
+import supabase from '../lib/supabase.js'
 
 const router = Router()
 
-// All enrollment routes require login + admin role
+// ── Check enrollment — any logged in student ──
+router.get('/check', verifyJWT, async (req, res) => {
+  const { data } = await supabase
+    .from('enrollments')
+    .select('course, status')
+    .eq('student_id', req.user.sub)
+    .eq('status', 'active')
+    .single()
+
+  if (!data) return res.status(404).json({ enrolled: false })
+  return res.status(200).json({ enrolled: true, course: data.course })
+})
+
+// ── Admin only routes ─────────────────────────
 router.use(verifyJWT, isAdmin)
 
 router.get('/',                     getAllEnrollments)
