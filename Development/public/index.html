@@ -2573,6 +2573,10 @@
               />
             </div>
             <div class="form-group">
+  <label class="form-label">Phone Number</label>
+  <input class="form-input" type="tel" id="contact-phone" placeholder="+1 234 567 8900"/>
+</div>
+            <div class="form-group">
               <label class="form-label">Course Interest</label>
               <select class="form-select" id="contact-course">
                 <option value="">Select a course</option>
@@ -2912,6 +2916,7 @@
         hideFormMessages("contact");
         const full_name = document.getElementById("contact-name").value.trim();
         const email = document.getElementById("contact-email").value.trim();
+        const phone = document.getElementById("contact-phone").value.trim();
         const course = document.getElementById("contact-course").value;
         const message = document.getElementById("contact-message").value.trim();
 
@@ -2930,7 +2935,7 @@
           const res = await fetch(`${API}/contact`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ full_name, email, course, message }),
+            body: JSON.stringify({ full_name, email, phone, course, message }),
           });
           const data = await res.json();
 
@@ -3060,8 +3065,36 @@
         }
       }
 
+      // ── VERIFY TOKEN ON LOAD ───────────────────────────
+async function verifyTokenOnLoad() {
+  const token = getToken()
+  if (!token) return
+
+  try {
+    const res = await fetch(`${API}/auth/me`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+
+    if (!res.ok) {
+      // Token expired or invalid — clear everything
+      clearAuth()
+      updateNavState()
+      return
+    }
+
+    const data = await res.json()
+    // Update stored user with fresh data from server
+    const currentUser = getUser()
+    setUser({ ...currentUser, full_name: data.user.full_name })
+    updateNavState()
+
+  } catch {
+    // If server unreachable just keep cached data
+  }
+}
+
       // ── INIT ───────────────────────────────────────────
-      updateNavState();
+      verifyTokenOnLoad()
       // ── LOAD REVIEWS ───────────────────────────────────
       async function loadReviews() {
         try {

@@ -10,6 +10,8 @@ import paymentRoutes from './routes/payment.js'
 import enrollmentRoutes from './routes/enrollment.js'
 import contactRoutes from './routes/contact.js'
 import reviewRoutes from './routes/reviews.js'
+import adminRoutes from './routes/admin.js'
+
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname  = path.dirname(__filename)
@@ -35,7 +37,15 @@ app.use(helmet({
     }
   }
 }))
-app.use(cors())
+app.use(cors({
+  origin: [
+    'http://127.0.0.1:5500',
+    'http://localhost:5500',
+    'http://127.0.0.1:3000',
+    process.env.CLIENT_URL
+  ],
+  credentials: true
+}))
 app.use(express.json())
 
 // ── Serve frontend static files
@@ -47,6 +57,7 @@ app.use('/payment',     paymentRoutes)
 app.use('/enrollments', enrollmentRoutes)
 app.use('/contact',     contactRoutes)
 app.use('/reviews', reviewRoutes)
+app.use('/admin', adminRoutes)
 
 // ── Health check
 app.get('/health', (_, res) => res.json({ status: 'ok' }))

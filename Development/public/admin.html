@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel — French with Saloni</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #0a2342;
+        --blue: #1355a0;
+        --sky: #2e7fd9;
+        --light: #5ba4f5;
+        --pale: #d6e8ff;
+        --frost: #eef5ff;
+        --white: #ffffff;
+        --gold: #f0c040;
+        --muted: #5e7a99;
+        --green: #10b981;
+        --red: #ef4444;
+        --sidebar-w: 240px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Nunito", sans-serif;
+        background: var(--frost);
+        color: var(--navy);
+        min-height: 100vh;
+        display: flex;
+      }
+
+      /* ── LOGIN SCREEN ── */
+      .login-screen {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(135deg, var(--navy), var(--blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .login-screen.hidden {
+        display: none;
+      }
+      .login-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+      }
+      .login-logo {
+        font-family: "Libre Baskerville", serif;
+        font-size: 1.3rem;
+        color: var(--navy);
+        margin-bottom: 0.3rem;
+      }
+      .login-logo span {
+        color: var(--sky);
+        font-style: italic;
+      }
+      .login-sub {
+        font-size: 0.82rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+      }
+      .login-label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 0.4rem;
+        letter-spacing: 0.04em;
+      }
+      .login-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1.5px solid rgba(19, 85, 160, 0.15);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-family: "Nunito", sans-serif;
+        color: var(--navy);
+        outline: none;
+        margin-bottom: 1rem;
+        transition: border-color 0.25s;
+      }
+      .login-input:focus {
+        border-color: var(--sky);
+      }
+      .login-btn {
+        width: 100%;
+        padding: 0.9rem;
+        background: var(--blue);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        font-family: "Nunito", sans-serif;
+        cursor: pointer;
+        transition: background 0.25s;
+      }
+      .login-btn:hover {
+        background: var(--sky);
+      }
+      .login-error {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 0.6rem 0.9rem;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        margin-bottom: 1rem;
+        display: none;
+      }
+      .login-error.visible {
+        display: block;
+      }
+
+      /* ── SIDEBAR ── */
+      .sidebar {
+        width: var(--sidebar-w);
+        background: var(--navy);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 100;
+      }
+      .sidebar-brand {
+        padding: 1.8rem 1.5rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sidebar-brand-name {
+        font-family: "Libre Baskerville", serif;
+        font-size: 1rem;
+        color: #fff;
+      }
+      .sidebar-brand-name span {
+        color: var(--light);
+        font-style: italic;
+      }
+      .sidebar-badge {
+        display: inline-block;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        background: rgba(240, 192, 64, 0.2);
+        color: var(--gold);
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        margin-top: 0.4rem;
+      }
+      .sidebar-nav {
+        flex: 1;
+        padding: 1rem 0;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.55);
+        cursor: pointer;
+        transition: all 0.25s;
+        border-left: 3px solid transparent;
+      }
+      .nav-item:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .nav-item.active {
+        color: #fff;
+        background: rgba(46, 127, 217, 0.2);
+        border-left-color: var(--sky);
+      }
+      .nav-item-icon {
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
+      }
+      .sidebar-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sidebar-user {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.45);
+        margin-bottom: 0.8rem;
+      }
+      .sidebar-logout {
+        width: 100%;
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.07);
+        color: rgba(255, 255, 255, 0.6);
+        border: none;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-family: "Nunito", sans-serif;
+        cursor: pointer;
+        transition: all 0.25s;
+      }
+      .sidebar-logout:hover {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fff;
+      }
+
+      /* ── MAIN ── */
+      .main {
+        margin-left: var(--sidebar-w);
+        flex: 1;
+        padding: 2rem;
+      }
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+      }
+      .page-title {
+        font-family: "Libre Baskerville", serif;
+        font-size: 1.8rem;
+        color: var(--navy);
+        margin-bottom: 0.4rem;
+      }
+      .page-sub {
+        font-size: 0.88rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+      }
+
+      /* ── STATS ── */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.2rem;
+        margin-bottom: 2rem;
+      }
+      .stat-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.5rem;
+        border: 1px solid rgba(19, 85, 160, 0.08);
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+      }
+      .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(10, 35, 66, 0.1);
+      }
+      .stat-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.8rem;
+      }
+      .stat-val {
+        font-family: "Libre Baskerville", serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--navy);
+        line-height: 1;
+      }
+      .stat-lbl {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 0.3rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      /* ── TABLE ── */
+      .table-card {
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid rgba(19, 85, 160, 0.08);
+        overflow: hidden;
+      }
+      .table-header {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid rgba(19, 85, 160, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .table-title {
+        font-family: "Libre Baskerville", serif;
+        font-size: 1.1rem;
+        color: var(--navy);
+      }
+      .table-count {
+        font-size: 0.8rem;
+        color: var(--muted);
+        background: var(--frost);
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        text-align: left;
+        padding: 0.8rem 1.2rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        border-bottom: 1px solid var(--frost);
+      }
+      td {
+        padding: 0.9rem 1.2rem;
+        font-size: 0.87rem;
+        color: var(--navy);
+        border-bottom: 1px solid var(--frost);
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: var(--frost);
+      }
+      .empty-row td {
+        text-align: center;
+        color: var(--muted);
+        padding: 2.5rem;
+        font-style: italic;
+      }
+
+      /* ── BADGES ── */
+      .badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+      }
+      .badge-pending {
+        background: rgba(240, 192, 64, 0.15);
+        color: #b45309;
+      }
+      .badge-approved {
+        background: rgba(16, 185, 129, 0.12);
+        color: #065f46;
+      }
+      .badge-rejected {
+        background: rgba(239, 68, 68, 0.12);
+        color: #991b1b;
+      }
+      .badge-active {
+        background: rgba(16, 185, 129, 0.12);
+        color: #065f46;
+      }
+      .badge-inactive {
+        background: rgba(239, 68, 68, 0.12);
+        color: #991b1b;
+      }
+
+      /* ── ACTION BUTTONS ── */
+      .btn-sm {
+        padding: 0.35rem 0.9rem;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        font-family: "Nunito", sans-serif;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+      }
+      .btn-approve {
+        background: rgba(16, 185, 129, 0.12);
+        color: var(--green);
+      }
+      .btn-approve:hover {
+        background: var(--green);
+        color: #fff;
+      }
+      .btn-reject {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--red);
+      }
+      .btn-reject:hover {
+        background: var(--red);
+        color: #fff;
+      }
+      .btn-activate {
+        background: rgba(16, 185, 129, 0.12);
+        color: var(--green);
+      }
+      .btn-activate:hover {
+        background: var(--green);
+        color: #fff;
+      }
+      .btn-deactivate {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--red);
+      }
+      .btn-deactivate:hover {
+        background: var(--red);
+        color: #fff;
+      }
+      .btn-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      /* ── REVIEW TEXT ── */
+      .review-text-cell {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .stars-cell {
+        color: var(--gold);
+        letter-spacing: 0.05em;
+      }
+
+      /* ── TOAST ── */
+      .toast {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 2000;
+        background: var(--navy);
+        color: #fff;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        box-shadow: 0 8px 30px rgba(10, 35, 66, 0.25);
+        transform: translateY(80px);
+        opacity: 0;
+        transition: all 0.35s ease;
+        max-width: 320px;
+      }
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      .toast.success {
+        border-left: 4px solid var(--green);
+      }
+      .toast.error {
+        border-left: 4px solid var(--red);
+      }
+
+      /* ── LOADING ── */
+      .loading {
+        text-align: center;
+        padding: 3rem;
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      @media (max-width: 1024px) {
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .main {
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ── LOGIN SCREEN ── -->
+    <div class="login-screen" id="loginScreen">
+      <div class="login-card">
+        <div class="login-logo">French with <span>Saloni</span></div>
+        <div class="login-sub">Admin Panel — sign in to continue</div>
+        <div class="login-error" id="login-error"></div>
+        <label class="login-label">Email Address</label>
+        <input
+          class="login-input"
+          type="email"
+          id="admin-email"
+          placeholder="saloni@example.com"
+        />
+        <label class="login-label">Password</label>
+        <input
+          class="login-input"
+          type="password"
+          id="admin-password"
+          placeholder="Your password"
+        />
+        <button class="login-btn" onclick="handleAdminLogin()">
+          Sign In to Admin
+        </button>
+      </div>
+    </div>
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-name">French with <span>Saloni</span></div>
+        <div class="sidebar-badge">Admin Panel</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item active" onclick="showPage('dashboard')">
+          <span class="nav-item-icon">📊</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="showPage('reviews')">
+          <span class="nav-item-icon">⭐</span> Reviews
+        </div>
+        <div class="nav-item" onclick="showPage('students')">
+          <span class="nav-item-icon">👥</span> Students
+        </div>
+        <div class="nav-item" onclick="showPage('enrollments')">
+          <span class="nav-item-icon">📚</span> Enrollments
+        </div>
+        <div class="nav-item" onclick="showPage('contacts')">
+          <span class="nav-item-icon">✉️</span> Contacts
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user" id="sidebar-user-name">
+          Signed in as Admin
+        </div>
+        <button class="sidebar-logout" onclick="handleAdminLogout()">
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="main">
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">
+          Welcome back, Saloni. Here's what's happening.
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-val" id="stat-students">—</div>
+            <div class="stat-lbl">Total Students</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-val" id="stat-enrollments">—</div>
+            <div class="stat-lbl">Active Enrollments</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-val" id="stat-reviews">—</div>
+            <div class="stat-lbl">Pending Reviews</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✉️</div>
+            <div class="stat-val" id="stat-contacts">—</div>
+            <div class="stat-lbl">New Contacts</div>
+          </div>
+        </div>
+
+        <!-- Recent pending reviews -->
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Pending Reviews</div>
+            <div class="table-count" id="pending-count">0 pending</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Course</th>
+                <th>Rating</th>
+                <th>Review</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-reviews-body">
+              <tr class="empty-row">
+                <td colspan="5">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- REVIEWS -->
+      <div class="page" id="page-reviews">
+        <div class="page-title">Reviews</div>
+        <div class="page-sub">
+          Approve or reject student reviews before they appear on the website.
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">All Reviews</div>
+            <div class="table-count" id="reviews-count">Loading...</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Course</th>
+                <th>Rating</th>
+                <th>Review</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reviews-body">
+              <tr class="empty-row">
+                <td colspan="7">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- STUDENTS -->
+      <div class="page" id="page-students">
+        <div class="page-title">Students</div>
+        <div class="page-sub">All registered students on the platform.</div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">All Students</div>
+            <div class="table-count" id="students-count">Loading...</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Course Interest</th>
+                <th>Role</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="students-body">
+              <tr class="empty-row">
+                <td colspan="6">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ENROLLMENTS -->
+      <div class="page" id="page-enrollments">
+        <div class="page-title">Enrollments</div>
+        <div class="page-sub">
+          Manage student enrollments — activate or deactivate access.
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">All Enrollments</div>
+            <div class="table-count" id="enrollments-count">Loading...</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Email</th>
+                <th>Course</th>
+                <th>Status</th>
+                <th>Enrolled On</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="enrollments-body">
+              <tr class="empty-row">
+                <td colspan="6">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CONTACTS -->
+      <div class="page" id="page-contacts">
+        <div class="page-title">Contact Submissions</div>
+        <div class="page-sub">
+          Messages sent through the contact form on the website.
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">All Messages</div>
+            <div class="table-count" id="contacts-count">Loading...</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Course Interest</th>
+                <th>Message</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="contacts-body">
+              <tr class="empty-row">
+                <td colspan="5">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const API =
+        window.location.hostname === "127.0.0.1" ||
+        window.location.hostname === "localhost"
+          ? "http://localhost:3000"
+          : window.location.origin;
+      let adminToken = localStorage.getItem("fws_admin_token");
+      let currentPage = "dashboard";
+
+      // ── TOAST ─────────────────────────────────────────
+      function showToast(msg, type = "success") {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.className = `toast ${type} show`;
+        setTimeout(() => t.classList.remove("show"), 3500);
+      }
+
+      // ── FORMAT HELPERS ─────────────────────────────────
+      function formatDate(d) {
+        return new Date(d).toLocaleDateString("en-CA", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      }
+
+      function formatCourse(course) {
+        const map = {
+          tef: "TEF Preparation",
+          "clb7-6mo": "CLB 7 — 6 months",
+          "clb7-4mo": "CLB 7 — 4 months",
+          "1on1": "1-on-1 Private",
+        };
+        return map[course] || course || "—";
+      }
+
+      // ── LOGIN ──────────────────────────────────────────
+      async function handleAdminLogin() {
+        const email = document.getElementById("admin-email").value.trim();
+        const password = document.getElementById("admin-password").value;
+        const errEl = document.getElementById("login-error");
+        errEl.classList.remove("visible");
+
+        if (!email || !password) {
+          errEl.textContent = "Please enter email and password.";
+          errEl.classList.add("visible");
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            errEl.textContent = data.error || "Login failed.";
+            errEl.classList.add("visible");
+            return;
+          }
+
+          // Check if admin
+          if (data.user.role !== "admin") {
+            errEl.textContent = "Access denied. Admin only.";
+            errEl.classList.add("visible");
+            return;
+          }
+
+          adminToken = data.accessToken;
+          localStorage.setItem("fws_admin_token", adminToken);
+          document.getElementById("sidebar-user-name").textContent =
+            `Signed in as ${data.user.full_name?.split(" ")[0] || "Admin"}`;
+          document.getElementById("loginScreen").classList.add("hidden");
+          loadDashboard();
+        } catch {
+          errEl.textContent = "Server error. Please try again.";
+          errEl.classList.add("visible");
+        }
+      }
+
+      // ── LOGOUT ─────────────────────────────────────────
+      function handleAdminLogout() {
+        localStorage.removeItem("fws_admin_token");
+        adminToken = null;
+        document.getElementById("loginScreen").classList.remove("hidden");
+      }
+
+      // ── AUTH HEADER ────────────────────────────────────
+      const authHeaders = () => ({
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminToken}`,
+      });
+
+      // ── PAGE NAVIGATION ────────────────────────────────
+      function showPage(page) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((n) => n.classList.remove("active"));
+        document.getElementById(`page-${page}`).classList.add("active");
+        event.currentTarget.classList.add("active");
+        currentPage = page;
+
+        if (page === "dashboard") loadDashboard();
+        if (page === "reviews") loadReviews();
+        if (page === "students") loadStudents();
+        if (page === "enrollments") loadEnrollments();
+        if (page === "contacts") loadContacts();
+      }
+
+      // ── DASHBOARD ──────────────────────────────────────
+      async function loadDashboard() {
+        try {
+          // Load all data in parallel
+          const [reviewsRes, studentsRes, enrollmentsRes, contactsRes] =
+            await Promise.all([
+              fetch(`${API}/reviews/admin`, { headers: authHeaders() }),
+              fetch(`${API}/admin/students`, { headers: authHeaders() }),
+              fetch(`${API}/enrollments`, { headers: authHeaders() }),
+              fetch(`${API}/admin/contacts`, { headers: authHeaders() }),
+            ]);
+
+          const reviewsData = await reviewsRes.json();
+          const studentsData = await studentsRes.json();
+          const enrollmentsData = await enrollmentsRes.json();
+          const contactsData = await contactsRes.json();
+
+          const allReviews = reviewsData.reviews || [];
+          const pendingReviews = allReviews.filter(
+            (r) => r.status === "pending",
+          );
+          const allStudents = studentsData.students || [];
+          const allEnrollments = enrollmentsData.enrollments || [];
+          const activeEnroll = allEnrollments.filter(
+            (e) => e.status === "active",
+          );
+          const allContacts = contactsData.contacts || [];
+
+          // Stats
+          document.getElementById("stat-students").textContent =
+            allStudents.length;
+          document.getElementById("stat-enrollments").textContent =
+            activeEnroll.length;
+          document.getElementById("stat-reviews").textContent =
+            pendingReviews.length;
+          document.getElementById("stat-contacts").textContent =
+            allContacts.length;
+          document.getElementById("pending-count").textContent =
+            `${pendingReviews.length} pending`;
+
+          // Pending reviews table
+          const tbody = document.getElementById("dashboard-reviews-body");
+          if (pendingReviews.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No pending reviews 🎉</td></tr>`;
+            return;
+          }
+          tbody.innerHTML = pendingReviews
+            .map(
+              (r) => `
+        <tr>
+          <td>${r.full_name}</td>
+          <td>${formatCourse(r.course)}</td>
+          <td class="stars-cell">${"★".repeat(r.rating)}</td>
+          <td class="review-text-cell" title="${r.review_text}">${r.review_text}</td>
+          <td>
+            <div class="btn-actions">
+              <button class="btn-sm btn-approve" onclick="updateReview('${r.id}','approved')">✓ Approve</button>
+              <button class="btn-sm btn-reject"  onclick="updateReview('${r.id}','rejected')">✕ Reject</button>
+            </div>
+          </td>
+        </tr>
+      `,
+            )
+            .join("");
+        } catch (err) {
+          console.error("Dashboard load error:", err);
+        }
+      }
+
+      // ── REVIEWS ────────────────────────────────────────
+      async function loadReviews() {
+        const tbody = document.getElementById("reviews-body");
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Loading...</td></tr>`;
+
+        try {
+          const res = await fetch(`${API}/reviews/admin`, {
+            headers: authHeaders(),
+          });
+          const data = await res.json();
+          const reviews = data.reviews || [];
+
+          document.getElementById("reviews-count").textContent =
+            `${reviews.length} total`;
+
+          if (reviews.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No reviews yet</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = reviews
+            .map(
+              (r) => `
+        <tr>
+          <td>${r.full_name}</td>
+          <td>${formatCourse(r.course)}</td>
+          <td class="stars-cell">${"★".repeat(r.rating)}</td>
+          <td class="review-text-cell" title="${r.review_text}">${r.review_text}</td>
+          <td><span class="badge badge-${r.status}">${r.status}</span></td>
+          <td>${formatDate(r.created_at)}</td>
+          <td>
+            <div class="btn-actions">
+              ${r.status !== "approved" ? `<button class="btn-sm btn-approve" onclick="updateReview('${r.id}','approved')">✓ Approve</button>` : ""}
+              ${r.status !== "rejected" ? `<button class="btn-sm btn-reject"  onclick="updateReview('${r.id}','rejected')">✕ Reject</button>` : ""}
+            </div>
+          </td>
+        </tr>
+      `,
+            )
+            .join("");
+        } catch (err) {
+          tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Failed to load reviews</td></tr>`;
+        }
+      }
+
+      async function updateReview(id, status) {
+        try {
+          const res = await fetch(`${API}/reviews/${id}/status`, {
+            method: "PATCH",
+            headers: authHeaders(),
+            body: JSON.stringify({ status }),
+          });
+
+          if (res.ok) {
+            showToast(`Review ${status} successfully!`, "success");
+            loadReviews();
+            loadDashboard();
+          } else {
+            showToast("Failed to update review", "error");
+          }
+        } catch {
+          showToast("Server error", "error");
+        }
+      }
+
+      // ── STUDENTS ───────────────────────────────────────
+      async function loadStudents() {
+        const tbody = document.getElementById("students-body");
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Loading...</td></tr>`;
+
+        try {
+          const res = await fetch(`${API}/admin/students`, {
+            headers: authHeaders(),
+          });
+          const data = await res.json();
+          const students = data.students || [];
+
+          document.getElementById("students-count").textContent =
+            `${students.length} total`;
+
+          if (students.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No students yet</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = students
+            .map(
+              (s) => `
+        <tr>
+          <td><strong>${s.full_name}</strong></td>
+          <td>${s.email}</td>
+          <td>${s.phone || "—"}</td>
+          <td>${formatCourse(s.course)}</td>
+          <td><span class="badge ${s.role === "admin" ? "badge-approved" : "badge-active"}">${s.role}</span></td>
+          <td>${formatDate(s.created_at)}</td>
+        </tr>
+      `,
+            )
+            .join("");
+        } catch (err) {
+          tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load students</td></tr>`;
+        }
+      }
+
+      // ── ENROLLMENTS ────────────────────────────────────
+      async function loadEnrollments() {
+        const tbody = document.getElementById("enrollments-body");
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Loading...</td></tr>`;
+
+        try {
+          const res = await fetch(`${API}/enrollments`, {
+            headers: authHeaders(),
+          });
+          const data = await res.json();
+          const enrollments = data.enrollments || [];
+
+          document.getElementById("enrollments-count").textContent =
+            `${enrollments.length} total`;
+
+          if (enrollments.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No enrollments yet</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = enrollments
+            .map(
+              (e) => `
+        <tr>
+          <td><strong>${e.students?.full_name || "—"}</strong></td>
+          <td>${e.students?.email || "—"}</td>
+          <td>${formatCourse(e.course)}</td>
+          <td><span class="badge badge-${e.status}">${e.status}</span></td>
+          <td>${formatDate(e.enrolled_at)}</td>
+          <td>
+            <div class="btn-actions">
+              ${
+                e.status === "active"
+                  ? `<button class="btn-sm btn-deactivate" onclick="updateEnrollment('${e.student_id}','inactive')">Deactivate</button>`
+                  : `<button class="btn-sm btn-activate"   onclick="updateEnrollment('${e.student_id}','active')">Activate</button>`
+              }
+            </div>
+          </td>
+        </tr>
+      `,
+            )
+            .join("");
+        } catch (err) {
+          tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load enrollments</td></tr>`;
+        }
+      }
+
+      async function updateEnrollment(studentId, status) {
+        try {
+          const res = await fetch(`${API}/enrollments/${studentId}/status`, {
+            method: "PATCH",
+            headers: authHeaders(),
+            body: JSON.stringify({ status }),
+          });
+
+          if (res.ok) {
+            showToast(`Enrollment ${status}d successfully!`, "success");
+            loadEnrollments();
+          } else {
+            showToast("Failed to update enrollment", "error");
+          }
+        } catch {
+          showToast("Server error", "error");
+        }
+      }
+
+      // ── CONTACTS ───────────────────────────────────────
+      async function loadContacts() {
+        const tbody = document.getElementById("contacts-body");
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Loading...</td></tr>`;
+
+        try {
+          const res = await fetch(`${API}/admin/contacts`, {
+            headers: authHeaders(),
+          });
+          const data = await res.json();
+          const contacts = data.contacts || [];
+
+          document.getElementById("contacts-count").textContent =
+            `${contacts.length} total`;
+
+          if (contacts.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No messages yet</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = contacts
+            .map(
+              (c) => `
+  <tr>
+    <td><strong>${c.full_name}</strong></td>
+    <td>${c.email}</td>
+    <td>${c.phone || "—"}</td>
+    <td>${formatCourse(c.course)}</td>
+    <td class="review-text-cell" title="${c.message}">${c.message}</td>
+    <td>${formatDate(c.created_at)}</td>
+  </tr>
+`,
+            )
+            .join("");
+        } catch (err) {
+          tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Failed to load contacts</td></tr>`;
+        }
+      }
+
+      // ── ENTER KEY LOGIN ────────────────────────────────
+      document.addEventListener("keydown", (e) => {
+        if (
+          e.key === "Enter" &&
+          !document.getElementById("loginScreen").classList.contains("hidden")
+        ) {
+          handleAdminLogin();
+        }
+      });
+
+      // ── INIT ───────────────────────────────────────────
+      if (adminToken) {
+        document.getElementById("loginScreen").classList.add("hidden");
+        loadDashboard();
+      }
+    </script>
+  </body>
+</html>
