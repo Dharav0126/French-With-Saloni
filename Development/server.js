@@ -11,6 +11,7 @@ import enrollmentRoutes from './routes/enrollment.js'
 import contactRoutes from './routes/contact.js'
 import reviewRoutes from './routes/reviews.js'
 import adminRoutes from './routes/admin.js'
+import studentRoutes from './routes/student.js'
 
 
 const __filename = fileURLToPath(import.meta.url)
@@ -20,20 +21,22 @@ const app = express()
 
 // ── Webhook must use raw body — register BEFORE express.json()
 app.use('/payment/webhook', express.raw({ type: 'application/json' }))
+app.use('/student', studentRoutes)
 
 // ── Middleware
 // ── Middleware
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc:     ["'self'"],
-      scriptSrc:      ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      scriptSrcAttr:  ["'unsafe-inline'"],
-      styleSrc:       ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc:        ["'self'", "https://fonts.gstatic.com"],
-      imgSrc:         ["'self'", "data:", "https:"],
-      connectSrc:     ["'self'", "https://*.supabase.co", "https://api.stripe.com"],
-      frameSrc:       ["'self'", "https://js.stripe.com", "https://checkout.stripe.com"],
+      defaultSrc:   ["'self'"],
+      scriptSrc:    ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      scriptSrcAttr:["'unsafe-inline'"],
+      styleSrc:     ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:      ["'self'", "https://fonts.gstatic.com"],
+      imgSrc:       ["'self'", "data:", "https:"],
+      mediaSrc:     ["'self'", "https://*.supabase.co"],  
+      connectSrc:   ["'self'", "https://*.supabase.co", "https://api.stripe.com"],
+      frameSrc:     ["'self'", "https://js.stripe.com", "https://checkout.stripe.com"],
     }
   }
 }))

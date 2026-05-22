@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Dashboard — French with Saloni</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --navy:#0A2342;--blue:#1355A0;--sky:#2E7FD9;--light:#5BA4F5;
+      --pale:#D6E8FF;--frost:#EEF5FF;--white:#FFFFFF;--gold:#F0C040;
+      --muted:#5E7A99;--green:#10B981;--red:#EF4444;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Nunito',sans-serif;background:var(--frost);color:var(--navy);min-height:100vh;}
+
+    /* ── HEADER ── */
+    header{background:linear-gradient(135deg,var(--navy),var(--blue));padding:1.2rem 5vw;display:flex;align-items:center;justify-content:space-between;}
+    .header-brand{font-family:'Libre Baskerville',serif;font-size:1.1rem;color:#fff;}
+    .header-brand span{color:var(--light);font-style:italic;}
+    .header-right{display:flex;align-items:center;gap:1rem;}
+    .header-user{font-size:.85rem;color:rgba(255,255,255,.7);}
+    .btn-back{background:rgba(255,255,255,.12);color:#fff;border:none;padding:.45rem 1.1rem;border-radius:6px;font-size:.82rem;font-weight:600;font-family:'Nunito',sans-serif;cursor:pointer;text-decoration:none;transition:background .25s;}
+    .btn-back:hover{background:rgba(255,255,255,.2);}
+    .btn-signout{background:transparent;color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);padding:.45rem 1.1rem;border-radius:6px;font-size:.82rem;font-weight:600;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .25s;}
+    .btn-signout:hover{color:#fff;border-color:rgba(255,255,255,.5);}
+
+    /* ── LAYOUT ── */
+    .container{max-width:1100px;margin:0 auto;padding:2.5rem 5vw;}
+
+    /* ── WELCOME ── */
+    .welcome-card{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:18px;padding:2rem 2.5rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;}
+    .welcome-card::before{content:'BONJOUR';position:absolute;right:-0.05em;bottom:-0.2em;font-family:'Libre Baskerville',serif;font-size:8rem;font-style:italic;color:rgba(255,255,255,.04);pointer-events:none;line-height:1;}
+    .welcome-title{font-family:'Libre Baskerville',serif;font-size:1.8rem;color:#fff;margin-bottom:.3rem;}
+    .welcome-sub{font-size:.9rem;color:rgba(255,255,255,.6);}
+    .meet-btn{display:inline-flex;align-items:center;gap:.6rem;background:var(--green);color:#fff;padding:.8rem 1.6rem;border-radius:10px;font-size:.9rem;font-weight:700;text-decoration:none;font-family:'Nunito',sans-serif;transition:opacity .25s,transform .2s;border:none;cursor:pointer;}
+    .meet-btn:hover{opacity:.9;transform:translateY(-2px);}
+    .meet-btn-disabled{background:rgba(255,255,255,.15);cursor:not-allowed;}
+    .meet-btn-disabled:hover{opacity:1;transform:none;}
+
+    /* ── GRID ── */
+    .dashboard-grid{display:grid;grid-template-columns:1fr 320px;gap:2rem;align-items:start;}
+
+    /* ── SECTIONS ── */
+    .section-title{font-family:'Libre Baskerville',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1.2rem;}
+
+    /* ── LECTURES ── */
+    .lectures-section{}
+    .lecture-card{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:1.2rem;border:1px solid rgba(19,85,160,.08);transition:box-shadow .3s;}
+    .lecture-card:hover{box-shadow:0 8px 30px rgba(10,35,66,.1);}
+    .lecture-video{position:relative;aspect-ratio:16/9;background:var(--navy);}
+    .lecture-video video{width:100%;height:100%;object-fit:contain;background:#000;display:block;}
+    .lecture-video-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;background:linear-gradient(145deg,var(--navy),var(--blue));}
+    .lecture-play{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .3s;}
+    .lecture-play:hover{transform:scale(1.1);}
+    .lecture-play-tri{width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:18px solid var(--blue);margin-left:3px;}
+    .lecture-info{padding:1.2rem 1.5rem;}
+    .lecture-num{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sky);margin-bottom:.3rem;}
+    .lecture-title{font-family:'Libre Baskerville',serif;font-size:1.05rem;color:var(--navy);margin-bottom:.3rem;}
+    .lecture-desc{font-size:.84rem;color:var(--muted);line-height:1.6;}
+    .no-lectures{background:#fff;border-radius:14px;padding:3rem;text-align:center;border:1px solid rgba(19,85,160,.08);}
+    .no-lectures-icon{font-size:3rem;margin-bottom:1rem;}
+    .no-lectures-title{font-family:'Libre Baskerville',serif;font-size:1.2rem;color:var(--navy);margin-bottom:.5rem;}
+    .no-lectures-sub{font-size:.88rem;color:var(--muted);}
+
+    /* ── SIDEBAR ── */
+    .sidebar{}
+    .info-card{background:#fff;border-radius:14px;padding:1.5rem;border:1px solid rgba(19,85,160,.08);margin-bottom:1.2rem;}
+    .info-card-title{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sky);margin-bottom:1rem;}
+    .info-row{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.9rem;}
+    .info-row:last-child{margin-bottom:0;}
+    .info-label{font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;}
+    .info-val{font-size:.9rem;color:var(--navy);font-weight:600;}
+    .badge-active{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.25rem .7rem;border-radius:20px;background:rgba(16,185,129,.12);color:#065F46;}
+    .schedule-item{display:flex;gap:.5rem;align-items:flex-start;margin-bottom:.5rem;font-size:.85rem;}
+    .schedule-label{font-weight:700;color:var(--navy);min-width:75px;}
+    .schedule-val{color:var(--muted);}
+
+    /* ── NOT ENROLLED ── */
+    .not-enrolled{background:#fff;border-radius:18px;padding:4rem;text-align:center;border:1px solid rgba(19,85,160,.08);}
+    .not-enrolled-icon{font-size:4rem;margin-bottom:1.5rem;}
+    .not-enrolled-title{font-family:'Libre Baskerville',serif;font-size:1.8rem;color:var(--navy);margin-bottom:.8rem;}
+    .not-enrolled-sub{font-size:1rem;color:var(--muted);margin-bottom:2rem;}
+    .btn-enroll{display:inline-block;background:var(--blue);color:#fff;padding:.9rem 2.5rem;border-radius:8px;font-size:.9rem;font-weight:700;text-decoration:none;transition:background .25s,transform .2s;}
+    .btn-enroll:hover{background:var(--sky);transform:translateY(-2px);}
+
+    /* ── LOADING ── */
+    .loading-state{text-align:center;padding:4rem;color:var(--muted);}
+    .loading-spinner{font-size:2rem;animation:spin 1s linear infinite;display:block;margin-bottom:1rem;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:2rem;right:2rem;z-index:2000;background:var(--navy);color:#fff;padding:1rem 1.5rem;border-radius:10px;font-size:.88rem;font-weight:600;box-shadow:0 8px 30px rgba(10,35,66,.25);transform:translateY(80px);opacity:0;transition:all .35s ease;max-width:320px;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast.success{border-left:4px solid var(--green);}
+    .toast.error{border-left:4px solid var(--red);}
+
+    @media(max-width:768px){
+      .dashboard-grid{grid-template-columns:1fr;}
+      .welcome-card{flex-direction:column;gap:1.5rem;align-items:flex-start;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-brand">French with <span>Saloni</span></div>
+  <div class="header-right">
+    <span class="header-user" id="header-user"></span>
+    <a href="./index.html" class="btn-back">← Back to site</a>
+    <button class="btn-signout" onclick="handleSignOut()">Sign Out</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- LOADING -->
+  <div class="loading-state" id="loading-state">
+    <span class="loading-spinner">⟳</span>
+    Loading your dashboard...
+  </div>
+
+  <!-- NOT ENROLLED -->
+  <div class="not-enrolled" id="not-enrolled-state" style="display:none;">
+    <div class="not-enrolled-icon">📚</div>
+    <div class="not-enrolled-title">You're not enrolled yet</div>
+    <div class="not-enrolled-sub">Enroll in a course to access your lectures and live classes.</div>
+    <a href="./index.html#courses" class="btn-enroll">Browse Courses →</a>
+  </div>
+
+  <!-- DASHBOARD CONTENT -->
+  <div id="dashboard-content" style="display:none;">
+
+    <!-- Welcome -->
+    <div class="welcome-card">
+      <div>
+        <div class="welcome-title" id="welcome-title">Bonjour! 👋</div>
+        <div class="welcome-sub" id="welcome-sub">Ready to learn French today?</div>
+      </div>
+      <div id="meet-btn-wrap"></div>
+    </div>
+
+    <!-- Grid -->
+    <div class="dashboard-grid">
+
+      <!-- Lectures -->
+      <div class="lectures-section">
+        <div class="section-title">📹 Recorded Lectures</div>
+        <div id="lectures-container">
+          <div class="no-lectures">
+            <div class="no-lectures-icon">🎬</div>
+            <div class="no-lectures-title">No lectures yet</div>
+            <div class="no-lectures-sub">Saloni will upload your course recordings here. Check back soon!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+
+        <!-- Course Info -->
+        <div class="info-card">
+          <div class="info-card-title">My Course</div>
+          <div class="info-row">
+            <div class="info-label">Course</div>
+            <div class="info-val" id="info-course">—</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Status</div>
+            <div><span class="badge-active">✓ Active</span></div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Enrolled Since</div>
+            <div class="info-val" id="info-enrolled">—</div>
+          </div>
+        </div>
+
+        <!-- Schedule -->
+        <div class="info-card">
+          <div class="info-card-title">📅 Class Schedule</div>
+          <div id="schedule-container"></div>
+        </div>
+
+        <!-- Live Class -->
+        <div class="info-card">
+          <div class="info-card-title">🎥 Live Class</div>
+          <div id="live-class-container">
+            <div style="font-size:.85rem;color:var(--muted);line-height:1.6;">
+              Your Google Meet link will appear here once Saloni sets it up for your course.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
+    : window.location.origin
+
+  const getToken = () => localStorage.getItem('fws_token')
+  const getUser  = () => JSON.parse(localStorage.getItem('fws_user') || 'null')
+  const clearAuth = () => { localStorage.removeItem('fws_token'); localStorage.removeItem('fws_user') }
+
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast')
+    t.textContent = msg
+    t.className = `toast ${type} show`
+    setTimeout(() => t.classList.remove('show'), 3500)
+  }
+
+  function handleSignOut() {
+    clearAuth()
+    window.location.href = './index.html'
+  }
+
+  const COURSE_NAMES = {
+    'tef':      'TEF Preparation',
+    'clb7-6mo': 'Zero to CLB 7 — 6 months',
+    'clb7-4mo': 'Zero to CLB 7 — 4 months',
+    '1on1':     '1-on-1 Private Classes'
+  }
+
+  const SCHEDULES = {
+    'tef': [
+      { label: 'Days',    val: 'Mon – Fri' },
+      { label: 'Time',    val: '9 PM – 10 PM EST' },
+      { label: 'Classes', val: '5 per week (1 hr each)' }
+    ],
+    'clb7-6mo': [
+      { label: 'Weekdays', val: 'Mon, Wed, Thu, Fri' },
+      { label: 'Weekends', val: 'Sat & Sun — 2 hours each' },
+      { label: 'Classes',  val: '4 per week' }
+    ],
+    'clb7-4mo': [
+      { label: 'Saturday', val: '2-hour session' },
+      { label: 'Sunday',   val: '2-hour session' },
+      { label: 'Schedule', val: 'Weekends only' }
+    ],
+    '1on1': [
+      { label: 'Classes',  val: '6 per week' },
+      { label: 'Timings',  val: 'Fully custom' },
+      { label: 'Format',   val: '1-on-1 with Saloni' }
+    ]
+  }
+
+  async function loadDashboard() {
+    const token = getToken()
+    const user  = getUser()
+
+    // Redirect to home if not logged in
+    if (!token || !user) {
+      window.location.href = './index.html'
+      return
+    }
+
+    // Set header username
+    document.getElementById('header-user').textContent = `👋 ${user.full_name?.split(' ')[0] || 'Student'}`
+
+    try {
+      const res  = await fetch(`${API}/student/dashboard`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+
+      if (res.status === 401 || res.status === 403) {
+        clearAuth()
+        window.location.href = './index.html'
+        return
+      }
+
+      const data = await res.json()
+
+      document.getElementById('loading-state').style.display = 'none'
+
+      // Not enrolled
+      if (!data.enrolled) {
+        document.getElementById('not-enrolled-state').style.display = 'block'
+        return
+      }
+
+      // Show dashboard
+      document.getElementById('dashboard-content').style.display = 'block'
+
+      const firstName = user.full_name?.split(' ')[0] || 'Student'
+      document.getElementById('welcome-title').textContent  = `Bonjour, ${firstName}! 👋`
+      document.getElementById('welcome-sub').textContent    = `You're enrolled in ${COURSE_NAMES[data.course] || data.course}`
+      document.getElementById('info-course').textContent   = COURSE_NAMES[data.course] || data.course
+      document.getElementById('info-enrolled').textContent = data.enrolledAt
+        ? new Date(data.enrolledAt).toLocaleDateString('en-CA', { year:'numeric', month:'long', day:'numeric' })
+        : '—'
+
+      // Schedule
+      const schedule = SCHEDULES[data.course] || []
+      document.getElementById('schedule-container').innerHTML = schedule.map(s => `
+        <div class="schedule-item">
+          <div class="schedule-label">${s.label}</div>
+          <div class="schedule-val">${s.val}</div>
+        </div>
+      `).join('')
+
+      // Meet link
+      const meetWrap = document.getElementById('meet-btn-wrap')
+      const liveContainer = document.getElementById('live-class-container')
+
+      if (data.meetLink) {
+        meetWrap.innerHTML = `
+          <a href="${data.meetLink}" target="_blank" class="meet-btn">
+            🎥 Join Live Class
+          </a>`
+        liveContainer.innerHTML = `
+          <div style="margin-bottom:.8rem;font-size:.85rem;color:var(--muted);">Click to join your scheduled live class:</div>
+          <a href="${data.meetLink}" target="_blank" class="meet-btn" style="display:inline-flex;">
+            🎥 Join Google Meet
+          </a>`
+      } else {
+        meetWrap.innerHTML = `<button class="meet-btn meet-btn-disabled">🎥 Meet Link Coming Soon</button>`
+        liveContainer.innerHTML = `<div style="font-size:.85rem;color:var(--muted);line-height:1.6;">Your Google Meet link will appear here once Saloni sets it up.</div>`
+      }
+
+      // Lectures
+      const container = document.getElementById('lectures-container')
+      if (!data.lectures || data.lectures.length === 0) {
+        container.innerHTML = `
+          <div class="no-lectures">
+            <div class="no-lectures-icon">🎬</div>
+            <div class="no-lectures-title">No lectures yet</div>
+            <div class="no-lectures-sub">Saloni will upload your course recordings here. Check back soon!</div>
+          </div>`
+      } else {
+        container.innerHTML = data.lectures.map((lecture, i) => `
+          <div class="lecture-card">
+            <div class="lecture-video">
+              ${lecture.url
+                ? `<video controls controlsList="nodownload" oncontextmenu="return false"
+                     style="width:100%;height:100%;object-fit:contain;background:#000;display:block;">
+                     <source src="${lecture.url}" type="video/mp4">
+                   </video>`
+                : `<div class="lecture-video-placeholder">
+                     <div class="lecture-play"><div class="lecture-play-tri"></div></div>
+                     <div style="font-size:.8rem;color:rgba(255,255,255,.5);">Video unavailable</div>
+                   </div>`
+              }
+            </div>
+            <div class="lecture-info">
+              <div class="lecture-num">Lecture ${lecture.order_num || i + 1}</div>
+              <div class="lecture-title">${lecture.title}</div>
+              ${lecture.description ? `<div class="lecture-desc">${lecture.description}</div>` : ''}
+            </div>
+          </div>
+        `).join('')
+      }
+
+    } catch (err) {
+      console.error('Dashboard error:', err)
+      document.getElementById('loading-state').style.display = 'none'
+      showToast('Failed to load dashboard. Please try again.', 'error')
+    }
+  }
+
+  // Load on page open
+  loadDashboard()
+</script>
+</body>
+</html>
