@@ -1685,35 +1685,189 @@
         }
       }
       /* ── DASHBOARD MODAL ── */
-.dash-overlay{position:fixed;inset:0;z-index:1000;background:rgba(10,35,66,.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:1rem;}
-.dash-overlay.open{display:flex;}
-.dash-modal{background:#fff;border-radius:24px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(10,35,66,.25);animation:modalIn .3s ease;}
-.dash-header{background:linear-gradient(135deg,var(--navy),var(--blue));padding:2rem 2.2rem 1.5rem;border-radius:24px 24px 0 0;position:relative;}
-.dash-close{position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;}
-.dash-close:hover{background:rgba(255,255,255,.25);}
-.dash-greeting{font-family:'Libre Baskerville',serif;font-size:1.5rem;color:#fff;margin-bottom:.3rem;}
-.dash-sub{font-size:.85rem;color:rgba(255,255,255,.6);}
-.dash-body{padding:2rem 2.2rem;}
-.dash-section{margin-bottom:2rem;}
-.dash-section-title{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--sky);margin-bottom:1rem;}
-.dash-card{background:var(--frost);border-radius:12px;padding:1.4rem;border:1px solid rgba(19,85,160,.1);}
-.dash-course-name{font-family:'Libre Baskerville',serif;font-size:1.3rem;color:var(--navy);margin-bottom:.5rem;}
-.dash-course-status{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.25rem .7rem;border-radius:20px;background:rgba(16,185,129,.12);color:#065F46;margin-bottom:1rem;}
-.dash-schedule-row{display:flex;gap:.5rem;align-items:flex-start;margin-bottom:.5rem;font-size:.88rem;}
-.dash-schedule-label{font-weight:700;color:var(--navy);min-width:80px;}
-.dash-schedule-val{color:var(--muted);}
-.dash-enrolled-since{font-size:.78rem;color:var(--muted);margin-top:.8rem;padding-top:.8rem;border-top:1px solid rgba(19,85,160,.1);}
-.dash-not-enrolled{text-align:center;padding:1.5rem;color:var(--muted);font-style:italic;}
-.dash-not-enrolled a{color:var(--sky);font-weight:600;cursor:pointer;}
-.pay-table{width:100%;border-collapse:collapse;}
-.pay-table th{text-align:left;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.5rem .7rem;border-bottom:1px solid var(--pale);}
-.pay-table td{padding:.7rem;font-size:.85rem;color:var(--navy);border-bottom:1px solid var(--frost);}
-.pay-table tr:last-child td{border-bottom:none;}
-.pay-badge{display:inline-block;font-size:.68rem;font-weight:700;padding:.2rem .6rem;border-radius:10px;background:rgba(16,185,129,.12);color:#065F46;}
-.dash-profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
-.dash-profile-item{}
-.dash-profile-label{font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.2rem;}
-.dash-profile-val{font-size:.9rem;color:var(--navy);font-weight:600;}
+      .dash-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(10, 35, 66, 0.6);
+        backdrop-filter: blur(6px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+      .dash-overlay.open {
+        display: flex;
+      }
+      .dash-modal {
+        background: #fff;
+        border-radius: 24px;
+        width: 100%;
+        max-width: 620px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 30px 80px rgba(10, 35, 66, 0.25);
+        animation: modalIn 0.3s ease;
+      }
+      .dash-header {
+        background: linear-gradient(135deg, var(--navy), var(--blue));
+        padding: 2rem 2.2rem 1.5rem;
+        border-radius: 24px 24px 0 0;
+        position: relative;
+      }
+      .dash-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+        color: #fff;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+      }
+      .dash-close:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .dash-greeting {
+        font-family: "Libre Baskerville", serif;
+        font-size: 1.5rem;
+        color: #fff;
+        margin-bottom: 0.3rem;
+      }
+      .dash-sub {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+      .dash-body {
+        padding: 2rem 2.2rem;
+      }
+      .dash-section {
+        margin-bottom: 2rem;
+      }
+      .dash-section-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sky);
+        margin-bottom: 1rem;
+      }
+      .dash-card {
+        background: var(--frost);
+        border-radius: 12px;
+        padding: 1.4rem;
+        border: 1px solid rgba(19, 85, 160, 0.1);
+      }
+      .dash-course-name {
+        font-family: "Libre Baskerville", serif;
+        font-size: 1.3rem;
+        color: var(--navy);
+        margin-bottom: 0.5rem;
+      }
+      .dash-course-status {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        background: rgba(16, 185, 129, 0.12);
+        color: #065f46;
+        margin-bottom: 1rem;
+      }
+      .dash-schedule-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+        font-size: 0.88rem;
+      }
+      .dash-schedule-label {
+        font-weight: 700;
+        color: var(--navy);
+        min-width: 80px;
+      }
+      .dash-schedule-val {
+        color: var(--muted);
+      }
+      .dash-enrolled-since {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 0.8rem;
+        padding-top: 0.8rem;
+        border-top: 1px solid rgba(19, 85, 160, 0.1);
+      }
+      .dash-not-enrolled {
+        text-align: center;
+        padding: 1.5rem;
+        color: var(--muted);
+        font-style: italic;
+      }
+      .dash-not-enrolled a {
+        color: var(--sky);
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .pay-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .pay-table th {
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 0.5rem 0.7rem;
+        border-bottom: 1px solid var(--pale);
+      }
+      .pay-table td {
+        padding: 0.7rem;
+        font-size: 0.85rem;
+        color: var(--navy);
+        border-bottom: 1px solid var(--frost);
+      }
+      .pay-table tr:last-child td {
+        border-bottom: none;
+      }
+      .pay-badge {
+        display: inline-block;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 0.2rem 0.6rem;
+        border-radius: 10px;
+        background: rgba(16, 185, 129, 0.12);
+        color: #065f46;
+      }
+      .dash-profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+      }
+      .dash-profile-item {
+      }
+      .dash-profile-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 0.2rem;
+      }
+      .dash-profile-val {
+        font-size: 0.9rem;
+        color: var(--navy);
+        font-weight: 600;
+      }
     </style>
   </head>
   <body>
@@ -1747,6 +1901,14 @@
           >
             Create Account
           </button>
+          <button
+            class="modal-tab"
+            id="tab-forgot"
+            onclick="switchTab('forgot')"
+            style="display: none"
+          >
+            Reset Password
+          </button>
         </div>
 
         <div class="modal-body">
@@ -1775,9 +1937,17 @@
             <button class="form-btn" id="login-btn" onclick="handleLogin()">
               Sign In
             </button>
-            <div class="form-footer">
-              Don't have an account?
-              <a onclick="switchTab('register')">Create one free</a>
+            <div
+              class="form-footer"
+              style="display: flex; flex-direction: column; gap: 0.5rem"
+            >
+              <div>
+                Don't have an account?
+                <a onclick="switchTab('register')">Create one free</a>
+              </div>
+              <div>
+                <a onclick="switchTab('forgot')">Forgot your password?</a>
+              </div>
             </div>
           </div>
 
@@ -1845,6 +2015,41 @@
             <div class="form-footer">
               Already have an account?
               <a onclick="switchTab('login')">Sign in</a>
+            </div>
+          </div>
+          <!-- FORGOT PASSWORD FORM -->
+          <div class="form-panel" id="panel-forgot">
+            <div class="form-error" id="forgot-error"></div>
+            <div class="form-success" id="forgot-success"></div>
+            <p
+              style="
+                font-size: 0.88rem;
+                color: var(--muted);
+                margin-bottom: 1.2rem;
+                line-height: 1.6;
+              "
+            >
+              Enter your email address and we'll send you a link to reset your
+              password.
+            </p>
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input
+                class="form-input"
+                type="email"
+                id="forgot-email"
+                placeholder="you@example.com"
+              />
+            </div>
+            <button
+              class="form-btn"
+              id="forgot-btn"
+              onclick="handleForgotPassword()"
+            >
+              Send Reset Link
+            </button>
+            <div class="form-footer">
+              <a onclick="switchTab('login')">← Back to Sign In</a>
             </div>
           </div>
         </div>
@@ -1934,77 +2139,93 @@
     </div>
 
     <!-- ── STUDENT DASHBOARD MODAL ── -->
-<div class="dash-overlay" id="dashModal">
-  <div class="dash-modal">
-    <div class="dash-header">
-      <button class="dash-close" onclick="closeDashboard()">✕</button>
-      <div class="dash-greeting" id="dash-greeting">Bonjour! 👋</div>
-      <div class="dash-sub">Your learning dashboard</div>
-    </div>
-    <div class="dash-body">
+    <div class="dash-overlay" id="dashModal">
+      <div class="dash-modal">
+        <div class="dash-header">
+          <button class="dash-close" onclick="closeDashboard()">✕</button>
+          <div class="dash-greeting" id="dash-greeting">Bonjour! 👋</div>
+          <div class="dash-sub">Your learning dashboard</div>
+        </div>
+        <div class="dash-body">
+          <!-- Profile -->
+          <div class="dash-section">
+            <div class="dash-section-title">My Profile</div>
+            <div class="dash-card">
+              <div class="dash-profile-grid">
+                <div class="dash-profile-item">
+                  <div class="dash-profile-label">Full Name</div>
+                  <div class="dash-profile-val" id="dash-name">—</div>
+                </div>
+                <div class="dash-profile-item">
+                  <div class="dash-profile-label">Email</div>
+                  <div class="dash-profile-val" id="dash-email">—</div>
+                </div>
+                <div class="dash-profile-item">
+                  <div class="dash-profile-label">Phone</div>
+                  <div class="dash-profile-val" id="dash-phone">—</div>
+                </div>
+                <div class="dash-profile-item">
+                  <div class="dash-profile-label">Member Since</div>
+                  <div class="dash-profile-val" id="dash-since">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <!-- Profile -->
-      <div class="dash-section">
-        <div class="dash-section-title">My Profile</div>
-        <div class="dash-card">
-          <div class="dash-profile-grid">
-            <div class="dash-profile-item">
-              <div class="dash-profile-label">Full Name</div>
-              <div class="dash-profile-val" id="dash-name">—</div>
+          <!-- Enrolled Course -->
+          <div class="dash-section">
+            <div class="dash-section-title">My Course</div>
+            <div id="dash-course-section">
+              <div class="dash-card">
+                <div class="dash-not-enrolled">
+                  You are not enrolled in any course yet.
+                  <br />
+                  <a
+                    onclick="
+                      closeDashboard();
+                      scrollToCourses();
+                    "
+                    >Browse courses →</a
+                  >
+                </div>
+              </div>
             </div>
-            <div class="dash-profile-item">
-              <div class="dash-profile-label">Email</div>
-              <div class="dash-profile-val" id="dash-email">—</div>
-            </div>
-            <div class="dash-profile-item">
-              <div class="dash-profile-label">Phone</div>
-              <div class="dash-profile-val" id="dash-phone">—</div>
-            </div>
-            <div class="dash-profile-item">
-              <div class="dash-profile-label">Member Since</div>
-              <div class="dash-profile-val" id="dash-since">—</div>
+          </div>
+
+          <!-- Payment History -->
+          <div class="dash-section">
+            <div class="dash-section-title">Payment History</div>
+            <div class="dash-card">
+              <table class="pay-table">
+                <thead>
+                  <tr>
+                    <th>Course</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-payments-body">
+                  <tr>
+                    <td
+                      colspan="4"
+                      style="
+                        text-align: center;
+                        color: var(--muted);
+                        font-style: italic;
+                        padding: 1rem;
+                      "
+                    >
+                      No payments yet
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Enrolled Course -->
-      <div class="dash-section">
-        <div class="dash-section-title">My Course</div>
-        <div id="dash-course-section">
-          <div class="dash-card">
-            <div class="dash-not-enrolled">
-              You are not enrolled in any course yet.
-              <br/>
-              <a onclick="closeDashboard(); scrollToCourses()">Browse courses →</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Payment History -->
-      <div class="dash-section">
-        <div class="dash-section-title">Payment History</div>
-        <div class="dash-card">
-          <table class="pay-table">
-            <thead>
-              <tr>
-                <th>Course</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody id="dash-payments-body">
-              <tr><td colspan="4" style="text-align:center;color:var(--muted);font-style:italic;padding:1rem;">No payments yet</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
     </div>
-  </div>
-</div>
     <!-- NAV -->
     <nav>
       <div class="nav-logo">
@@ -2027,11 +2248,14 @@
       </button>
       <!-- Logged IN state -->
       <div class="nav-user" id="nav-user">
-        <span class="nav-user-name" id="nav-user-name" 
-  onclick="window.location.href='./dashboard.html'" 
-  style="cursor:pointer;" 
-  title="Go to my dashboard">
-</span>
+        <span
+          class="nav-user-name"
+          id="nav-user-name"
+          onclick="window.location.href = './dashboard.html'"
+          style="cursor: pointer"
+          title="Go to my dashboard"
+        >
+        </span>
         <button class="nav-logout" onclick="handleLogout()">Sign Out</button>
       </div>
     </nav>
@@ -2679,9 +2903,14 @@
               />
             </div>
             <div class="form-group">
-  <label class="form-label">Phone Number</label>
-  <input class="form-input" type="tel" id="contact-phone" placeholder="+1 234 567 8900"/>
-</div>
+              <label class="form-label">Phone Number</label>
+              <input
+                class="form-input"
+                type="tel"
+                id="contact-phone"
+                placeholder="+1 234 567 8900"
+              />
+            </div>
             <div class="form-group">
               <label class="form-label">Course Interest</label>
               <select class="form-select" id="contact-course">
@@ -2808,6 +3037,61 @@
         document.body.style.overflow = "";
       }
 
+      function switchTab(tab) {
+  document.getElementById("panel-login").classList.toggle("active", tab === "login");
+  document.getElementById("panel-register").classList.toggle("active", tab === "register");
+  document.getElementById("panel-forgot").classList.toggle("active", tab === "forgot");
+
+  document.getElementById("tab-login").classList.toggle("active", tab === "login");
+  document.getElementById("tab-register").classList.toggle("active", tab === "register");
+
+  document.getElementById('tab-forgot').style.display = tab === 'forgot' ? 'block' : 'none'
+  document.getElementById('tab-forgot').classList.toggle('active', tab === 'forgot')
+}
+
+      // ── FORGOT PASSWORD ────────────────────────────────
+      async function handleForgotPassword() {
+        hideFormMessages("forgot");
+        const email = document.getElementById("forgot-email").value.trim();
+
+        if (!email) {
+          return showFormError(
+            "forgot-error",
+            "Please enter your email address.",
+          );
+        }
+
+        const btn = document.getElementById("forgot-btn");
+        btn.disabled = true;
+        btn.textContent = "Sending...";
+
+        try {
+          const res = await fetch(`${API}/auth/forgot-password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            showFormError(
+              "forgot-error",
+              data.error || "Failed to send reset email.",
+            );
+          } else {
+            document.getElementById("forgot-success").textContent =
+              "✅ Reset link sent! Check your email inbox.";
+            document.getElementById("forgot-success").classList.add("visible");
+            document.getElementById("forgot-email").value = "";
+          }
+        } catch {
+          showFormError("forgot-error", "Server error. Please try again.");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Send Reset Link";
+        }
+      }
+
       // Close on overlay click
       document
         .getElementById("authModal")
@@ -2815,20 +3099,6 @@
           if (e.target === this) closeModal();
         });
 
-      function switchTab(tab) {
-        document
-          .getElementById("panel-login")
-          .classList.toggle("active", tab === "login");
-        document
-          .getElementById("panel-register")
-          .classList.toggle("active", tab === "register");
-        document
-          .getElementById("tab-login")
-          .classList.toggle("active", tab === "login");
-        document
-          .getElementById("tab-register")
-          .classList.toggle("active", tab === "register");
-      }
 
       function showFormError(id, msg) {
         const el = document.getElementById(id);
@@ -3172,35 +3442,34 @@
       }
 
       // ── VERIFY TOKEN ON LOAD ───────────────────────────
-async function verifyTokenOnLoad() {
-  const token = getToken()
-  if (!token) return
+      async function verifyTokenOnLoad() {
+        const token = getToken();
+        if (!token) return;
 
-  try {
-    const res = await fetch(`${API}/auth/me`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
+        try {
+          const res = await fetch(`${API}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
 
-    if (!res.ok) {
-      // Token expired or invalid — clear everything
-      clearAuth()
-      updateNavState()
-      return
-    }
+          if (!res.ok) {
+            // Token expired or invalid — clear everything
+            clearAuth();
+            updateNavState();
+            return;
+          }
 
-    const data = await res.json()
-    // Update stored user with fresh data from server
-    const currentUser = getUser()
-    setUser({ ...currentUser, full_name: data.user.full_name })
-    updateNavState()
-
-  } catch {
-    // If server unreachable just keep cached data
-  }
-}
+          const data = await res.json();
+          // Update stored user with fresh data from server
+          const currentUser = getUser();
+          setUser({ ...currentUser, full_name: data.user.full_name });
+          updateNavState();
+        } catch {
+          // If server unreachable just keep cached data
+        }
+      }
 
       // ── INIT ───────────────────────────────────────────
-      verifyTokenOnLoad()
+      verifyTokenOnLoad();
       // ── LOAD REVIEWS ───────────────────────────────────
       async function loadReviews() {
         try {
@@ -3267,126 +3536,144 @@ async function verifyTokenOnLoad() {
         } catch {}
       }
       // ── COURSE SCHEDULES ───────────────────────────────
-const SCHEDULES = {
-  'tef': [
-    { label: 'Days', val: 'Mon – Fri' },
-    { label: 'Time', val: '9 PM – 10 PM EST' },
-    { label: 'Classes', val: '5 per week (1 hr each)' }
-  ],
-  'clb7-6mo': [
-    { label: 'Weekdays', val: 'Mon, Wed, Thu, Fri' },
-    { label: 'Weekends', val: 'Sat & Sun — 2 hours each' },
-    { label: 'Classes', val: '4 per week' }
-  ],
-  'clb7-4mo': [
-    { label: 'Saturday', val: '2-hour session' },
-    { label: 'Sunday', val: '2-hour session' },
-    { label: 'Schedule', val: 'Weekends only' }
-  ],
-  '1on1': [
-    { label: 'Classes', val: '6 per week' },
-    { label: 'Timings', val: 'Fully custom' },
-    { label: 'Format', val: '1-on-1 with Saloni' }
-  ]
-}
+      const SCHEDULES = {
+        tef: [
+          { label: "Days", val: "Mon – Fri" },
+          { label: "Time", val: "9 PM – 10 PM EST" },
+          { label: "Classes", val: "5 per week (1 hr each)" },
+        ],
+        "clb7-6mo": [
+          { label: "Weekdays", val: "Mon, Wed, Thu, Fri" },
+          { label: "Weekends", val: "Sat & Sun — 2 hours each" },
+          { label: "Classes", val: "4 per week" },
+        ],
+        "clb7-4mo": [
+          { label: "Saturday", val: "2-hour session" },
+          { label: "Sunday", val: "2-hour session" },
+          { label: "Schedule", val: "Weekends only" },
+        ],
+        "1on1": [
+          { label: "Classes", val: "6 per week" },
+          { label: "Timings", val: "Fully custom" },
+          { label: "Format", val: "1-on-1 with Saloni" },
+        ],
+      };
 
-const COURSE_NAMES = {
-  'tef':      'TEF Preparation',
-  'clb7-6mo': 'Zero to CLB 7 — 6 months',
-  'clb7-4mo': 'Zero to CLB 7 — 4 months',
-  '1on1':     '1-on-1 Private Classes'
-}
+      const COURSE_NAMES = {
+        tef: "TEF Preparation",
+        "clb7-6mo": "Zero to CLB 7 — 6 months",
+        "clb7-4mo": "Zero to CLB 7 — 4 months",
+        "1on1": "1-on-1 Private Classes",
+      };
 
-// ── DASHBOARD ──────────────────────────────────────
-async function openDashboard() {
-  document.getElementById('dashModal').classList.add('open')
-  document.body.style.overflow = 'hidden'
+      // ── DASHBOARD ──────────────────────────────────────
+      async function openDashboard() {
+        document.getElementById("dashModal").classList.add("open");
+        document.body.style.overflow = "hidden";
 
-  try {
-    const res  = await fetch(`${API}/auth/dashboard`, {
-      headers: { 'Authorization': `Bearer ${getToken()}` }
-    })
-    const data = await res.json()
+        try {
+          const res = await fetch(`${API}/auth/dashboard`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          });
+          const data = await res.json();
 
-    if (!res.ok) {
-      closeDashboard()
-      showToast('Failed to load dashboard', 'error')
-      return
-    }
+          if (!res.ok) {
+            closeDashboard();
+            showToast("Failed to load dashboard", "error");
+            return;
+          }
 
-    const { student, enrollment, payments } = data
+          const { student, enrollment, payments } = data;
 
-    // Greeting
-    const firstName = student?.full_name?.split(' ')[0] || 'Student'
-    document.getElementById('dash-greeting').textContent = `Bonjour, ${firstName}! 👋`
+          // Greeting
+          const firstName = student?.full_name?.split(" ")[0] || "Student";
+          document.getElementById("dash-greeting").textContent =
+            `Bonjour, ${firstName}! 👋`;
 
-    // Profile
-    document.getElementById('dash-name').textContent  = student?.full_name || '—'
-    document.getElementById('dash-email').textContent = student?.email || '—'
-    document.getElementById('dash-phone').textContent = student?.phone || '—'
-    document.getElementById('dash-since').textContent = student?.created_at
-      ? new Date(student.created_at).toLocaleDateString('en-CA', { year:'numeric', month:'long', day:'numeric' })
-      : '—'
+          // Profile
+          document.getElementById("dash-name").textContent =
+            student?.full_name || "—";
+          document.getElementById("dash-email").textContent =
+            student?.email || "—";
+          document.getElementById("dash-phone").textContent =
+            student?.phone || "—";
+          document.getElementById("dash-since").textContent =
+            student?.created_at
+              ? new Date(student.created_at).toLocaleDateString("en-CA", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              : "—";
 
-    // Course
-    const courseSection = document.getElementById('dash-course-section')
-    if (enrollment) {
-      const schedule = SCHEDULES[enrollment.course] || []
-      courseSection.innerHTML = `
+          // Course
+          const courseSection = document.getElementById("dash-course-section");
+          if (enrollment) {
+            const schedule = SCHEDULES[enrollment.course] || [];
+            courseSection.innerHTML = `
         <div class="dash-card">
           <div class="dash-course-name">${COURSE_NAMES[enrollment.course] || enrollment.course}</div>
           <div class="dash-course-status">✓ Active</div>
-          ${schedule.map(s => `
+          ${schedule
+            .map(
+              (s) => `
             <div class="dash-schedule-row">
               <div class="dash-schedule-label">${s.label}</div>
               <div class="dash-schedule-val">${s.val}</div>
             </div>
-          `).join('')}
+          `,
+            )
+            .join("")}
           <div class="dash-enrolled-since">
-            Enrolled on ${new Date(enrollment.enrolled_at).toLocaleDateString('en-CA', { year:'numeric', month:'long', day:'numeric' })}
+            Enrolled on ${new Date(enrollment.enrolled_at).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })}
           </div>
         </div>
-      `
-    } else {
-      courseSection.innerHTML = `
+      `;
+          } else {
+            courseSection.innerHTML = `
         <div class="dash-card">
           <div class="dash-not-enrolled">
             You are not enrolled in any course yet.<br/>
             <a onclick="closeDashboard(); setTimeout(() => document.getElementById('courses').scrollIntoView({behavior:'smooth'}), 300)">Browse courses →</a>
           </div>
         </div>
-      `
-    }
+      `;
+          }
 
-    // Payments
-    const tbody = document.getElementById('dash-payments-body')
-    if (payments && payments.length > 0) {
-      tbody.innerHTML = payments.map(p => `
+          // Payments
+          const tbody = document.getElementById("dash-payments-body");
+          if (payments && payments.length > 0) {
+            tbody.innerHTML = payments
+              .map(
+                (p) => `
         <tr>
           <td>${COURSE_NAMES[p.course] || p.course}</td>
           <td>$${(p.amount / 100).toFixed(2)} ${p.currency?.toUpperCase()}</td>
           <td><span class="pay-badge">${p.status}</span></td>
-          <td>${new Date(p.created_at).toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' })}</td>
+          <td>${new Date(p.created_at).toLocaleDateString("en-CA", { year: "numeric", month: "short", day: "numeric" })}</td>
         </tr>
-      `).join('')
-    } else {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);font-style:italic;padding:1rem;">No payments yet</td></tr>`
-    }
+      `,
+              )
+              .join("");
+          } else {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);font-style:italic;padding:1rem;">No payments yet</td></tr>`;
+          }
+        } catch (err) {
+          console.error("Dashboard error:", err);
+          showToast("Failed to load dashboard", "error");
+        }
+      }
 
-  } catch (err) {
-    console.error('Dashboard error:', err)
-    showToast('Failed to load dashboard', 'error')
-  }
-}
+      function closeDashboard() {
+        document.getElementById("dashModal").classList.remove("open");
+        document.body.style.overflow = "";
+      }
 
-function closeDashboard() {
-  document.getElementById('dashModal').classList.remove('open')
-  document.body.style.overflow = ''
-}
-
-document.getElementById('dashModal').addEventListener('click', function(e) {
-  if (e.target === this) closeDashboard()
-})
+      document
+        .getElementById("dashModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeDashboard();
+        });
     </script>
   </body>
 </html>

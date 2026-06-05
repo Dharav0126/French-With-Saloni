@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lecture — French with Saloni</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--navy:#0A2342;--blue:#1355A0;--sky:#2E7FD9;--light:#5BA4F5;--pale:#D6E8FF;--frost:#EEF5FF;--gold:#F0C040;--muted:#5E7A99;--green:#10B981;--red:#EF4444;}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Nunito',sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;flex-direction:column;}
+
+    /* ── HEADER ── */
+    header{background:rgba(10,35,66,.95);backdrop-filter:blur(10px);padding:1rem 5vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:100;}
+    .header-left{display:flex;align-items:center;gap:1rem;}
+    .btn-back{background:rgba(255,255,255,.1);color:#fff;border:none;padding:.45rem 1.1rem;border-radius:6px;font-size:.82rem;font-weight:600;font-family:'Nunito',sans-serif;cursor:pointer;text-decoration:none;transition:background .25s;display:flex;align-items:center;gap:.4rem;}
+    .btn-back:hover{background:rgba(255,255,255,.2);}
+    .header-brand{font-family:'Libre Baskerville',serif;font-size:1rem;color:rgba(255,255,255,.7);}
+    .header-brand span{color:var(--light);font-style:italic;}
+    .lecture-badge{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(46,127,217,.3);color:var(--light);padding:.25rem .7rem;border-radius:20px;}
+
+    /* ── VIDEO PLAYER ── */
+    .video-wrap{flex:1;display:flex;flex-direction:column;}
+    .video-container{background:#000;width:100%;max-height:70vh;display:flex;align-items:center;justify-content:center;}
+    .video-container video{width:100%;max-height:70vh;object-fit:contain;}
+
+    /* ── LECTURE INFO ── */
+    .lecture-info-bar{background:var(--navy);padding:1.5rem 5vw;border-top:1px solid rgba(255,255,255,.08);}
+    .lecture-meta{display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem;}
+    .lecture-level{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(46,127,217,.2);color:var(--light);padding:.2rem .6rem;border-radius:10px;}
+    .lecture-num-label{font-size:.78rem;color:rgba(255,255,255,.4);}
+    .lecture-title{font-family:'Libre Baskerville',serif;font-size:1.5rem;color:#fff;margin-bottom:.5rem;}
+    .lecture-desc{font-size:.9rem;color:rgba(255,255,255,.55);line-height:1.7;}
+
+    /* ── LOADING/ERROR ── */
+    .center-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:4rem;}
+    .center-state-icon{font-size:3rem;}
+    .center-state-title{font-family:'Libre Baskerville',serif;font-size:1.4rem;color:#fff;}
+    .center-state-sub{font-size:.88rem;color:rgba(255,255,255,.5);}
+    .loading-spinner{font-size:2rem;animation:spin 1s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <a href="./dashboard.html" class="btn-back">← Back</a>
+    <div class="header-brand">French with <span>Saloni</span></div>
+  </div>
+  <div class="lecture-badge" id="lecture-badge">Loading...</div>
+</header>
+
+<!-- LOADING STATE -->
+<div class="center-state" id="loading-state">
+  <span class="loading-spinner">⟳</span>
+  <div class="center-state-title">Loading lecture...</div>
+</div>
+
+<!-- ERROR STATE -->
+<div class="center-state" id="error-state" style="display:none;">
+  <div class="center-state-icon">⚠️</div>
+  <div class="center-state-title">Lecture unavailable</div>
+  <div class="center-state-sub">Please go back and try again.</div>
+  <a href="./dashboard.html" class="btn-back" style="margin-top:1rem;">← Back to Dashboard</a>
+</div>
+
+<!-- VIDEO PLAYER -->
+<div class="video-wrap" id="video-wrap" style="display:none;">
+  <div class="video-container">
+    <video id="lecture-video" controls controlsList="nodownload" oncontextmenu="return false" preload="auto">
+      <source id="video-source" src="" type="video/mp4">
+    </video>
+  </div>
+  <div class="lecture-info-bar">
+    <div class="lecture-meta">
+      <span class="lecture-level" id="lecture-level">A1</span>
+      <span class="lecture-num-label" id="lecture-num">Lecture 1</span>
+    </div>
+    <div class="lecture-title" id="lecture-title">Loading...</div>
+    <div class="lecture-desc" id="lecture-desc"></div>
+  </div>
+</div>
+
+<script>
+  const API = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
+    : window.location.origin
+
+  const getToken = () => localStorage.getItem('fws_token')
+
+  async function loadLecture() {
+    const token = getToken()
+    if (!token) {
+      window.location.href = './index.html'
+      return
+    }
+
+    // Get lecture ID from URL
+    const params    = new URLSearchParams(window.location.search)
+    const lectureId = params.get('id')
+
+    if (!lectureId) {
+      showError()
+      return
+    }
+
+    try {
+      const res  = await fetch(`${API}/student/lecture/${lectureId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+
+      if (!res.ok) {
+        showError()
+        return
+      }
+
+      const data    = await res.json()
+      const lecture = data.lecture
+
+      if (!lecture.url) {
+        showError()
+        return
+      }
+
+      // Hide loading, show player
+      document.getElementById('loading-state').style.display = 'none'
+      document.getElementById('video-wrap').style.display    = 'flex'
+
+      // Set video
+      document.getElementById('video-source').src = lecture.url
+      document.getElementById('lecture-video').load()
+
+      // Set info
+      document.getElementById('lecture-badge').textContent  = `Lecture ${lecture.order_num}`
+      document.getElementById('lecture-level').textContent  = lecture.level || 'A1'
+      document.getElementById('lecture-num').textContent    = `Lecture ${lecture.order_num}`
+      document.getElementById('lecture-title').textContent  = lecture.title
+      document.getElementById('lecture-desc').textContent   = lecture.description || ''
+
+      // Update page title
+      document.title = `${lecture.title} — French with Saloni`
+
+    } catch (err) {
+      console.error('Lecture load error:', err)
+      showError()
+    }
+  }
+
+  function showError() {
+    document.getElementById('loading-state').style.display = 'none'
+    document.getElementById('error-state').style.display   = 'flex'
+  }
+
+  loadLecture()
+</script>
+</body>
+</html>

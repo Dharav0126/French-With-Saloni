@@ -42,4 +42,49 @@ router.get('/dashboard', verifyJWT, async (req, res) => {
   })
 })
 
+// POST forgot password
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' })
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.CLIENT_URL}/resetPassword.html`
+  })
+
+  if (error) {
+    return res.status(500).json({ error: error.message })
+  }
+
+  // Always return success even if email doesn't exist (security best practice)
+  return res.status(200).json({ message: 'Reset link sent if email exists' })
+})
+
+// POST reset password
+router.post('/reset-password', async (req, res) => {
+  const { accessToken, newPassword } = req.body
+
+  if (!accessToken || !newPassword) {
+    return res.status(400).json({ error: 'Token and new password are required' })
+  }
+
+  if (newPassword.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' })
+  }
+
+  // Use the access token to update the password
+  const { error } = await supabase.auth.admin.updateUserById(
+    (await supabase.auth.getUser(accessToken)).data.user?.id,
+    { password: newPassword }
+  )
+
+  if (error) {
+    return res.status(500).json({ error: error.message })
+  }
+
+  return res.status(200).json({ message: 'Password updated successfully' })
+})
+
 export default router

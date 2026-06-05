@@ -483,6 +483,11 @@
           margin-left: 0;
         }
       }
+      .student-option{padding:.7rem 1rem;cursor:pointer;font-size:.85rem;border-bottom:1px solid var(--frost);transition:background .2s;}
+.student-option:hover{background:var(--frost);}
+.student-option:last-child{border-bottom:none;}
+.student-option-name{font-weight:700;color:var(--navy);}
+.student-option-email{font-size:.75rem;color:var(--muted);}
     </style>
   </head>
   <body>
@@ -534,6 +539,12 @@
         <div class="nav-item" onclick="showPage('contacts')">
           <span class="nav-item-icon">✉️</span> Contacts
         </div>
+        <div class="nav-item" onclick="showPage('batches')">
+  <span class="nav-item-icon">🗓️</span> Batches
+</div>
+<div class="nav-item" onclick="showPage('lectures')">
+  <span class="nav-item-icon">🎬</span> Lectures
+</div>
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user" id="sidebar-user-name">
@@ -547,183 +558,263 @@
 
     <!-- ── MAIN CONTENT ── -->
     <main class="main">
-      <!-- DASHBOARD -->
-      <div class="page active" id="page-dashboard">
-        <div class="page-title">Dashboard</div>
-        <div class="page-sub">
-          Welcome back, Saloni. Here's what's happening.
-        </div>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-val" id="stat-students">—</div>
-            <div class="stat-lbl">Total Students</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">📚</div>
-            <div class="stat-val" id="stat-enrollments">—</div>
-            <div class="stat-lbl">Active Enrollments</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">⭐</div>
-            <div class="stat-val" id="stat-reviews">—</div>
-            <div class="stat-lbl">Pending Reviews</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">✉️</div>
-            <div class="stat-val" id="stat-contacts">—</div>
-            <div class="stat-lbl">New Contacts</div>
-          </div>
-        </div>
 
-        <!-- Recent pending reviews -->
-        <div class="table-card">
-          <div class="table-header">
-            <div class="table-title">Pending Reviews</div>
-            <div class="table-count" id="pending-count">0 pending</div>
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-title">Dashboard</div>
+    <div class="page-sub">Welcome back, Saloni. Here's what's happening.</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-val" id="stat-students">—</div>
+        <div class="stat-lbl">Total Students</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📚</div>
+        <div class="stat-val" id="stat-enrollments">—</div>
+        <div class="stat-lbl">Active Enrollments</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-val" id="stat-reviews">—</div>
+        <div class="stat-lbl">Pending Reviews</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✉️</div>
+        <div class="stat-val" id="stat-contacts">—</div>
+        <div class="stat-lbl">New Contacts</div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Pending Reviews</div>
+        <div class="table-count" id="pending-count">0 pending</div>
+      </div>
+      <table>
+        <thead><tr><th>Student</th><th>Course</th><th>Rating</th><th>Review</th><th>Actions</th></tr></thead>
+        <tbody id="dashboard-reviews-body"><tr class="empty-row"><td colspan="5">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="page" id="page-reviews">
+    <div class="page-title">Reviews</div>
+    <div class="page-sub">Approve or reject student reviews before they appear on the website.</div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">All Reviews</div>
+        <div class="table-count" id="reviews-count">Loading...</div>
+      </div>
+      <table>
+        <thead><tr><th>Student</th><th>Course</th><th>Rating</th><th>Review</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody id="reviews-body"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- STUDENTS -->
+  <div class="page" id="page-students">
+    <div class="page-title">Students</div>
+    <div class="page-sub">All registered students on the platform.</div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">All Students</div>
+        <div class="table-count" id="students-count">Loading...</div>
+      </div>
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Course Interest</th><th>Role</th><th>Joined</th></tr></thead>
+        <tbody id="students-body"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ENROLLMENTS -->
+  <div class="page" id="page-enrollments">
+    <div class="page-title">Enrollments</div>
+    <div class="page-sub">Manage student enrollments — activate or deactivate access.</div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">All Enrollments</div>
+        <div class="table-count" id="enrollments-count">Loading...</div>
+      </div>
+      <table>
+        <thead><tr><th>Student</th><th>Email</th><th>Course</th><th>Status</th><th>Enrolled On</th><th>Actions</th></tr></thead>
+        <tbody id="enrollments-body"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CONTACTS -->
+  <div class="page" id="page-contacts">
+    <div class="page-title">Contact Submissions</div>
+    <div class="page-sub">Messages sent through the contact form on the website.</div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">All Messages</div>
+        <div class="table-count" id="contacts-count">Loading...</div>
+      </div>
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Course Interest</th><th>Message</th><th>Date</th></tr></thead>
+        <tbody id="contacts-body"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BATCHES -->
+  <div class="page" id="page-batches">
+    <div class="page-title">Batches</div>
+    <div class="page-sub">Manage course batches — create different timings for the same course.</div>
+
+    <div class="table-card" style="margin-bottom:1.5rem;padding:1.5rem;">
+      <div class="table-title" style="margin-bottom:1rem;">Create New Batch</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
+          <select id="new-batch-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="tef">TEF Preparation</option>
+            <option value="clb7-6mo">CLB 7 — 6 months</option>
+            <option value="clb7-4mo">CLB 7 — 4 months</option>
+            <option value="1on1">1-on-1 Private</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">BATCH NAME</label>
+          <input id="new-batch-name" placeholder="e.g. Batch 1, Morning Batch" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">DAYS</label>
+          <input id="new-batch-days" placeholder="e.g. Mon, Wed, Fri" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">TIMING</label>
+          <input id="new-batch-timing" placeholder="e.g. 9 PM – 10 PM EST" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">GOOGLE MEET LINK</label>
+          <input id="new-batch-meet" placeholder="https://meet.google.com/..." style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+      </div>
+      <button class="btn-sm btn-approve" style="padding:.6rem 1.5rem;" onclick="createBatch()">+ Create Batch</button>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">All Batches</div>
+        <div class="table-count" id="batches-count">Loading...</div>
+      </div>
+      <table>
+        <thead><tr><th>Course</th><th>Batch Name</th><th>Days</th><th>Timing</th><th>Meet Link</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="batches-body"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="table-card" style="margin-top:1.5rem;padding:1.5rem;">
+      <div class="table-title" style="margin-bottom:1rem;">Assign Student to Batch</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">SEARCH STUDENT</label>
+          <input id="assign-student-search" placeholder="Type student name or email..." oninput="searchStudents(this.value)"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+          <div id="student-search-results" style="position:relative;">
+            <div id="student-dropdown" style="display:none;position:absolute;top:0;left:0;right:0;background:#fff;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;box-shadow:0 8px 24px rgba(10,35,66,.1);z-index:100;max-height:200px;overflow-y:auto;"></div>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Course</th>
-                <th>Rating</th>
-                <th>Review</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="dashboard-reviews-body">
-              <tr class="empty-row">
-                <td colspan="5">Loading...</td>
-              </tr>
-            </tbody>
-          </table>
+          <div id="selected-student" style="display:none;margin-top:.5rem;padding:.5rem .8rem;background:var(--pale);border-radius:6px;font-size:.82rem;color:var(--navy);align-items:center;justify-content:space-between;">
+            <span id="selected-student-name"></span>
+            <button onclick="clearSelectedStudent()" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;">✕</button>
+          </div>
+          <input type="hidden" id="assign-student-id"/>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">BATCH</label>
+          <select id="assign-batch-id" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="">Select a batch</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-sm btn-approve" style="padding:.6rem 1.5rem;" onclick="assignBatch()">Assign to Batch</button>
+    </div>
+  </div>
+
+  <!-- LECTURES -->
+  <div class="page" id="page-lectures">
+    <div class="page-title">Lectures</div>
+    <div class="page-sub">Upload and manage course lecture videos.</div>
+
+    <div class="table-card" style="margin-bottom:1.5rem;padding:1.5rem;">
+      <div class="table-title" style="margin-bottom:1rem;">Upload New Lecture</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
+          <select id="lec-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="tef">TEF Preparation</option>
+            <option value="clb7-6mo">CLB 7 — 6 months</option>
+            <option value="clb7-4mo">CLB 7 — 4 months</option>
+            <option value="1on1">1-on-1 Private</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">LEVEL</label>
+          <select id="lec-level" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="A1">A1 — Complete Beginner</option>
+            <option value="A2">A2 — Elementary</option>
+            <option value="B1">B1 — Intermediate</option>
+            <option value="B2">B2 — Upper Intermediate</option>
+            <option value="C1">C1 — Advanced</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">ORDER NUMBER</label>
+          <input id="lec-order" type="number" min="1" value="1" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">BATCH (optional)</label>
+          <select id="lec-batch" onchange="updateCourseFromBatch(this.value)" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="">No specific batch (course wide)</option>
+          </select>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">TITLE</label>
+          <input id="lec-title" placeholder="e.g. Introduction to TEF Canada" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">DESCRIPTION (optional)</label>
+          <input id="lec-desc" placeholder="Brief description of this lecture" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">VIDEO FILE</label>
+          <input type="file" id="lec-video" accept="video/*" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;background:#fff;"/>
         </div>
       </div>
 
-      <!-- REVIEWS -->
-      <div class="page" id="page-reviews">
-        <div class="page-title">Reviews</div>
-        <div class="page-sub">
-          Approve or reject student reviews before they appear on the website.
-        </div>
-        <div class="table-card">
-          <div class="table-header">
-            <div class="table-title">All Reviews</div>
-            <div class="table-count" id="reviews-count">Loading...</div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Course</th>
-                <th>Rating</th>
-                <th>Review</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="reviews-body">
-              <tr class="empty-row">
-                <td colspan="7">Loading...</td>
-              </tr>
-            </tbody>
-          </table>
+      <div id="upload-progress-wrap" style="display:none;margin-bottom:1rem;">
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:.4rem;" id="upload-progress-label">Uploading...</div>
+        <div style="background:var(--pale);border-radius:20px;height:8px;overflow:hidden;">
+          <div id="upload-progress-bar" style="background:var(--blue);height:100%;width:0%;transition:width .3s;border-radius:20px;"></div>
         </div>
       </div>
 
-      <!-- STUDENTS -->
-      <div class="page" id="page-students">
-        <div class="page-title">Students</div>
-        <div class="page-sub">All registered students on the platform.</div>
-        <div class="table-card">
-          <div class="table-header">
-            <div class="table-title">All Students</div>
-            <div class="table-count" id="students-count">Loading...</div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Course Interest</th>
-                <th>Role</th>
-                <th>Joined</th>
-              </tr>
-            </thead>
-            <tbody id="students-body">
-              <tr class="empty-row">
-                <td colspan="6">Loading...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <div id="upload-error" style="display:none;background:#FEE2E2;color:#991B1B;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
+      <div id="upload-success" style="display:none;background:#D1FAE5;color:#065F46;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
 
-      <!-- ENROLLMENTS -->
-      <div class="page" id="page-enrollments">
-        <div class="page-title">Enrollments</div>
-        <div class="page-sub">
-          Manage student enrollments — activate or deactivate access.
-        </div>
-        <div class="table-card">
-          <div class="table-header">
-            <div class="table-title">All Enrollments</div>
-            <div class="table-count" id="enrollments-count">Loading...</div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Email</th>
-                <th>Course</th>
-                <th>Status</th>
-                <th>Enrolled On</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="enrollments-body">
-              <tr class="empty-row">
-                <td colspan="6">Loading...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <button class="btn-sm btn-approve" style="padding:.6rem 1.5rem;" id="upload-btn" onclick="uploadLecture()">⬆️ Upload Lecture</button>
+    </div>
 
-      <!-- CONTACTS -->
-      <div class="page" id="page-contacts">
-        <div class="page-title">Contact Submissions</div>
-        <div class="page-sub">
-          Messages sent through the contact form on the website.
-        </div>
-        <div class="table-card">
-          <div class="table-header">
-            <div class="table-title">All Messages</div>
-            <div class="table-count" id="contacts-count">Loading...</div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Course Interest</th>
-                <th>Message</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody id="contacts-body">
-              <tr class="empty-row">
-                <td colspan="5">Loading...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">All Lectures</div>
+        <div class="table-count" id="lectures-count">Loading...</div>
       </div>
-    </main>
+      <table>
+        <thead><tr><th>Course</th><th>Batch</th><th>Level</th><th>Order</th><th>Title</th><th>Description</th><th>Actions</th></tr></thead>
+        <tbody id="lectures-body"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+    <!-- BATCHES -->
+
 
     <!-- TOAST -->
     <div class="toast" id="toast"></div>
@@ -737,6 +828,67 @@
       let adminToken = localStorage.getItem("fws_admin_token");
       let currentPage = "dashboard";
 
+      // ── STUDENT SEARCH ─────────────────────────────────
+let allStudentsCache = []
+
+async function loadStudentsCache() {
+  try {
+    const res  = await fetch(`${API}/admin/students`, { headers: authHeaders() })
+    const data = await res.json()
+    allStudentsCache = data.students || []
+  } catch {}
+}
+
+function searchStudents(query) {
+  const dropdown = document.getElementById('student-dropdown')
+
+  if (!query || query.length < 2) {
+    dropdown.style.display = 'none'
+    return
+  }
+
+  const q = query.toLowerCase()
+  const matches = allStudentsCache.filter(s =>
+    s.full_name?.toLowerCase().includes(q) ||
+    s.email?.toLowerCase().includes(q)
+  ).slice(0, 8)
+
+  if (matches.length === 0) {
+    dropdown.style.display = 'none'
+    return
+  }
+
+  dropdown.style.display = 'block'
+  dropdown.innerHTML = matches.map(s => `
+    <div class="student-option" onclick="selectStudent('${s.id}', '${s.full_name}', '${s.email}')">
+      <div class="student-option-name">${s.full_name}</div>
+      <div class="student-option-email">${s.email}</div>
+    </div>
+  `).join('')
+}
+
+function selectStudent(id, name, email) {
+  document.getElementById('assign-student-id').value        = id
+  document.getElementById('assign-student-search').value    = ''
+  document.getElementById('student-dropdown').style.display = 'none'
+  document.getElementById('selected-student-name').textContent = `${name} — ${email}`
+  document.getElementById('selected-student').style.display = 'flex'
+}
+
+function clearSelectedStudent() {
+  document.getElementById('assign-student-id').value           = ''
+  document.getElementById('assign-student-search').value       = ''
+  document.getElementById('selected-student').style.display    = 'none'
+  document.getElementById('selected-student-name').textContent = ''
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#student-search-results') && !e.target.closest('#assign-student-search')) {
+    const dropdown = document.getElementById('student-dropdown')
+    if (dropdown) dropdown.style.display = 'none'
+  }
+})
       // ── TOAST ─────────────────────────────────────────
       function showToast(msg, type = "success") {
         const t = document.getElementById("toast");
@@ -823,24 +975,7 @@
         Authorization: `Bearer ${adminToken}`,
       });
 
-      // ── PAGE NAVIGATION ────────────────────────────────
-      function showPage(page) {
-        document
-          .querySelectorAll(".page")
-          .forEach((p) => p.classList.remove("active"));
-        document
-          .querySelectorAll(".nav-item")
-          .forEach((n) => n.classList.remove("active"));
-        document.getElementById(`page-${page}`).classList.add("active");
-        event.currentTarget.classList.add("active");
-        currentPage = page;
-
-        if (page === "dashboard") loadDashboard();
-        if (page === "reviews") loadReviews();
-        if (page === "students") loadStudents();
-        if (page === "enrollments") loadEnrollments();
-        if (page === "contacts") loadContacts();
-      }
+      
 
       // ── DASHBOARD ──────────────────────────────────────
       async function loadDashboard() {
@@ -1129,6 +1264,300 @@
           handleAdminLogin();
         }
       });
+      // ── BATCHES ────────────────────────────────────────
+async function loadBatches() {
+  const tbody = document.getElementById('batches-body')
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Loading...</td></tr>`
+    await loadStudentsCache()  
+
+  try {
+    const res  = await fetch(`${API}/admin/batches`, { headers: authHeaders() })
+    const data = await res.json()
+    const batches = data.batches || []
+
+    document.getElementById('batches-count').textContent = `${batches.length} total`
+
+    // Populate assign batch dropdown
+    const assignSelect = document.getElementById('assign-batch-id')
+    assignSelect.innerHTML = '<option value="">Select a batch</option>' +
+      batches.map(b => `<option value="${b.id}">${formatCourse(b.course)} — ${b.batch_name} (${b.timing})</option>`).join('')
+
+    if (batches.length === 0) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No batches yet</td></tr>`
+      return
+    }
+
+    tbody.innerHTML = batches.map(b => `
+      <tr>
+        <td>${formatCourse(b.course)}</td>
+        <td><strong>${b.batch_name}</strong></td>
+        <td>${b.days}</td>
+        <td>${b.timing}</td>
+        <td>${b.meet_link
+          ? `<a href="${b.meet_link}" target="_blank" style="color:var(--sky);font-size:.82rem;">Open Link</a>`
+          : '<span style="color:var(--muted);font-size:.82rem;">Not set</span>'}</td>
+        <td><span class="badge ${b.is_active ? 'badge-active' : 'badge-inactive'}">${b.is_active ? 'Active' : 'Inactive'}</span></td>
+        <td>
+          <div class="btn-actions">
+            <button class="btn-sm btn-reject" onclick="deleteBatch('${b.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('')
+  } catch(err) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Failed to load batches</td></tr>`
+  }
+}
+
+async function createBatch() {
+  const course     = document.getElementById('new-batch-course').value
+  const batch_name = document.getElementById('new-batch-name').value.trim()
+  const days       = document.getElementById('new-batch-days').value.trim()
+  const timing     = document.getElementById('new-batch-timing').value.trim()
+  const meet_link  = document.getElementById('new-batch-meet').value.trim()
+
+  if (!batch_name || !days || !timing) {
+    showToast('Please fill in batch name, days and timing', 'error')
+    return
+  }
+
+  const res = await fetch(`${API}/admin/batches`, {
+    method:  'POST',
+    headers: authHeaders(),
+    body:    JSON.stringify({ course, batch_name, days, timing, meet_link: meet_link || null })
+  })
+
+  if (res.ok) {
+    showToast('Batch created!', 'success')
+    document.getElementById('new-batch-name').value  = ''
+    document.getElementById('new-batch-days').value  = ''
+    document.getElementById('new-batch-timing').value = ''
+    document.getElementById('new-batch-meet').value  = ''
+    loadBatches()
+  } else {
+    showToast('Failed to create batch', 'error')
+  }
+}
+
+async function deleteBatch(id) {
+  if (!confirm('Delete this batch?')) return
+
+  const res = await fetch(`${API}/admin/batches/${id}`, {
+    method:  'DELETE',
+    headers: authHeaders()
+  })
+
+  if (res.ok) {
+    showToast('Batch deleted', 'success')
+    loadBatches()
+  } else {
+    showToast('Failed to delete batch', 'error')
+  }
+}
+
+async function assignBatch() {
+  const studentId = document.getElementById('assign-student-id').value.trim()
+  const batch_id  = document.getElementById('assign-batch-id').value
+
+  if (!studentId || !batch_id) {
+    showToast('Please enter student ID and select a batch', 'error')
+    return
+  }
+
+  const res = await fetch(`${API}/admin/enrollments/${studentId}/batch`, {
+    method:  'PATCH',
+    headers: authHeaders(),
+    body:    JSON.stringify({ batch_id })
+  })
+
+  if (res.ok) {
+    showToast('Student assigned to batch!', 'success')
+    document.getElementById('assign-student-id').value = ''
+    document.getElementById('assign-batch-id').value   = ''
+  } else {
+    showToast('Failed to assign batch', 'error')
+  }
+}
+
+
+      // ── LECTURES ───────────────────────────────────────
+async function loadLectures() {
+  const tbody = document.getElementById('lectures-body')
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Loading...</td></tr>`
+
+  // Load batches for dropdown
+  try {
+    const batchRes  = await fetch(`${API}/admin/batches`, { headers: authHeaders() })
+    const batchData = await batchRes.json()
+    const batches   = batchData.batches || []
+    const batchSelect = document.getElementById('lec-batch')
+    batchSelect.innerHTML = '<option value="">No specific batch (course wide)</option>' +
+      batches.map(b => `<option value="${b.id}">${formatCourse(b.course)} — ${b.batch_name} (${b.timing})</option>`).join('')
+  } catch {}
+
+  try {
+    const res  = await fetch(`${API}/admin/lectures`, { headers: authHeaders() })
+    const data = await res.json()
+    const lectures = data.lectures || []
+
+    document.getElementById('lectures-count').textContent = `${lectures.length} total`
+
+    if (lectures.length === 0) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No lectures yet</td></tr>`
+      return
+    }
+
+    tbody.innerHTML = lectures.map(l => `
+      <tr>
+        <td>${formatCourse(l.course)}</td>
+        <td>${l.batch_id ? '📦 Batch specific' : '🌐 Course wide'}</td>
+        <td><span class="badge badge-active">${l.level || 'A1'}</span></td>
+        <td>${l.order_num}</td>
+        <td><strong>${l.title}</strong></td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.description || '—'}</td>
+        <td>
+          <button class="btn-sm btn-reject" onclick="deleteLecture('${l.id}')">Delete</button>
+        </td>
+      </tr>
+    `).join('')
+  } catch(err) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Failed to load lectures</td></tr>`
+  }
+}
+
+async function uploadLecture() {
+  const course    = document.getElementById('lec-course').value
+  const level     = document.getElementById('lec-level').value
+  const order_num = document.getElementById('lec-order').value
+  const title     = document.getElementById('lec-title').value.trim()
+  const desc      = document.getElementById('lec-desc').value.trim()
+  const videoFile = document.getElementById('lec-video').files[0]
+  const batch_id  = document.getElementById('lec-batch').value
+
+  document.getElementById('upload-error').style.display   = 'none'
+  document.getElementById('upload-success').style.display = 'none'
+
+  if (!title) {
+    document.getElementById('upload-error').textContent = 'Please enter a title.'
+    document.getElementById('upload-error').style.display = 'block'
+    return
+  }
+  if (!videoFile) {
+    document.getElementById('upload-error').textContent = 'Please select a video file.'
+    document.getElementById('upload-error').style.display = 'block'
+    return
+  }
+
+  const btn = document.getElementById('upload-btn')
+  btn.disabled = true
+  btn.textContent = 'Uploading...'
+  document.getElementById('upload-progress-wrap').style.display = 'block'
+  document.getElementById('upload-progress-label').textContent = `Uploading ${videoFile.name}...`
+
+  let progress = 0
+  const progressInterval = setInterval(() => {
+    progress = Math.min(progress + 5, 90)
+    document.getElementById('upload-progress-bar').style.width = `${progress}%`
+  }, 300)
+
+  try {
+    const formData = new FormData()
+    formData.append('video',        videoFile)
+    formData.append('course',       course)
+    formData.append('title',        title)
+    formData.append('description',  desc)
+    formData.append('level',        level)
+    formData.append('order_num',    order_num)
+    if (batch_id) formData.append('batch_id', batch_id)
+
+    const res = await fetch(`${API}/admin/lectures/upload`, {
+      method:  'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body:    formData
+    })
+
+    clearInterval(progressInterval)
+    document.getElementById('upload-progress-bar').style.width = '100%'
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      document.getElementById('upload-error').textContent = data.error || 'Upload failed.'
+      document.getElementById('upload-error').style.display = 'block'
+    } else {
+      document.getElementById('upload-success').textContent = '✅ Lecture uploaded successfully!'
+      document.getElementById('upload-success').style.display = 'block'
+      document.getElementById('lec-title').value = ''
+      document.getElementById('lec-desc').value  = ''
+      document.getElementById('lec-video').value = ''
+      document.getElementById('lec-order').value = '1'
+      loadLectures()
+    }
+  } catch(err) {
+    clearInterval(progressInterval)
+    document.getElementById('upload-error').textContent = 'Server error. Please try again.'
+    document.getElementById('upload-error').style.display = 'block'
+  } finally {
+    btn.disabled = false
+    btn.textContent = '⬆️ Upload Lecture'
+    setTimeout(() => {
+      document.getElementById('upload-progress-wrap').style.display = 'none'
+      document.getElementById('upload-progress-bar').style.width = '0%'
+    }, 2000)
+  }
+}
+
+async function deleteLecture(id) {
+  if (!confirm('Delete this lecture? The video will remain in storage.')) return
+
+  const res = await fetch(`${API}/admin/lectures/${id}`, {
+    method:  'DELETE',
+    headers: authHeaders()
+  })
+
+  if (res.ok) {
+    showToast('Lecture deleted', 'success')
+    loadLectures()
+  } else {
+    showToast('Failed to delete lecture', 'error')
+  }
+}
+function updateCourseFromBatch(batchId) {
+  if (!batchId) return
+  
+  // Find the selected batch option text to extract course
+  const select = document.getElementById('lec-batch')
+  const selectedOption = select.options[select.selectedIndex]
+  const text = selectedOption.text.toLowerCase()
+  
+  const courseSelect = document.getElementById('lec-course')
+  if (text.includes('tef')) courseSelect.value = 'tef'
+  else if (text.includes('6mo') || text.includes('6 months')) courseSelect.value = 'clb7-6mo'
+  else if (text.includes('4mo') || text.includes('4 months')) courseSelect.value = 'clb7-4mo'
+  else if (text.includes('1on1') || text.includes('private')) courseSelect.value = '1on1'
+}
+// ── PAGE NAVIGATION ────────────────────────────────
+      function showPage(page) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((n) => n.classList.remove("active"));
+        document.getElementById(`page-${page}`).classList.add("active");
+        event.currentTarget.classList.add("active");
+        currentPage = page;
+
+        if (page === "dashboard") loadDashboard();
+        if (page === "reviews") loadReviews();
+        if (page === "students") loadStudents();
+        if (page === "enrollments") loadEnrollments();
+        if (page === "contacts") loadContacts();
+        if (page === 'batches') loadBatches();
+        if (page === 'lectures') loadLectures()
+      }
+
+
 
       // ── INIT ───────────────────────────────────────────
       if (adminToken) {

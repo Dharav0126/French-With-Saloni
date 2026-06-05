@@ -28,15 +28,15 @@ app.use('/student', studentRoutes)
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc:   ["'self'"],
-      scriptSrc:    ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      scriptSrcAttr:["'unsafe-inline'"],
-      styleSrc:     ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc:      ["'self'", "https://fonts.gstatic.com"],
-      imgSrc:       ["'self'", "data:", "https:"],
-      mediaSrc:     ["'self'", "https://*.supabase.co"],  
-      connectSrc:   ["'self'", "https://*.supabase.co", "https://api.stripe.com"],
-      frameSrc:     ["'self'", "https://js.stripe.com", "https://checkout.stripe.com"],
+      defaultSrc:    ["'self'"],
+      scriptSrc:     ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc:      ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:       ["'self'", "https://fonts.gstatic.com"],
+      imgSrc:        ["'self'", "data:", "https:"],
+      mediaSrc:      ["'self'", "https://*.supabase.co"],
+      connectSrc:    ["'self'", "https://*.supabase.co", "https://api.stripe.com"],
+      frameSrc: ["'self'", "https://js.stripe.com", "https://checkout.stripe.com", "https://drive.google.com"],
     }
   }
 }))
