@@ -124,13 +124,19 @@ router.get('/lecture/:id', verifyJWT, async (req, res) => {
   const { id } = req.params
   const studentId = req.user.sub
 
-  // Verify student is enrolled
+  console.log('Lecture request:', { id, studentId })
+
+  // Verify student is enrolled — get latest active enrollment
   const { data: enrollment } = await supabase
     .from('enrollments')
-    .select('course')
+    .select('course, batch_id')
     .eq('student_id', studentId)
     .eq('status', 'active')
+    .order('enrolled_at', { ascending: false })
+    .limit(1)
     .single()
+
+  console.log('Enrollment found:', enrollment)
 
   if (!enrollment) {
     return res.status(403).json({ error: 'Not enrolled' })
@@ -139,7 +145,7 @@ router.get('/lecture/:id', verifyJWT, async (req, res) => {
   // Get lecture
   const { data: lecture, error } = await supabase
     .from('lectures')
-    .select('id, title, description, video_path, order_num, level, course')
+    .select('id, title, description, video_path, order_num, level, course, batch_id')
     .eq('id', id)
     .single()
 
@@ -147,8 +153,20 @@ router.get('/lecture/:id', verifyJWT, async (req, res) => {
     return res.status(404).json({ error: 'Lecture not found' })
   }
 
-  // Make sure lecture belongs to student's course
-  if (lecture.course !== enrollment.course) {
+  console.log('Lecture found:', lecture)
+
+  // Verify lecture belongs to student's batch or course
+  const hasAccess =
+    (lecture.batch_id && lecture.batch_id === enrollment.batch_id) ||
+    (!lecture.batch_id && lecture.course === enrollment.course)
+
+  console.log('Access check:', {
+    lectureBatch:    lecture.batch_id,
+    enrollmentBatch: enrollment.batch_id,
+    match: hasAccess
+  })
+
+  if (!hasAccess) {
     return res.status(403).json({ error: 'Access denied' })
   }
 
