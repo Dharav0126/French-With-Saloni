@@ -160,6 +160,55 @@ router.delete('/lectures/:id', async (req, res) => {
   if (error) return res.status(500).json({ error: error.message })
   return res.status(200).json({ message: 'Lecture deleted' })
 })
+// GET all materials
+router.get('/materials', async (req, res) => {
+  const { data, error } = await supabase
+    .from('study_materials')
+    .select('*')
+    .order('course', { ascending: true })
+    .order('order_num', { ascending: true })
+
+  if (error) return res.status(500).json({ error: error.message })
+  return res.status(200).json({ materials: data })
+})
+
+// POST create material
+router.post('/materials', async (req, res) => {
+  const { course, title, description, type, url, level, order_num } = req.body
+
+  if (!course || !title || !url) {
+    return res.status(400).json({ error: 'Course, title and URL are required' })
+  }
+
+  const { data, error } = await supabase
+    .from('study_materials')
+    .insert({
+      course, title,
+      description: description || null,
+      type: type || 'link',
+      url,
+      level: level || 'A1',
+      order_num: parseInt(order_num) || 1
+    })
+    .select()
+    .single()
+
+  if (error) return res.status(500).json({ error: error.message })
+  return res.status(201).json({ message: 'Material added', material: data })
+})
+
+// DELETE material
+router.delete('/materials/:id', async (req, res) => {
+  const { id } = req.params
+
+  const { error } = await supabase
+    .from('study_materials')
+    .delete()
+    .eq('id', id)
+
+  if (error) return res.status(500).json({ error: error.message })
+  return res.status(200).json({ message: 'Material deleted' })
+})
 
 // GET all batches
 router.get('/batches', async (req, res) => {
