@@ -160,6 +160,7 @@ router.delete('/lectures/:id', async (req, res) => {
   if (error) return res.status(500).json({ error: error.message })
   return res.status(200).json({ message: 'Lecture deleted' })
 })
+
 // GET all materials
 router.get('/materials', async (req, res) => {
   const { data, error } = await supabase
@@ -174,16 +175,27 @@ router.get('/materials', async (req, res) => {
 
 // POST create material
 router.post('/materials', async (req, res) => {
-  const { course, title, description, type, url, level, order_num } = req.body
+  const { material_category, course, title, description, type, url, level, order_num, exam_type } = req.body
 
-  if (!course || !title || !url) {
-    return res.status(400).json({ error: 'Course, title and URL are required' })
+  if (!title || !url) {
+    return res.status(400).json({ error: 'Title and URL are required' })
+  }
+
+  if (material_category === 'class_notes' && !course) {
+    return res.status(400).json({ error: 'Course is required for class notes' })
+  }
+
+  if (material_category === 'exam_prep' && !exam_type) {
+    return res.status(400).json({ error: 'Exam type is required for exam materials' })
   }
 
   const { data, error } = await supabase
     .from('study_materials')
     .insert({
-      course, title,
+      material_category: material_category || 'class_notes',
+      course:    material_category === 'class_notes' ? course : null,
+      exam_type: material_category === 'exam_prep'    ? exam_type : null,
+      title,
       description: description || null,
       type: type || 'link',
       url,
@@ -258,7 +270,7 @@ router.patch('/batches/:id', async (req, res) => {
 
 // DELETE batch
 router.delete('/batches/:id', async (req, res) => {
-  const { id } = req.params  // ← add this line
+  const { id } = req.params
 
   const { error } = await supabase
     .from('batches')
@@ -293,7 +305,7 @@ router.patch('/enrollments/:studentId/exam-type', async (req, res) => {
   return res.status(200).json({ message: 'Exam type updated', data })
 })
 
-// PATCH assign student to batch
+// PATCH assign student to batch (creates a NEW enrollment, supports multiple batches per student)
 router.patch('/enrollments/:studentId/batch', async (req, res) => {
   const { studentId } = req.params
   const { batch_id } = req.body
@@ -313,36 +325,33 @@ router.patch('/enrollments/:studentId/batch', async (req, res) => {
     return res.status(404).json({ error: 'Batch not found' })
   }
 
-  // Check if student already has an enrollment
-  const { data: existing } = await supabase
+  // Check if student is ALREADY enrolled in this exact batch (avoid true duplicates)
+  const { data: existingSameBatch } = await supabase
     .from('enrollments')
     .select('id')
     .eq('student_id', studentId)
+    .eq('batch_id', batch_id)
     .eq('status', 'active')
 
-  if (existing && existing.length > 0) {
-    // Update existing enrollment with batch_id
-    const { error } = await supabase
-      .from('enrollments')
-      .update({ batch_id, course: batch.course })
-      .eq('student_id', studentId)
-      .eq('status', 'active')
-
-    if (error) return res.status(500).json({ error: error.message })
-  } else {
-    // No enrollment exists — create one automatically
-    const { error } = await supabase
-      .from('enrollments')
-      .insert({
-        student_id: studentId,
-        course:     batch.course,
-        status:     'active',
-        batch_id:   batch_id
-      })
-
-    if (error) return res.status(500).json({ error: error.message })
+  if (existingSameBatch && existingSameBatch.length > 0) {
+    return res.status(400).json({ error: 'Student is already enrolled in this batch' })
   }
 
-  return res.status(200).json({ message: 'Student enrolled and assigned to batch!' })
+  // Create a brand new enrollment for this batch
+  const { data, error } = await supabase
+    .from('enrollments')
+    .insert({
+      student_id: studentId,
+      course:     batch.course,
+      status:     'active',
+      batch_id:   batch_id
+    })
+    .select()
+    .single()
+
+  if (error) return res.status(500).json({ error: error.message })
+
+  return res.status(200).json({ message: 'Student enrolled and assigned to batch!', enrollment: data })
 })
+
 export default router

@@ -676,7 +676,8 @@
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
           <select id="new-batch-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
             <option value="tef">TEF Preparation</option>
-            <option value="clb7-6mo">CLB 7 — 6 months</option>
+            <option value="tcf">TCF Preparation</option>
+            <option value="clb7-6mo">A1-B2 — 6 months</option>
             <option value="clb7-4mo">CLB 7 — 4 months</option>
             <option value="1on1">1-on-1 Private</option>
           </select>
@@ -751,7 +752,8 @@
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
           <select id="lec-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
             <option value="tef">TEF Preparation</option>
-            <option value="clb7-6mo">CLB 7 — 6 months</option>
+             <option value="tcf">TCF Preparation</option>
+            <option value="clb7-6mo">A1-B2 — 6 months</option>
             <option value="clb7-4mo">CLB 7 — 4 months</option>
             <option value="1on1">1-on-1 Private</option>
           </select>
@@ -820,28 +822,44 @@
   <div class="page-sub">Add study materials and PDFs via Google Drive links.</div>
 
   <!-- Add material form -->
-  <div class="table-card" style="margin-bottom:1.5rem;padding:1.5rem;">
-    <div class="table-title" style="margin-bottom:1rem;">Add New Material</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
-      <div>
-        <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
-        <select id="mat-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
-          <option value="tef">TEF Preparation</option>
-          <option value="clb7-6mo">CLB 7 — 6 months</option>
-          <option value="clb7-4mo">CLB 7 — 4 months</option>
-          <option value="1on1">1-on-1 Private</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">LEVEL</label>
-        <select id="mat-level" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
-          <option value="A1">A1 — Complete Beginner</option>
-          <option value="A2">A2 — Elementary</option>
-          <option value="B1">B1 — Intermediate</option>
-          <option value="B2">B2 — Upper Intermediate</option>
-          <option value="C1">C1 — Advanced</option>
-        </select>
-      </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+  <div style="grid-column:1/-1;">
+    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">MATERIAL TYPE</label>
+    <select id="mat-category" onchange="toggleMaterialFields(this.value)" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+      <option value="class_notes">📘 Class Notes (tied to a course)</option>
+      <option value="exam_prep">📝 Exam Materials (tied to TEF/TCF)</option>
+    </select>
+  </div>
+
+  <div id="mat-field-course">
+    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
+    <select id="mat-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+      <option value="tef">TEF Preparation</option>
+        <option value="tcf">TCF Preparation</option>
+      <option value="clb7-6mo">A1-B2 6 months</option>
+      <option value="clb7-4mo">CLB 7 — 4 months</option>
+      <option value="1on1">1-on-1 Private</option>
+    </select>
+  </div>
+
+  <div id="mat-field-exam" style="display:none;">
+    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">EXAM TYPE</label>
+    <select id="mat-exam" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+      <option value="TEF">TEF</option>
+      <option value="TCF">TCF</option>
+    </select>
+  </div>
+
+  <div>
+    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">LEVEL</label>
+    <select id="mat-level" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+      <option value="A1">A1 — Complete Beginner</option>
+      <option value="A2">A2 — Elementary</option>
+      <option value="B1">B1 — Intermediate</option>
+      <option value="B2">B2 — Upper Intermediate</option>
+      <option value="C1">C1 — Advanced</option>
+    </select>
+  </div>
       <div>
         <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">ORDER NUMBER</label>
         <input id="mat-order" type="number" min="1" value="1" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
@@ -880,6 +898,7 @@
         <tr>
           <th>Course</th>
           <th>Level</th>
+              <th>Exam</th>
           <th>Order</th>
           <th>Title</th>
           <th>Link</th>
@@ -990,7 +1009,8 @@ document.addEventListener('click', (e) => {
       function formatCourse(course) {
         const map = {
           tef: "TEF Preparation",
-          "clb7-6mo": "CLB 7 — 6 months",
+              tcf: "TCF Preparation",
+          "clb7-6mo": "A1-B2 — 6 months",
           "clb7-4mo": "CLB 7 — 4 months",
           "1on1": "1-on-1 Private",
         };
@@ -1665,24 +1685,25 @@ async function loadMaterials() {
     }
 
     tbody.innerHTML = materials.map(m => `
-      <tr>
-        <td>${formatCourse(m.course)}</td>
-        <td><span class="badge badge-active">${m.level || 'A1'}</span></td>
-        <td>${m.order_num}</td>
-        <td><strong>${m.title}</strong></td>
-        <td><a href="${m.url}" target="_blank" style="color:var(--sky);font-size:.82rem;">View Link</a></td>
-        <td>
-          <button class="btn-sm btn-reject" onclick="deleteMaterial('${m.id}')">Delete</button>
-        </td>
-      </tr>
-    `).join('')
+  <tr>
+    <td>${formatCourse(m.course)}</td>
+    <td><span class="badge badge-active">${m.level || 'A1'}</span></td>
+    <td><span class="badge ${m.exam_type === 'TCF' ? 'badge-pending' : 'badge-active'}">${m.exam_type || 'TEF'}</span></td>
+    <td>${m.order_num}</td>
+    <td><strong>${m.title}</strong></td>
+    <td><a href="${m.url}" target="_blank" style="color:var(--sky);font-size:.82rem;">View Link</a></td>
+    <td>
+      <button class="btn-sm btn-reject" onclick="deleteMaterial('${m.id}')">Delete</button>
+    </td>
+  </tr>
+`).join('')
   } catch(err) {
     tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load materials</td></tr>`
   }
 }
 
 async function addMaterial() {
-  const course    = document.getElementById('mat-course').value
+  const category  = document.getElementById('mat-category').value
   const level     = document.getElementById('mat-level').value
   const order_num = document.getElementById('mat-order').value
   const title     = document.getElementById('mat-title').value.trim()
@@ -1700,17 +1721,23 @@ async function addMaterial() {
 
   const url = convertDriveLink(rawUrl)
 
+  // Only send course OR exam_type based on category
+  const course    = category === 'class_notes' ? document.getElementById('mat-course').value : null
+  const exam_type = category === 'exam_prep'    ? document.getElementById('mat-exam').value   : null
+
   try {
     const res = await fetch(`${API}/admin/materials`, {
       method:  'POST',
       headers: authHeaders(),
       body: JSON.stringify({
+        material_category: category,
         course, title,
         description: desc,
         type: 'link',
         url,
         level,
-        order_num
+        order_num,
+        exam_type
       })
     })
 
@@ -1731,6 +1758,19 @@ async function addMaterial() {
   } catch(err) {
     document.getElementById('mat-error').textContent = 'Server error. Please try again.'
     document.getElementById('mat-error').style.display = 'block'
+  }
+}
+
+function toggleMaterialFields(category) {
+  const courseField = document.getElementById('mat-field-course')
+  const examField    = document.getElementById('mat-field-exam')
+
+  if (category === 'exam_prep') {
+    courseField.style.display = 'none'
+    examField.style.display   = 'block'
+  } else {
+    courseField.style.display = 'block'
+    examField.style.display   = 'none'
   }
 }
 
