@@ -642,7 +642,7 @@
         <div class="table-count" id="enrollments-count">Loading...</div>
       </div>
       <table>
-        <thead><tr><th>Student</th><th>Email</th><th>Course</th><th>Status</th><th>Enrolled On</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Student</th><th>Email</th> <th>Exam</th><th>Course</th><th>Status</th><th>Enrolled On</th><th>Actions</th></tr></thead>
         <tbody id="enrollments-body"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody>
       </table>
     </div>
@@ -1252,27 +1252,33 @@ document.addEventListener('click', (e) => {
           }
 
           tbody.innerHTML = enrollments
-            .map(
-              (e) => `
-        <tr>
-          <td><strong>${e.students?.full_name || "—"}</strong></td>
-          <td>${e.students?.email || "—"}</td>
-          <td>${formatCourse(e.course)}</td>
-          <td><span class="badge badge-${e.status}">${e.status}</span></td>
-          <td>${formatDate(e.enrolled_at)}</td>
-          <td>
-            <div class="btn-actions">
-              ${
-                e.status === "active"
-                  ? `<button class="btn-sm btn-deactivate" onclick="updateEnrollment('${e.student_id}','inactive')">Deactivate</button>`
-                  : `<button class="btn-sm btn-activate"   onclick="updateEnrollment('${e.student_id}','active')">Activate</button>`
-              }
-            </div>
-          </td>
-        </tr>
-      `,
-            )
-            .join("");
+  .map(
+    (e) => `
+<tr>
+  <td><strong>${e.students?.full_name || "—"}</strong></td>
+  <td>${e.students?.email || "—"}</td>
+  <td>${formatCourse(e.course)}</td>
+  <td>
+    <select onchange="updateExamType('${e.student_id}', this.value)" style="padding:.3rem .5rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.78rem;">
+      <option value="TEF" ${e.exam_type === 'TEF' ? 'selected' : ''}>TEF</option>
+      <option value="TCF" ${e.exam_type === 'TCF' ? 'selected' : ''}>TCF</option>
+    </select>
+  </td>
+  <td><span class="badge badge-${e.status}">${e.status}</span></td>
+  <td>${formatDate(e.enrolled_at)}</td>
+  <td>
+    <div class="btn-actions">
+      ${
+        e.status === "active"
+          ? `<button class="btn-sm btn-deactivate" onclick="updateEnrollment('${e.student_id}','inactive')">Deactivate</button>`
+          : `<button class="btn-sm btn-activate"   onclick="updateEnrollment('${e.student_id}','active')">Activate</button>`
+      }
+    </div>
+  </td>
+</tr>
+`,
+  )
+  .join("");
         } catch (err) {
           tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load enrollments</td></tr>`;
         }
@@ -1296,6 +1302,20 @@ document.addEventListener('click', (e) => {
           showToast("Server error", "error");
         }
       }
+
+      async function updateExamType(studentId, examType) {
+  const res = await fetch(`${API}/admin/enrollments/${studentId}/exam-type`, {
+    method:  'PATCH',
+    headers: authHeaders(),
+    body:    JSON.stringify({ exam_type: examType })
+  })
+
+  if (res.ok) {
+    showToast(`Exam type updated to ${examType}`, 'success')
+  } else {
+    showToast('Failed to update exam type', 'error')
+  }
+}
 
       // ── CONTACTS ───────────────────────────────────────
       async function loadContacts() {

@@ -269,6 +269,30 @@ router.delete('/batches/:id', async (req, res) => {
   return res.status(200).json({ message: 'Batch deleted' })
 })
 
+// PATCH update exam type for a student's active enrollment
+router.patch('/enrollments/:studentId/exam-type', async (req, res) => {
+  const { studentId } = req.params
+  const { exam_type } = req.body
+
+  if (!exam_type) {
+    return res.status(400).json({ error: 'exam_type is required' })
+  }
+
+  const { data, error } = await supabase
+    .from('enrollments')
+    .update({ exam_type })
+    .eq('student_id', studentId)
+    .eq('status', 'active')
+    .select()
+
+  if (error) return res.status(500).json({ error: error.message })
+  if (!data || data.length === 0) {
+    return res.status(404).json({ error: 'No active enrollment found for this student' })
+  }
+
+  return res.status(200).json({ message: 'Exam type updated', data })
+})
+
 // PATCH assign student to batch
 router.patch('/enrollments/:studentId/batch', async (req, res) => {
   const { studentId } = req.params

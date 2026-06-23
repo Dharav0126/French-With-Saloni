@@ -10,24 +10,25 @@ router.get('/dashboard', verifyJWT, async (req, res) => {
 
   // Get enrollment with batch info
   const { data: enrollment } = await supabase
-    .from('enrollments')
-    .select(`
-      course,
-      status,
-      enrolled_at,
-      batch_id,
-      batches (
-        batch_name,
-        days,
-        timing,
-        meet_link
-      )
-    `)
-    .eq('student_id', studentId)
-    .eq('status', 'active')
-    .order('enrolled_at', { ascending: false })  // ← get latest
-  .limit(1)                                     // ← only one
-    .single()
+  .from('enrollments')
+  .select(`
+    course,
+    status,
+    enrolled_at,
+    batch_id,
+    exam_type,
+    batches (
+      batch_name,
+      days,
+      timing,
+      meet_link
+    )
+  `)
+  .eq('student_id', studentId)
+  .eq('status', 'active')
+  .order('enrolled_at', { ascending: false })
+  .limit(1)
+  .single()
 
   if (!enrollment) {
     return res.status(200).json({
@@ -105,18 +106,19 @@ router.get('/dashboard', verifyJWT, async (req, res) => {
     .single()
 
   return res.status(200).json({
-    enrolled:        true,
-    course:          enrollment.course,
-    enrolledAt:      enrollment.enrolled_at,
-    batch:           enrollment.batches || null,
-    lectures:        lecturesWithUrls,
-    groupedLectures: groupedLectures,
-    materials:       materialsWithUrls,
-    meetLink:        enrollment.batches?.meet_link || settings?.meet_link || null,
-    schedule:        enrollment.batches
-      ? `${enrollment.batches.days} · ${enrollment.batches.timing}`
-      : settings?.meet_schedule || null
-  })
+  enrolled:        true,
+  course:          enrollment.course,
+  examType:        enrollment.exam_type || 'TEF',
+  enrolledAt:      enrollment.enrolled_at,
+  batch:           enrollment.batches || null,
+  lectures:        lecturesWithUrls,
+  groupedLectures: groupedLectures,
+  materials:       materialsWithUrls,
+  meetLink:        enrollment.batches?.meet_link || settings?.meet_link || null,
+  schedule:        enrollment.batches
+    ? `${enrollment.batches.days} · ${enrollment.batches.timing}`
+    : settings?.meet_schedule || null
+})
 })
 
 // GET single lecture with signed URL
