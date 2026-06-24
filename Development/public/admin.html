@@ -616,15 +616,20 @@
   <!-- STUDENTS -->
   <div class="page" id="page-students">
     <div class="page-title">Students</div>
-    <div class="page-sub">All registered students on the platform.</div>
+<div class="page-sub">All registered students on the platform.</div>
+<div style="display:flex;gap:.5rem;margin-bottom:1.5rem;">
+  <button class="btn-sm btn-approve" onclick="filterStudents('all')" id="filter-all">All</button>
+  <button class="btn-sm" style="background:rgba(16,185,129,.12);color:var(--green);" onclick="filterStudents('enrolled')" id="filter-enrolled">Enrolled Only</button>
+  <button class="btn-sm" style="background:rgba(240,192,64,.15);color:#b45309;" onclick="filterStudents('inquiry')" id="filter-inquiry">Inquiries Only</button>
+</div>
     <div class="table-card">
       <div class="table-header">
         <div class="table-title">All Students</div>
         <div class="table-count" id="students-count">Loading...</div>
       </div>
       <table>
-        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Course Interest</th><th>Role</th><th>Joined</th></tr></thead>
-        <tbody id="students-body"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody>
+ <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Course Interest</th><th>Enrollment Status</th><th>Joined</th></tr></thead>
+         <tbody id="students-body"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -889,6 +894,56 @@ document.addEventListener('click', (e) => {
     if (dropdown) dropdown.style.display = 'none'
   }
 })
+
+
+let allStudentsForFilter = [];
+let allEnrolledIdsForFilter = new Set();
+let currentStudentFilter = 'all';
+
+function filterStudents(type) {
+  currentStudentFilter = type;
+  renderStudentsTable();
+}
+
+function renderStudentsTable() {
+  const tbody = document.getElementById("students-body");
+  let filtered = allStudentsForFilter;
+
+  if (currentStudentFilter === 'enrolled') {
+    filtered = allStudentsForFilter.filter(s => allEnrolledIdsForFilter.has(s.id));
+  } else if (currentStudentFilter === 'inquiry') {
+    filtered = allStudentsForFilter.filter(s => s.role !== 'admin' && !allEnrolledIdsForFilter.has(s.id));
+  }
+
+  document.getElementById("students-count").textContent = `${filtered.length} shown`;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No students found</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered
+    .map((s) => {
+      const isEnrolled = allEnrolledIdsForFilter.has(s.id);
+      const statusBadge = s.role === 'admin'
+        ? `<span class="badge badge-approved">Admin</span>`
+        : isEnrolled
+          ? `<span class="badge badge-active">✓ Enrolled</span>`
+          : `<span class="badge badge-pending">Inquiry only</span>`;
+      return `
+        <tr>
+          <td><strong>${s.full_name}</strong></td>
+          <td>${s.email}</td>
+          <td>${s.phone || "—"}</td>
+          <td>${formatCourse(s.course)}</td>
+          <td>${statusBadge}</td>
+          <td>${formatDate(s.created_at)}</td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
       // ── TOAST ─────────────────────────────────────────
       function showToast(msg, type = "success") {
         const t = document.getElementById("toast");
@@ -1112,43 +1167,31 @@ document.addEventListener('click', (e) => {
       }
 
       // ── STUDENTS ───────────────────────────────────────
-      async function loadStudents() {
-        const tbody = document.getElementById("students-body");
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Loading...</td></tr>`;
+     async function loadStudents() {
+  const tbody = document.getElementById("students-body");
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Loading...</td></tr>`;
 
-        try {
-          const res = await fetch(`${API}/admin/students`, {
-            headers: authHeaders(),
-          });
-          const data = await res.json();
-          const students = data.students || [];
+  try {
+    const [studentsRes, enrollmentsRes] = await Promise.all([
+      fetch(`${API}/admin/students`, { headers: authHeaders() }),
+      fetch(`${API}/enrollments`, { headers: authHeaders() }),
+    ]);
 
-          document.getElementById("students-count").textContent =
-            `${students.length} total`;
+    const studentsData = await studentsRes.json();
+    const enrollmentsData = await enrollmentsRes.json();
 
-          if (students.length === 0) {
-            tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No students yet</td></tr>`;
-            return;
-          }
+    allStudentsForFilter = studentsData.students || [];
+    const enrollments = enrollmentsData.enrollments || [];
+    allEnrolledIdsForFilter = new Set(
+      enrollments.filter(e => e.status === 'active').map(e => e.student_id)
+    );
 
-          tbody.innerHTML = students
-            .map(
-              (s) => `
-        <tr>
-          <td><strong>${s.full_name}</strong></td>
-          <td>${s.email}</td>
-          <td>${s.phone || "—"}</td>
-          <td>${formatCourse(s.course)}</td>
-          <td><span class="badge ${s.role === "admin" ? "badge-approved" : "badge-active"}">${s.role}</span></td>
-          <td>${formatDate(s.created_at)}</td>
-        </tr>
-      `,
-            )
-            .join("");
-        } catch (err) {
-          tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load students</td></tr>`;
-        }
-      }
+    currentStudentFilter = 'all';
+    renderStudentsTable();
+  } catch (err) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load students</td></tr>`;
+  }
+}
 
       // ── ENROLLMENTS ────────────────────────────────────
       async function loadEnrollments() {

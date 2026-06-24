@@ -129,6 +129,23 @@
         font-size: 0.88rem;
         letter-spacing: 0.04em;
       }
+      .nav-login-btn {
+  background: transparent;
+  color: var(--navy);
+  border: 1.5px solid rgba(19, 85, 160, 0.2);
+  padding: 0.55rem 1.3rem;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.25s;
+  font-family: "Nunito", sans-serif;
+}
+.nav-login-btn:hover {
+  border-color: var(--sky);
+  color: var(--sky);
+}
       .nav-cta:hover {
         background: var(--sky) !important;
         transform: translateY(-1px);
@@ -2243,9 +2260,17 @@
         <li><a href="#contact">Contact</a></li>
       </ul>
       <!-- Logged OUT state -->
-      <button class="nav-cta" id="nav-auth-btn" onclick="openModal('login')">
-        Start Free Trial
-      </button>
+      <div
+        id="nav-auth-buttons"
+        style="display: flex; align-items: center; gap: 0.8rem"
+      >
+        <button class="nav-login-btn" onclick="openModal('login')">
+          Log In
+        </button>
+        <button class="nav-cta" onclick="openModal('register')">
+          Start Free Trial
+        </button>
+      </div>
       <!-- Logged IN state -->
       <div class="nav-user" id="nav-user">
         <span
@@ -3038,16 +3063,29 @@
       }
 
       function switchTab(tab) {
-  document.getElementById("panel-login").classList.toggle("active", tab === "login");
-  document.getElementById("panel-register").classList.toggle("active", tab === "register");
-  document.getElementById("panel-forgot").classList.toggle("active", tab === "forgot");
+        document
+          .getElementById("panel-login")
+          .classList.toggle("active", tab === "login");
+        document
+          .getElementById("panel-register")
+          .classList.toggle("active", tab === "register");
+        document
+          .getElementById("panel-forgot")
+          .classList.toggle("active", tab === "forgot");
 
-  document.getElementById("tab-login").classList.toggle("active", tab === "login");
-  document.getElementById("tab-register").classList.toggle("active", tab === "register");
+        document
+          .getElementById("tab-login")
+          .classList.toggle("active", tab === "login");
+        document
+          .getElementById("tab-register")
+          .classList.toggle("active", tab === "register");
 
-  document.getElementById('tab-forgot').style.display = tab === 'forgot' ? 'block' : 'none'
-  document.getElementById('tab-forgot').classList.toggle('active', tab === 'forgot')
-}
+        document.getElementById("tab-forgot").style.display =
+          tab === "forgot" ? "block" : "none";
+        document
+          .getElementById("tab-forgot")
+          .classList.toggle("active", tab === "forgot");
+      }
 
       // ── FORGOT PASSWORD ────────────────────────────────
       async function handleForgotPassword() {
@@ -3099,7 +3137,6 @@
           if (e.target === this) closeModal();
         });
 
-
       function showFormError(id, msg) {
         const el = document.getElementById(id);
         el.textContent = msg;
@@ -3115,21 +3152,21 @@
 
       // ── NAV STATE ──────────────────────────────────────
       function updateNavState() {
-        const user = getUser();
-        const authBtn = document.getElementById("nav-auth-btn");
-        const navUser = document.getElementById("nav-user");
-        const navUserName = document.getElementById("nav-user-name");
+  const user = getUser();
+  const authButtons = document.getElementById("nav-auth-buttons");
+  const navUser = document.getElementById("nav-user");
+  const navUserName = document.getElementById("nav-user-name");
 
-        if (user) {
-          authBtn.style.display = "none";
-          navUser.classList.add("visible");
-          navUserName.textContent = `👋 ${user.full_name?.split(" ")[0] || "Student"}`;
-          checkEnrollmentForReview();
-        } else {
-          authBtn.style.display = "block";
-          navUser.classList.remove("visible");
-        }
-      }
+  if (user) {
+    authButtons.style.display = "none";
+    navUser.classList.add("visible");
+    navUserName.textContent = `👋 ${user.full_name?.split(" ")[0] || "Student"}`;
+    checkEnrollmentForReview();
+  } else {
+    authButtons.style.display = "flex";
+    navUser.classList.remove("visible");
+  }
+}
       // ── REGISTER ───────────────────────────────────────
       async function handleRegister() {
         hideFormMessages("register");
