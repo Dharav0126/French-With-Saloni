@@ -36,6 +36,49 @@
         min-height: 100vh;
       }
 
+      .enroll-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.8rem;
+        border: 1px solid rgba(19, 85, 160, 0.08);
+        cursor: pointer;
+        transition: all 0.25s;
+      }
+      .enroll-card:hover {
+        border-color: var(--sky);
+        box-shadow: 0 10px 30px rgba(10, 35, 66, 0.1);
+        transform: translateY(-2px);
+      }
+      .enroll-card-icon {
+        font-size: 2rem;
+        margin-bottom: 0.8rem;
+      }
+      .enroll-card-title {
+        font-family: "Libre Baskerville", serif;
+        font-size: 1.1rem;
+        color: var(--navy);
+        margin-bottom: 0.4rem;
+      }
+      .enroll-card-sub {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .btn-change-course {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        border: none;
+        padding: 0.45rem 1.1rem;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        font-family: "Nunito", sans-serif;
+        cursor: pointer;
+        transition: background 0.25s;
+      }
+      .btn-change-course:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
       /* ── HEADER ── */
       header {
         background: linear-gradient(135deg, var(--navy), var(--blue));
@@ -454,9 +497,16 @@
   <body>
     <!-- HEADER -->
     <header>
-      <div class="header-brand">French with <span>Saloni</span></div>
       <div class="header-right">
         <span class="header-user" id="header-user"></span>
+        <button
+          class="btn-change-course"
+          id="btn-change-course"
+          onclick="showSelectionScreen()"
+          style="display: none"
+        >
+          ↺ Change Course
+        </button>
         <a href="./index.html" class="btn-back">← Back to site</a>
         <button class="btn-signout" onclick="handleSignOut()">Sign Out</button>
       </div>
@@ -479,6 +529,32 @@
         </div>
         <a href="./index.html#courses" class="btn-enroll">Browse Courses →</a>
       </div>
+      <!-- ENROLLMENT SELECTION SCREEN -->
+      <div id="selection-screen" style="display: none">
+        <div style="text-align: center; margin-bottom: 2rem">
+          <div
+            style="
+              font-family: &quot;Libre Baskerville&quot;, serif;
+              font-size: 1.6rem;
+              color: var(--navy);
+              margin-bottom: 0.5rem;
+            "
+          >
+            Which course would you like to open?
+          </div>
+          <div style="font-size: 0.9rem; color: var(--muted)">
+            Select a course below to view its lectures, materials and schedule.
+          </div>
+        </div>
+        <div
+          id="selection-cards"
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.2rem;
+          "
+        ></div>
+      </div>
 
       <!-- DASHBOARD CONTENT -->
       <div id="dashboard-content" style="display: none">
@@ -492,7 +568,16 @@
           </div>
           <div id="meet-btn-wrap"></div>
         </div>
-
+        <!-- ENROLLMENT TABS (only shown if multiple enrollments) -->
+        <div
+          id="enrollment-tabs"
+          style="
+            display: none;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+          "
+        ></div>
         <!-- Grid -->
         <!-- Grid -->
         <div class="dashboard-grid">
@@ -612,12 +697,65 @@
             <!-- Study Materials Section -->
             <div id="section-materials" style="display: none">
               <div class="section-title">📚 Study Materials</div>
-              <div id="materials-container">
+
+              <!-- Sub-tabs -->
+              <div style="display: flex; gap: 0.5rem; margin-bottom: 1.2rem">
+                <button
+                  onclick="switchMaterialTab('class')"
+                  id="mat-tab-class"
+                  style="
+                    padding: 0.5rem 1.1rem;
+                    border-radius: 20px;
+                    font-size: 0.82rem;
+                    font-weight: 700;
+                    font-family: &quot;Nunito&quot;, sans-serif;
+                    cursor: pointer;
+                    border: none;
+                    background: var(--blue);
+                    color: #fff;
+                    transition: all 0.25s;
+                  "
+                >
+                  📘 Class Notes
+                </button>
+                <button
+                  onclick="switchMaterialTab('exam')"
+                  id="mat-tab-exam"
+                  style="
+                    padding: 0.5rem 1.1rem;
+                    border-radius: 20px;
+                    font-size: 0.82rem;
+                    font-weight: 700;
+                    font-family: &quot;Nunito&quot;, sans-serif;
+                    cursor: pointer;
+                    border: none;
+                    background: var(--pale);
+                    color: var(--blue);
+                    transition: all 0.25s;
+                  "
+                >
+                  📝 Exam Materials
+                </button>
+              </div>
+
+              <!-- Class Notes -->
+              <div id="materials-class-container">
                 <div class="no-lectures">
                   <div class="no-lectures-icon">📂</div>
-                  <div class="no-lectures-title">No materials yet</div>
+                  <div class="no-lectures-title">No class notes yet</div>
                   <div class="no-lectures-sub">
-                    Saloni will upload study materials, PDFs and resources here.
+                    Saloni will upload class notes and resources here.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Exam Materials -->
+              <div id="materials-exam-container" style="display: none">
+                <div class="no-lectures">
+                  <div class="no-lectures-icon">📂</div>
+                  <div class="no-lectures-title">No exam materials yet</div>
+                  <div class="no-lectures-sub">
+                    Exam-specific resources will appear here.
                   </div>
                 </div>
               </div>
@@ -645,6 +783,10 @@
               <div class="info-row">
                 <div class="info-label">Course</div>
                 <div class="info-val" id="info-course">—</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Exam</div>
+                <div class="info-val" id="info-exam">—</div>
               </div>
               <div class="info-row">
                 <div class="info-label">Status</div>
@@ -715,8 +857,9 @@
 
       const COURSE_NAMES = {
         tef: "TEF Preparation",
-        "clb7-6mo": "Zero to CLB 7 — 6 months",
-        "clb7-4mo": "Zero to CLB 7 — 4 months",
+        tcf: "TCF Preparation",
+        "clb7-6mo": "A1-B2 — 6 months",
+        "clb7-4mo": "A1-B2 — 4 months",
         "1on1": "1-on-1 Private Classes",
       };
 
@@ -726,6 +869,11 @@
           { label: "Time", val: "9 PM – 10 PM EST" },
           { label: "Classes", val: "5 per week (1 hr each)" },
         ],
+        tcf: [
+    { label: "Days", val: "Mon – Fri" },
+    { label: "Time", val: "9 PM – 10 PM EST" },
+    { label: "Classes", val: "5 per week (1 hr each)" },
+  ],
         "clb7-6mo": [
           { label: "Weekdays", val: "Mon, Wed, Thu, Fri" },
           { label: "Weekends", val: "Sat & Sun — 2 hours each" },
@@ -743,17 +891,19 @@
         ],
       };
 
+      // ── GLOBAL STATE ───────────────────────────────────
+      let allEnrollments = []; // full array from API
+      let activeEnrollmentIdx = 0; // which tab is selected
+
       async function loadDashboard() {
         const token = getToken();
         const user = getUser();
 
-        // Redirect to home if not logged in
         if (!token || !user) {
           window.location.href = "./index.html";
           return;
         }
 
-        // Set header username
         document.getElementById("header-user").textContent =
           `👋 ${user.full_name?.split(" ")[0] || "Student"}`;
 
@@ -772,137 +922,223 @@
 
           document.getElementById("loading-state").style.display = "none";
 
-          // Not enrolled
-          if (!data.enrolled) {
-            document.getElementById("not-enrolled-state").style.display =
-              "block";
-            return;
-          }
+          if (!data.enrolled || !data.enrollments || data.enrollments.length === 0) {
+  document.getElementById("not-enrolled-state").style.display = "block";
+  return;
+}
 
-          // Show dashboard
-          document.getElementById("dashboard-content").style.display = "block";
+allEnrollments = data.enrollments;
+activeEnrollmentIdx = null; // ← nothing selected yet
 
-          const firstName = user.full_name?.split(" ")[0] || "Student";
-          document.getElementById("welcome-title").textContent =
-            `Bonjour, ${firstName}! 👋`;
-          document.getElementById("welcome-sub").textContent =
-            `You're enrolled in ${COURSE_NAMES[data.course] || data.course}`;
-          document.getElementById("info-course").textContent =
-            COURSE_NAMES[data.course] || data.course;
-          document.getElementById("info-enrolled").textContent = data.enrolledAt
-            ? new Date(data.enrolledAt).toLocaleDateString("en-CA", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })
-            : "—";
+const firstName = user.full_name?.split(" ")[0] || "Student";
+document.getElementById("welcome-title").textContent =
+  `Bonjour, ${firstName}! 👋`;
 
-          // Schedule
-          // Schedule
-          const scheduleContainer =
-            document.getElementById("schedule-container");
-          if (data.batch) {
-            scheduleContainer.innerHTML = `
-    <div class="schedule-item">
-      <div class="schedule-label">Batch</div>
-      <div class="schedule-val">${data.batch.batch_name}</div>
-    </div>
-    <div class="schedule-item">
-      <div class="schedule-label">Days</div>
-      <div class="schedule-val">${data.batch.days}</div>
-    </div>
-    <div class="schedule-item">
-      <div class="schedule-label">Time</div>
-      <div class="schedule-val">${data.batch.timing}</div>
-    </div>
-  `;
-          } else {
-            // Fall back to default schedule
-            const schedule = SCHEDULES[data.course] || [];
-            scheduleContainer.innerHTML = schedule
-              .map(
-                (s) => `
-    <div class="schedule-item">
-      <div class="schedule-label">${s.label}</div>
-      <div class="schedule-val">${s.val}</div>
-    </div>
-  `,
-              )
-              .join("");
-          }
-
-          // Meet link
-          const meetWrap = document.getElementById("meet-btn-wrap");
-          const liveContainer = document.getElementById("live-class-container");
-
-          if (data.meetLink) {
-            meetWrap.innerHTML = `
-          <a href="${data.meetLink}" target="_blank" class="meet-btn">
-            🎥 Join Live Class
-          </a>`;
-            liveContainer.innerHTML = `
-          <div style="margin-bottom:.8rem;font-size:.85rem;color:var(--muted);">Click to join your scheduled live class:</div>
-          <a href="${data.meetLink}" target="_blank" class="meet-btn" style="display:inline-flex;">
-            🎥 Join Google Meet
-          </a>`;
-          } else {
-            meetWrap.innerHTML = `<button class="meet-btn meet-btn-disabled">🎥 Meet Link Coming Soon</button>`;
-            liveContainer.innerHTML = `<div style="font-size:.85rem;color:var(--muted);line-height:1.6;">Your Google Meet link will appear here once Saloni sets it up.</div>`;
-          }
-
-          // Lectures
-          const container = document.getElementById("lectures-container");
-          if (!data.lectures || data.lectures.length === 0) {
-            container.innerHTML = `
-    <div class="no-lectures">
-      <div class="no-lectures-icon">🎬</div>
-      <div class="no-lectures-title">No lectures yet</div>
-      <div class="no-lectures-sub">Saloni will upload your course recordings here. Check back soon!</div>
-    </div>`;
-          } else {
-            const grouped = data.groupedLectures || {};
-            const levelOrder = ["A1", "A2", "B1", "B2", "C1", "General"];
-
-            const sortedLevels = Object.keys(grouped).sort((a, b) => {
-              return levelOrder.indexOf(a) - levelOrder.indexOf(b);
-            });
-
-            container.innerHTML = sortedLevels
-              .map(
-                (level) => `
-    <div class="level-section" style="margin-bottom:2rem;">
-      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;">
-        <div style="background:var(--blue);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .9rem;border-radius:20px;">${level}</div>
-        <div style="font-family:'Libre Baskerville',serif;font-size:1.1rem;color:var(--navy);">${getLevelName(level)}</div>
-        <div style="font-size:.78rem;color:var(--muted);">${grouped[level].length} lecture${grouped[level].length > 1 ? "s" : ""}</div>
-      </div>
-      ${grouped[level].map((lecture, i) => `
-  <div class="lecture-card" onclick="openLecture('${lecture.id}')" 
-    style="cursor:pointer;display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.5rem;">
-    <div style="width:48px;height:48px;border-radius:12px;background:var(--pale);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">
-      🎬
-    </div>
-    <div style="flex:1;min-width:0;">
-      <div class="lecture-num">Lecture ${lecture.order_num || i + 1}</div>
-      <div class="lecture-title">${lecture.title}</div>
-      ${lecture.description ? `<div class="lecture-desc">${lecture.description}</div>` : ''}
-    </div>
-    <div style="color:var(--sky);font-size:1.2rem;flex-shrink:0;">▶</div>
-  </div>
-`).join('')}
-    </div>
-  `,
-              )
-              .join("");
-          }
-          // Render materials
-          renderMaterials(data.materials || []);
+showSelectionScreen();
         } catch (err) {
           console.error("Dashboard error:", err);
           document.getElementById("loading-state").style.display = "none";
           showToast("Failed to load dashboard. Please try again.", "error");
         }
       }
+
+      function showSelectionScreen() {
+  document.getElementById("dashboard-content").style.display = "none";
+  document.getElementById("btn-change-course").style.display = "none";
+  document.getElementById("selection-screen").style.display = "block";
+
+  const cardsWrap = document.getElementById("selection-cards");
+  cardsWrap.innerHTML = allEnrollments
+    .map((e, idx) => {
+      const courseName = COURSE_NAMES[e.course] || e.course;
+      const examName = e.examType || "TEF";
+      const batchName = e.batch?.batch_name || "No batch assigned";
+      const timing = e.batch?.timing || "";
+      return `
+        <div class="enroll-card" onclick="chooseEnrollment(${idx})">
+          <div class="enroll-card-icon">📘</div>
+          <div class="enroll-card-title">${courseName}</div>
+          <div style="font-size:.85rem;font-weight:700;color:var(--sky);margin-bottom:.3rem;">${batchName}</div>
+          <div class="enroll-card-sub">${examName} Canada${timing ? " · " + timing : ""}</div>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function chooseEnrollment(idx) {
+  activeEnrollmentIdx = idx;
+
+  document.getElementById("selection-screen").style.display = "none";
+  document.getElementById("dashboard-content").style.display = "block";
+  document.getElementById("btn-change-course").style.display = "inline-block";
+
+  renderEnrollmentTabs();
+  renderEnrollment(allEnrollments[idx]);
+}
+      // ── ENROLLMENT TABS ─────────────────────────────────
+      function renderEnrollmentTabs() {
+        const tabsWrap = document.getElementById("enrollment-tabs");
+
+        if (allEnrollments.length <= 1) {
+          tabsWrap.style.display = "none";
+          tabsWrap.innerHTML = "";
+          return;
+        }
+
+        tabsWrap.style.display = "flex";
+        tabsWrap.innerHTML = allEnrollments
+          .map((e, idx) => {
+            const label = `${COURSE_NAMES[e.course] || e.course}`;
+            const isActive = idx === activeEnrollmentIdx;
+            return `
+          <button onclick="selectEnrollment(${idx})"
+            style="
+              padding:.6rem 1.2rem;
+              border-radius:10px;
+              font-size:.85rem;
+              font-weight:700;
+              font-family:'Nunito',sans-serif;
+              cursor:pointer;
+              border:none;
+              background:${isActive ? "var(--blue)" : "var(--pale)"};
+              color:${isActive ? "#fff" : "var(--blue)"};
+              transition:all .25s;
+            ">
+            ${label}
+          </button>
+        `;
+          })
+          .join("");
+      }
+
+      function selectEnrollment(idx) {
+        activeEnrollmentIdx = idx;
+        renderEnrollmentTabs();
+        renderEnrollment(allEnrollments[idx]);
+      }
+
+      // ── RENDER ONE ENROLLMENT'S DATA ────────────────────
+      function renderEnrollment(data) {
+        document.getElementById("welcome-sub").textContent =
+          `You're enrolled in ${COURSE_NAMES[data.course] || data.course}`;
+        document.getElementById("info-course").textContent =
+          COURSE_NAMES[data.course] || data.course;
+        document.getElementById("info-exam").textContent = data.examType
+          ? `${data.examType} Canada`
+          : "TEF Canada";
+        document.getElementById("info-enrolled").textContent = data.enrolledAt
+          ? new Date(data.enrolledAt).toLocaleDateString("en-CA", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          : "—";
+
+        // Schedule
+        const scheduleContainer = document.getElementById("schedule-container");
+        if (data.batch) {
+          scheduleContainer.innerHTML = `
+        <div class="schedule-item">
+          <div class="schedule-label">Batch</div>
+          <div class="schedule-val">${data.batch.batch_name}</div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-label">Days</div>
+          <div class="schedule-val">${data.batch.days}</div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-label">Time</div>
+          <div class="schedule-val">${data.batch.timing}</div>
+        </div>
+      `;
+        } else {
+          const schedule = SCHEDULES[data.course] || [];
+          scheduleContainer.innerHTML = schedule
+            .map(
+              (s) => `
+        <div class="schedule-item">
+          <div class="schedule-label">${s.label}</div>
+          <div class="schedule-val">${s.val}</div>
+        </div>
+      `,
+            )
+            .join("");
+        }
+
+        // Meet link
+        const meetWrap = document.getElementById("meet-btn-wrap");
+        const liveContainer = document.getElementById("live-class-container");
+
+        if (data.meetLink) {
+          meetWrap.innerHTML = `
+        <a href="${data.meetLink}" target="_blank" class="meet-btn">
+          🎥 Join Live Class
+        </a>`;
+          liveContainer.innerHTML = `
+        <div style="margin-bottom:.8rem;font-size:.85rem;color:var(--muted);">Click to join your scheduled live class:</div>
+        <a href="${data.meetLink}" target="_blank" class="meet-btn" style="display:inline-flex;">
+          🎥 Join Google Meet
+        </a>`;
+        } else {
+          meetWrap.innerHTML = `<button class="meet-btn meet-btn-disabled">🎥 Meet Link Coming Soon</button>`;
+          liveContainer.innerHTML = `<div style="font-size:.85rem;color:var(--muted);line-height:1.6;">Your Google Meet link will appear here once Saloni sets it up.</div>`;
+        }
+
+        // Lectures
+        const container = document.getElementById("lectures-container");
+        if (!data.lectures || data.lectures.length === 0) {
+          container.innerHTML = `
+        <div class="no-lectures">
+          <div class="no-lectures-icon">🎬</div>
+          <div class="no-lectures-title">No lectures yet</div>
+          <div class="no-lectures-sub">Saloni will upload your course recordings here. Check back soon!</div>
+        </div>`;
+        } else {
+          const grouped = data.groupedLectures || {};
+          const levelOrder = ["A1", "A2", "B1", "B2", "C1", "General"];
+
+          const sortedLevels = Object.keys(grouped).sort((a, b) => {
+            return levelOrder.indexOf(a) - levelOrder.indexOf(b);
+          });
+
+          container.innerHTML = sortedLevels
+            .map(
+              (level) => `
+        <div class="level-section" style="margin-bottom:2rem;">
+          <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;">
+            <div style="background:var(--blue);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .9rem;border-radius:20px;">${level}</div>
+            <div style="font-family:'Libre Baskerville',serif;font-size:1.1rem;color:var(--navy);">${getLevelName(level)}</div>
+            <div style="font-size:.78rem;color:var(--muted);">${grouped[level].length} lecture${grouped[level].length > 1 ? "s" : ""}</div>
+          </div>
+          ${grouped[level]
+            .map(
+              (lecture, i) => `
+          <div class="lecture-card" onclick="openLecture('${lecture.id}')" 
+            style="cursor:pointer;display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.5rem;">
+            <div style="width:48px;height:48px;border-radius:12px;background:var(--pale);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">
+              🎬
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div class="lecture-num">Lecture ${lecture.order_num || i + 1}</div>
+              <div class="lecture-title">${lecture.title}</div>
+              ${lecture.description ? `<div class="lecture-desc">${lecture.description}</div>` : ""}
+            </div>
+            <div style="color:var(--sky);font-size:1.2rem;flex-shrink:0;">▶</div>
+          </div>
+        `,
+            )
+            .join("")}
+        </div>
+      `,
+            )
+            .join("");
+        }
+
+        // Materials
+        renderMaterials(data.classNotes || [], data.examMaterials || []);
+      }
+
       function getLevelName(level) {
         const map = {
           A1: "Complete Beginner",
@@ -914,102 +1150,139 @@
         };
         return map[level] || level;
       }
+
       // ── SECTION TABS ───────────────────────────────────
       function switchSection(section) {
-        if (section === "tests") return; // ← prevent clicking coming soon tab
+        if (section === "tests") return;
 
-        // Hide all sections
         document.getElementById("section-lectures").style.display = "none";
         document.getElementById("section-materials").style.display = "none";
         document.getElementById("section-tests").style.display = "none";
 
-        // Show selected
         document.getElementById(`section-${section}`).style.display = "block";
 
-        // Update tab styles
         ["lectures", "materials", "tests"].forEach((s) => {
           const tab = document.getElementById(`sec-tab-${s}`);
           tab.style.background = s === section ? "var(--blue)" : "var(--pale)";
           tab.style.color = s === section ? "#fff" : "var(--blue)";
         });
       }
+
+      function switchMaterialTab(tab) {
+        document.getElementById("materials-class-container").style.display =
+          tab === "class" ? "block" : "none";
+        document.getElementById("materials-exam-container").style.display =
+          tab === "exam" ? "block" : "none";
+
+        const classTab = document.getElementById("mat-tab-class");
+        const examTab = document.getElementById("mat-tab-exam");
+
+        classTab.style.background =
+          tab === "class" ? "var(--blue)" : "var(--pale)";
+        classTab.style.color = tab === "class" ? "#fff" : "var(--blue)";
+        examTab.style.background =
+          tab === "exam" ? "var(--blue)" : "var(--pale)";
+        examTab.style.color = tab === "exam" ? "#fff" : "var(--blue)";
+      }
+
       function openLecture(lectureId) {
-  window.location.href = `./lecture.html?id=${lectureId}`
-}
+        window.location.href = `./lecture.html?id=${lectureId}`;
+      }
 
       // ── RENDER MATERIALS ───────────────────────────────
-      function renderMaterials(materials) {
-        const container = document.getElementById("materials-container");
+      function renderMaterialList(
+        containerId,
+        materials,
+        emptyTitle,
+        emptySub,
+      ) {
+        const container = document.getElementById(containerId);
 
         if (!materials || materials.length === 0) {
           container.innerHTML = `
-      <div class="no-lectures">
-        <div class="no-lectures-icon">📂</div>
-        <div class="no-lectures-title">No materials yet</div>
-        <div class="no-lectures-sub">Saloni will upload study materials, PDFs and resources here.</div>
-      </div>`;
+        <div class="no-lectures">
+          <div class="no-lectures-icon">📂</div>
+          <div class="no-lectures-title">${emptyTitle}</div>
+          <div class="no-lectures-sub">${emptySub}</div>
+        </div>`;
           return;
         }
 
         container.innerHTML = materials
           .map(
             (m) => `
-    <div class="lecture-card" style="display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.5rem;">
-      <div style="font-size:2rem;flex-shrink:0;">
-        ${m.type === "pdf" ? "📄" : m.type === "link" ? "🔗" : "📎"}
+      <div class="lecture-card" style="display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.5rem;">
+        <div style="font-size:2rem;flex-shrink:0;">
+          ${m.type === "pdf" ? "📄" : m.type === "link" ? "🔗" : "📎"}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <!-- <div class="lecture-num">${m.level || "General"} · ${m.type?.toUpperCase()}</div> -->
+          <div class="lecture-title">${m.title}</div>
+          ${m.description ? `<div class="lecture-desc">${m.description}</div>` : ""}
+        </div>
+        ${
+          m.downloadUrl
+            ? `<a href="${m.downloadUrl}" target="_blank" 
+            onclick="openMaterial(event, '${m.downloadUrl}', '${m.type}')"
+               style="flex-shrink:0;background:var(--blue);color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:background .25s;"
+               onmouseover="this.style.background='var(--sky)'"
+               onmouseout="this.style.background='var(--blue)'">
+               ${m.type === "link" ? "🔗 Open" : "📖 View"}
+             </a>`
+            : `<span style="font-size:.78rem;color:var(--muted);">Unavailable</span>`
+        }
       </div>
-      <div style="flex:1;min-width:0;">
-        <div class="lecture-num">${m.level || "General"} · ${m.type?.toUpperCase()}</div>
-        <div class="lecture-title">${m.title}</div>
-        ${m.description ? `<div class="lecture-desc">${m.description}</div>` : ""}
-      </div>
-      ${
-        m.downloadUrl
-          ? `<a href="${m.downloadUrl}" target="_blank" 
-          onclick="openMaterial(event, '${m.downloadUrl}', '${m.type}')"
-             style="flex-shrink:0;background:var(--blue);color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:background .25s;"
-             onmouseover="this.style.background='var(--sky)'"
-             onmouseout="this.style.background='var(--blue)'">
-             ${m.type === "link" ? "🔗 Open" : "📖 View"}
-           </a>`
-          : `<span style="font-size:.78rem;color:var(--muted);">Unavailable</span>`
-      }
-    </div>
-  `,
+    `,
           )
           .join("");
       }
+
+      function renderMaterials(classNotes, examMaterials) {
+        renderMaterialList(
+          "materials-class-container",
+          classNotes,
+          "No class notes yet",
+          "Saloni will upload class notes and resources here.",
+        );
+        renderMaterialList(
+          "materials-exam-container",
+          examMaterials,
+          "No exam materials yet",
+          "Exam-specific resources will appear here.",
+        );
+      }
+
       function openMaterial(e, url, type) {
-  e.preventDefault()
-  
-  const isGoogleDrive = url.includes('drive.google.com')
-  
-  if (isGoogleDrive || type === 'pdf') {
-    const modal = document.createElement('div')
-    modal.id = 'material-modal'
-    modal.style.cssText = `
-      position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);
-      display:flex;flex-direction:column;
-    `
-    modal.innerHTML = `
-      <div style="background:var(--navy);padding:.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
-        <div style="color:#fff;font-weight:700;font-size:.9rem;">📄 Study Material</div>
-        <button onclick="document.getElementById('material-modal').remove();document.body.style.overflow='';" 
-          style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:.4rem .9rem;border-radius:6px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;">
-          ✕ Close
-        </button>
-      </div>
-      <iframe src="${url}" 
-        style="flex:1;border:none;width:100%;"
-        allow="autoplay">
-      </iframe>
-    `
-    document.body.appendChild(modal)
-    document.body.style.overflow = 'hidden'
-  } else {
-    window.open(url, '_blank')
-  }
-}
+        e.preventDefault();
+
+        const isGoogleDrive = url.includes("drive.google.com");
+
+        if (isGoogleDrive || type === "pdf") {
+          const modal = document.createElement("div");
+          modal.id = "material-modal";
+          modal.style.cssText = `
+        position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);
+        display:flex;flex-direction:column;
+      `;
+          modal.innerHTML = `
+        <div style="background:var(--navy);padding:.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+          <div style="color:#fff;font-weight:700;font-size:.9rem;">📄 Study Material</div>
+          <button onclick="document.getElementById('material-modal').remove();document.body.style.overflow='';" 
+            style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:.4rem .9rem;border-radius:6px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;">
+            ✕ Close
+          </button>
+        </div>
+        <iframe src="${url}" 
+          style="flex:1;border:none;width:100%;"
+          allow="autoplay">
+        </iframe>
+      `;
+          document.body.appendChild(modal);
+          document.body.style.overflow = "hidden";
+        } else {
+          window.open(url, "_blank");
+        }
+      }
 
       // Load on page open
       loadDashboard();

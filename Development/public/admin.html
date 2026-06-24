@@ -545,6 +545,9 @@
 <div class="nav-item" onclick="showPage('lectures')">
   <span class="nav-item-icon">🎬</span> Lectures
 </div>
+<div class="nav-item" onclick="showPage('materials')">
+  <span class="nav-item-icon">📚</span> Study Materials
+</div>
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user" id="sidebar-user-name">
@@ -644,7 +647,7 @@
         <div class="table-count" id="enrollments-count">Loading...</div>
       </div>
       <table>
-        <thead><tr><th>Student</th><th>Email</th><th>Course</th><th>Status</th><th>Enrolled On</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Student</th><th>Email</th> <th>Exam</th><th>Course</th><th>Status</th><th>Enrolled On</th><th>Actions</th></tr></thead>
         <tbody id="enrollments-body"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody>
       </table>
     </div>
@@ -678,7 +681,8 @@
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
           <select id="new-batch-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
             <option value="tef">TEF Preparation</option>
-            <option value="clb7-6mo">CLB 7 — 6 months</option>
+            <option value="tcf">TCF Preparation</option>
+            <option value="clb7-6mo">A1-B2 — 6 months</option>
             <option value="clb7-4mo">CLB 7 — 4 months</option>
             <option value="1on1">1-on-1 Private</option>
           </select>
@@ -753,7 +757,8 @@
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
           <select id="lec-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
             <option value="tef">TEF Preparation</option>
-            <option value="clb7-6mo">CLB 7 — 6 months</option>
+             <option value="tcf">TCF Preparation</option>
+            <option value="clb7-6mo">A1-B2 — 6 months</option>
             <option value="clb7-4mo">CLB 7 — 4 months</option>
             <option value="1on1">1-on-1 Private</option>
           </select>
@@ -816,6 +821,101 @@
       </table>
     </div>
   </div>
+  <!-- STUDY MATERIALS -->
+<div class="page" id="page-materials">
+  <div class="page-title">Study Materials</div>
+  <div class="page-sub">Add study materials and PDFs via Google Drive links.</div>
+
+  <!-- Add material form -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+  <div style="grid-column:1/-1;">
+    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">MATERIAL TYPE</label>
+    <select id="mat-category" onchange="toggleMaterialFields(this.value)" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+      <option value="class_notes">📘 Class Notes (tied to a course)</option>
+      <option value="exam_prep">📝 Exam Materials (tied to TEF/TCF)</option>
+    </select>
+  </div>
+
+  <div id="mat-field-course">
+    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
+    <select id="mat-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+      <option value="tef">TEF Preparation</option>
+        <option value="tcf">TCF Preparation</option>
+      <option value="clb7-6mo">A1-B2 6 months</option>
+      <option value="clb7-4mo">CLB 7 — 4 months</option>
+      <option value="1on1">1-on-1 Private</option>
+    </select>
+  </div>
+
+  <div id="mat-field-exam" style="display:none;">
+    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">EXAM TYPE</label>
+    <select id="mat-exam" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+      <option value="TEF">TEF</option>
+      <option value="TCF">TCF</option>
+    </select>
+  </div>
+
+  <div>
+    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">LEVEL</label>
+    <select id="mat-level" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+      <option value="A1">A1 — Complete Beginner</option>
+      <option value="A2">A2 — Elementary</option>
+      <option value="B1">B1 — Intermediate</option>
+      <option value="B2">B2 — Upper Intermediate</option>
+      <option value="C1">C1 — Advanced</option>
+    </select>
+  </div>
+      <div>
+        <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">ORDER NUMBER</label>
+        <input id="mat-order" type="number" min="1" value="1" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+      </div>
+      <div style="grid-column:1/-1;">
+        <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">TITLE</label>
+        <input id="mat-title" placeholder="e.g. TEF Exam Guide 2024" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+      </div>
+      <div style="grid-column:1/-1;">
+        <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">DESCRIPTION (optional)</label>
+        <input id="mat-desc" placeholder="Brief description of this material" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+      </div>
+      <div style="grid-column:1/-1;">
+        <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">GOOGLE DRIVE LINK</label>
+        <input id="mat-url" placeholder="https://drive.google.com/file/d/.../view?usp=drive_link" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:.4rem;">Paste the share link — it will be converted automatically. Make sure download is disabled in Drive sharing settings.</div>
+      </div>
+    </div>
+
+    <div id="mat-error" style="display:none;background:#FEE2E2;color:#991B1B;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
+    <div id="mat-success" style="display:none;background:#D1FAE5;color:#065F46;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
+
+    <button class="btn-sm btn-approve" style="padding:.6rem 1.5rem;" id="mat-btn" onclick="addMaterial()">
+      + Add Material
+    </button>
+  </div>
+
+  <!-- Materials table -->
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">All Materials</div>
+      <div class="table-count" id="materials-count">Loading...</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Course</th>
+          <th>Level</th>
+              <th>Exam</th>
+          <th>Order</th>
+          <th>Title</th>
+          <th>Link</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="materials-body">
+        <tr class="empty-row"><td colspan="6">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
 </main>
     <!-- BATCHES -->
@@ -964,7 +1064,8 @@ function renderStudentsTable() {
       function formatCourse(course) {
         const map = {
           tef: "TEF Preparation",
-          "clb7-6mo": "CLB 7 — 6 months",
+              tcf: "TCF Preparation",
+          "clb7-6mo": "A1-B2 — 6 months",
           "clb7-4mo": "CLB 7 — 4 months",
           "1on1": "1-on-1 Private",
         };
@@ -1214,27 +1315,33 @@ function renderStudentsTable() {
           }
 
           tbody.innerHTML = enrollments
-            .map(
-              (e) => `
-        <tr>
-          <td><strong>${e.students?.full_name || "—"}</strong></td>
-          <td>${e.students?.email || "—"}</td>
-          <td>${formatCourse(e.course)}</td>
-          <td><span class="badge badge-${e.status}">${e.status}</span></td>
-          <td>${formatDate(e.enrolled_at)}</td>
-          <td>
-            <div class="btn-actions">
-              ${
-                e.status === "active"
-                  ? `<button class="btn-sm btn-deactivate" onclick="updateEnrollment('${e.student_id}','inactive')">Deactivate</button>`
-                  : `<button class="btn-sm btn-activate"   onclick="updateEnrollment('${e.student_id}','active')">Activate</button>`
-              }
-            </div>
-          </td>
-        </tr>
-      `,
-            )
-            .join("");
+  .map(
+    (e) => `
+<tr>
+  <td><strong>${e.students?.full_name || "—"}</strong></td>
+  <td>${e.students?.email || "—"}</td>
+  <td>${formatCourse(e.course)}</td>
+  <td>
+    <select onchange="updateExamType('${e.student_id}', this.value)" style="padding:.3rem .5rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.78rem;">
+      <option value="TEF" ${e.exam_type === 'TEF' ? 'selected' : ''}>TEF</option>
+      <option value="TCF" ${e.exam_type === 'TCF' ? 'selected' : ''}>TCF</option>
+    </select>
+  </td>
+  <td><span class="badge badge-${e.status}">${e.status}</span></td>
+  <td>${formatDate(e.enrolled_at)}</td>
+  <td>
+    <div class="btn-actions">
+      ${
+        e.status === "active"
+          ? `<button class="btn-sm btn-deactivate" onclick="updateEnrollment('${e.student_id}','inactive')">Deactivate</button>`
+          : `<button class="btn-sm btn-activate"   onclick="updateEnrollment('${e.student_id}','active')">Activate</button>`
+      }
+    </div>
+  </td>
+</tr>
+`,
+  )
+  .join("");
         } catch (err) {
           tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load enrollments</td></tr>`;
         }
@@ -1258,6 +1365,20 @@ function renderStudentsTable() {
           showToast("Server error", "error");
         }
       }
+
+      async function updateExamType(studentId, examType) {
+  const res = await fetch(`${API}/admin/enrollments/${studentId}/exam-type`, {
+    method:  'PATCH',
+    headers: authHeaders(),
+    body:    JSON.stringify({ exam_type: examType })
+  })
+
+  if (res.ok) {
+    showToast(`Exam type updated to ${examType}`, 'success')
+  } else {
+    showToast('Failed to update exam type', 'error')
+  }
+}
 
       // ── CONTACTS ───────────────────────────────────────
       async function loadContacts() {
@@ -1579,6 +1700,138 @@ function updateCourseFromBatch(batchId) {
   else if (text.includes('4mo') || text.includes('4 months')) courseSelect.value = 'clb7-4mo'
   else if (text.includes('1on1') || text.includes('private')) courseSelect.value = '1on1'
 }
+
+// ── STUDY MATERIALS ────────────────────────────────
+function convertDriveLink(url) {
+  // Extract file ID from various Google Drive URL formats
+  const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/)
+  if (match && match[1]) {
+    return `https://drive.google.com/file/d/${match[1]}/preview`
+  }
+  return url  // return as-is if not a recognizable Drive link
+}
+
+async function loadMaterials() {
+  const tbody = document.getElementById('materials-body')
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Loading...</td></tr>`
+
+  try {
+    const res  = await fetch(`${API}/admin/materials`, { headers: authHeaders() })
+    const data = await res.json()
+    const materials = data.materials || []
+
+    document.getElementById('materials-count').textContent = `${materials.length} total`
+
+    if (materials.length === 0) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No materials yet</td></tr>`
+      return
+    }
+
+    tbody.innerHTML = materials.map(m => `
+  <tr>
+    <td>${formatCourse(m.course)}</td>
+    <td><span class="badge badge-active">${m.level || 'A1'}</span></td>
+    <td><span class="badge ${m.exam_type === 'TCF' ? 'badge-pending' : 'badge-active'}">${m.exam_type || 'TEF'}</span></td>
+    <td>${m.order_num}</td>
+    <td><strong>${m.title}</strong></td>
+    <td><a href="${m.url}" target="_blank" style="color:var(--sky);font-size:.82rem;">View Link</a></td>
+    <td>
+      <button class="btn-sm btn-reject" onclick="deleteMaterial('${m.id}')">Delete</button>
+    </td>
+  </tr>
+`).join('')
+  } catch(err) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load materials</td></tr>`
+  }
+}
+
+async function addMaterial() {
+  const category  = document.getElementById('mat-category').value
+  const level     = document.getElementById('mat-level').value
+  const order_num = document.getElementById('mat-order').value
+  const title     = document.getElementById('mat-title').value.trim()
+  const desc      = document.getElementById('mat-desc').value.trim()
+  const rawUrl    = document.getElementById('mat-url').value.trim()
+
+  document.getElementById('mat-error').style.display   = 'none'
+  document.getElementById('mat-success').style.display = 'none'
+
+  if (!title || !rawUrl) {
+    document.getElementById('mat-error').textContent = 'Please enter a title and Google Drive link.'
+    document.getElementById('mat-error').style.display = 'block'
+    return
+  }
+
+  const url = convertDriveLink(rawUrl)
+
+  // Only send course OR exam_type based on category
+  const course    = category === 'class_notes' ? document.getElementById('mat-course').value : null
+  const exam_type = category === 'exam_prep'    ? document.getElementById('mat-exam').value   : null
+
+  try {
+    const res = await fetch(`${API}/admin/materials`, {
+      method:  'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        material_category: category,
+        course, title,
+        description: desc,
+        type: 'link',
+        url,
+        level,
+        order_num,
+        exam_type
+      })
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      document.getElementById('mat-error').textContent = data.error || 'Failed to add material.'
+      document.getElementById('mat-error').style.display = 'block'
+    } else {
+      document.getElementById('mat-success').textContent = '✅ Material added successfully!'
+      document.getElementById('mat-success').style.display = 'block'
+      document.getElementById('mat-title').value = ''
+      document.getElementById('mat-desc').value  = ''
+      document.getElementById('mat-url').value   = ''
+      document.getElementById('mat-order').value = '1'
+      loadMaterials()
+    }
+  } catch(err) {
+    document.getElementById('mat-error').textContent = 'Server error. Please try again.'
+    document.getElementById('mat-error').style.display = 'block'
+  }
+}
+
+function toggleMaterialFields(category) {
+  const courseField = document.getElementById('mat-field-course')
+  const examField    = document.getElementById('mat-field-exam')
+
+  if (category === 'exam_prep') {
+    courseField.style.display = 'none'
+    examField.style.display   = 'block'
+  } else {
+    courseField.style.display = 'block'
+    examField.style.display   = 'none'
+  }
+}
+
+async function deleteMaterial(id) {
+  if (!confirm('Delete this material?')) return
+
+  const res = await fetch(`${API}/admin/materials/${id}`, {
+    method:  'DELETE',
+    headers: authHeaders()
+  })
+
+  if (res.ok) {
+    showToast('Material deleted', 'success')
+    loadMaterials()
+  } else {
+    showToast('Failed to delete material', 'error')
+  }
+}
 // ── PAGE NAVIGATION ────────────────────────────────
       function showPage(page) {
         document
@@ -1598,6 +1851,7 @@ function updateCourseFromBatch(batchId) {
         if (page === "contacts") loadContacts();
         if (page === 'batches') loadBatches();
         if (page === 'lectures') loadLectures()
+        if (page === 'materials') loadMaterials()
       }
 
 
