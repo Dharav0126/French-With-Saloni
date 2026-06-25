@@ -36,7 +36,7 @@ app.use(helmet({
       imgSrc:        ["'self'", "data:", "https:"],
       mediaSrc:      ["'self'", "https://*.supabase.co"],
       connectSrc:    ["'self'", "https://*.supabase.co", "https://api.stripe.com"],
-      frameSrc: ["'self'", "https://js.stripe.com", "https://checkout.stripe.com", "https://drive.google.com", "https://accounts.google.com"],
+      frameSrc: ["'self'", "https://js.stripe.com", "https://checkout.stripe.com", "https://drive.google.com", "https://accounts.google.com", "https://*.supabase.co"],
     }
   }
 }))

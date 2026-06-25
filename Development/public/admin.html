@@ -878,10 +878,23 @@
         <input id="mat-desc" placeholder="Brief description of this material" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
       </div>
       <div style="grid-column:1/-1;">
-        <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">GOOGLE DRIVE LINK</label>
-        <input id="mat-url" placeholder="https://drive.google.com/file/d/.../view?usp=drive_link" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
-        <div style="font-size:.75rem;color:var(--muted);margin-top:.4rem;">Paste the share link — it will be converted automatically. Make sure download is disabled in Drive sharing settings.</div>
-      </div>
+  <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">UPLOAD METHOD</label>
+  <select id="mat-upload-method" onchange="toggleUploadMethod(this.value)" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+    <option value="file">Upload PDF/File directly (recommended)</option>
+    <option value="link">Paste Google Drive link</option>
+  </select>
+</div>
+
+<div id="mat-field-file" style="grid-column:1/-1;">
+  <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">FILE</label>
+  <input type="file" id="mat-file" accept=".pdf,.doc,.docx" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;background:#fff;"/>
+</div>
+
+<div id="mat-field-link" style="grid-column:1/-1;display:none;">
+  <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">GOOGLE DRIVE LINK</label>
+  <input id="mat-url" placeholder="https://drive.google.com/file/d/.../view?usp=drive_link" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+  <div style="font-size:.75rem;color:var(--muted);margin-top:.4rem;">Paste the share link — it will be converted automatically. Make sure download is disabled in Drive sharing settings.</div>
+</div>
     </div>
 
     <div id="mat-error" style="display:none;background:#FEE2E2;color:#991B1B;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
@@ -1003,6 +1016,11 @@ let currentStudentFilter = 'all';
 function filterStudents(type) {
   currentStudentFilter = type;
   renderStudentsTable();
+}
+
+function toggleUploadMethod(method) {
+  document.getElementById('mat-field-file').style.display = method === 'file' ? 'block' : 'none'
+  document.getElementById('mat-field-link').style.display = method === 'link' ? 'block' : 'none'
 }
 
 function renderStudentsTable() {
@@ -1746,43 +1764,83 @@ async function loadMaterials() {
 }
 
 async function addMaterial() {
-  const category  = document.getElementById('mat-category').value
-  const level     = document.getElementById('mat-level').value
-  const order_num = document.getElementById('mat-order').value
-  const title     = document.getElementById('mat-title').value.trim()
-  const desc      = document.getElementById('mat-desc').value.trim()
-  const rawUrl    = document.getElementById('mat-url').value.trim()
+  const category    = document.getElementById('mat-category').value
+  const level        = document.getElementById('mat-level').value
+  const order_num    = document.getElementById('mat-order').value
+  const title        = document.getElementById('mat-title').value.trim()
+  const desc         = document.getElementById('mat-desc').value.trim()
+  const uploadMethod = document.getElementById('mat-upload-method').value
 
   document.getElementById('mat-error').style.display   = 'none'
   document.getElementById('mat-success').style.display = 'none'
 
-  if (!title || !rawUrl) {
-    document.getElementById('mat-error').textContent = 'Please enter a title and Google Drive link.'
+  if (!title) {
+    document.getElementById('mat-error').textContent = 'Please enter a title.'
     document.getElementById('mat-error').style.display = 'block'
     return
   }
 
-  const url = convertDriveLink(rawUrl)
-
-  // Only send course OR exam_type based on category
   const course    = category === 'class_notes' ? document.getElementById('mat-course').value : null
   const exam_type = category === 'exam_prep'    ? document.getElementById('mat-exam').value   : null
 
+  const btn = document.getElementById('mat-btn')
+  btn.disabled = true
+  btn.textContent = 'Saving...'
+
   try {
-    const res = await fetch(`${API}/admin/materials`, {
-      method:  'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({
-        material_category: category,
-        course, title,
-        description: desc,
-        type: 'link',
-        url,
-        level,
-        order_num,
-        exam_type
+    let res
+
+    if (uploadMethod === 'file') {
+      const file = document.getElementById('mat-file').files[0]
+      if (!file) {
+        document.getElementById('mat-error').textContent = 'Please select a file.'
+        document.getElementById('mat-error').style.display = 'block'
+        btn.disabled = false
+        btn.textContent = '+ Add Material'
+        return
+      }
+
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('material_category', category)
+      formData.append('title', title)
+      formData.append('description', desc)
+      formData.append('level', level)
+      formData.append('order_num', order_num)
+      if (course) formData.append('course', course)
+      if (exam_type) formData.append('exam_type', exam_type)
+
+      res = await fetch(`${API}/admin/materials/upload`, {
+        method:  'POST',
+        headers: { 'Authorization': `Bearer ${adminToken}` },
+        body:    formData
       })
-    })
+    } else {
+      const rawUrl = document.getElementById('mat-url').value.trim()
+      if (!rawUrl) {
+        document.getElementById('mat-error').textContent = 'Please enter a Google Drive link.'
+        document.getElementById('mat-error').style.display = 'block'
+        btn.disabled = false
+        btn.textContent = '+ Add Material'
+        return
+      }
+      const url = convertDriveLink(rawUrl)
+
+      res = await fetch(`${API}/admin/materials`, {
+        method:  'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          material_category: category,
+          course, title,
+          description: desc,
+          type: 'link',
+          url,
+          level,
+          order_num,
+          exam_type
+        })
+      })
+    }
 
     const data = await res.json()
 
@@ -1795,12 +1853,16 @@ async function addMaterial() {
       document.getElementById('mat-title').value = ''
       document.getElementById('mat-desc').value  = ''
       document.getElementById('mat-url').value   = ''
+      document.getElementById('mat-file').value  = ''
       document.getElementById('mat-order').value = '1'
       loadMaterials()
     }
-  } catch(err) {
+  } catch (err) {
     document.getElementById('mat-error').textContent = 'Server error. Please try again.'
     document.getElementById('mat-error').style.display = 'block'
+  } finally {
+    btn.disabled = false
+    btn.textContent = '+ Add Material'
   }
 }
 

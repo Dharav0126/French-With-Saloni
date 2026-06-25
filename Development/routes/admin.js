@@ -81,12 +81,13 @@ router.post('/lectures/upload', upload.single('video'), async (req, res) => {
     const videoPath = `${course.toUpperCase()}/${fileName}`
 
     const { error: uploadError } = await supabase
-      .storage
-      .from('Lectures')
-      .upload(videoPath, req.file.buffer, {
-        contentType: req.file.mimetype,
-        upsert: false
-      })
+  .storage
+  .from('Material')
+  .upload(filePath, req.file.buffer, {
+    contentType: req.file.mimetype,
+    upsert: false,
+    contentDisposition: 'inline'
+  })
 
     if (uploadError) {
       return res.status(500).json({ error: `Upload failed: ${uploadError.message}` })
@@ -173,6 +174,8 @@ router.get('/materials', async (req, res) => {
   return res.status(200).json({ materials: data })
 })
 
+
+
 // POST create material
 router.post('/materials', async (req, res) => {
   const { material_category, course, title, description, type, url, level, order_num, exam_type } = req.body
@@ -207,6 +210,72 @@ router.post('/materials', async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message })
   return res.status(201).json({ message: 'Material added', material: data })
+})
+
+// POST upload material as a file (PDF/Doc) to Supabase Storage
+router.post('/materials/upload', upload.single('file'), async (req, res) => {
+  try {
+    const { material_category, course, title, description, level, order_num, exam_type } = req.body
+
+    if (!title || !req.file) {
+      return res.status(400).json({ error: 'Title and file are required' })
+    }
+
+    if (material_category === 'class_notes' && !course) {
+      return res.status(400).json({ error: 'Course is required for class notes' })
+    }
+
+    if (material_category === 'exam_prep' && !exam_type) {
+      return res.status(400).json({ error: 'Exam type is required for exam materials' })
+    }
+
+    // Upload file to Supabase Storage
+    const fileName = `${Date.now()}-${req.file.originalname.replace(/\s+/g, '-')}`
+    const folder    = course || exam_type || 'general'
+    const filePath  = `${folder.toUpperCase()}/${fileName}`
+
+    const { error: uploadError } = await supabase
+      .storage
+      .from('Material')
+      .upload(filePath, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: false
+      })
+
+    if (uploadError) {
+      return res.status(500).json({ error: `Upload failed: ${uploadError.message}` })
+    }
+
+    // Determine file type from mimetype
+    const type = req.file.mimetype.includes('pdf') ? 'pdf' : 'doc'
+
+    // Save metadata to database
+    const { data, error: dbError } = await supabase
+      .from('study_materials')
+      .insert({
+        material_category: material_category || 'class_notes',
+        course:    material_category === 'class_notes' ? course : null,
+        exam_type: material_category === 'exam_prep'    ? exam_type : null,
+        title,
+        description: description || null,
+        type,
+        file_path: filePath,
+        url: null,
+        level: level || 'A1',
+        order_num: parseInt(order_num) || 1
+      })
+      .select()
+      .single()
+
+    if (dbError) {
+      return res.status(500).json({ error: dbError.message })
+    }
+
+    return res.status(201).json({ message: 'Material uploaded successfully!', material: data })
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
 })
 
 // DELETE material
