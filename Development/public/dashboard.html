@@ -1266,10 +1266,10 @@ function chooseEnrollment(idx) {
       display:flex;flex-direction:column;
     `;
 
-    // Append params to hide native PDF toolbar/download icons (works in Chrome/Edge)
-    const frameUrl = isSupabasePdf
-      ? `${url}#toolbar=0&navpanes=0&scrollbar=0`
-      : url;
+    // Hide toolbar (download button) but KEEP scrollbar so students can navigate pages
+const frameUrl = isSupabasePdf
+  ? `${url}#toolbar=0&navpanes=1&scrollbar=1`
+  : url;
 
     modal.innerHTML = `
       <div style="background:var(--navy);padding:.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
