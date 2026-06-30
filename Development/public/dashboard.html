@@ -8,6 +8,12 @@
       href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+     <script src="/js/pdf.min.js"></script>
+<script>
+  if (typeof pdfjsLib !== "undefined") {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "/js/pdf.worker.min.js";
+  }
+</script>
     <style>
       :root {
         --navy: #0a2342;
@@ -493,6 +499,7 @@
         }
       }
     </style>
+
   </head>
   <body>
     <!-- HEADER -->
@@ -1252,25 +1259,25 @@ function chooseEnrollment(idx) {
         );
       }
 
-      function openMaterial(e, url, type) {
+     function openMaterial(e, url, type) {
   e.preventDefault();
 
   const isGoogleDrive = url.includes("drive.google.com");
-  const isSupabasePdf = url.includes("supabase.co") && type === "pdf";
+  const isPdf = type === "pdf" && !isGoogleDrive;
 
-  if (isGoogleDrive || type === "pdf") {
+  if (isPdf) {
+    openCustomPdfViewer(url);
+    return;
+  }
+
+  if (isGoogleDrive) {
+    // Google Drive links still use the iframe (no good canvas-render option for those)
     const modal = document.createElement("div");
     modal.id = "material-modal";
     modal.style.cssText = `
       position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);
       display:flex;flex-direction:column;
     `;
-
-    // Hide toolbar (download button) but KEEP scrollbar so students can navigate pages
-const frameUrl = isSupabasePdf
-  ? `${url}#toolbar=0&navpanes=1&scrollbar=1`
-  : url;
-
     modal.innerHTML = `
       <div style="background:var(--navy);padding:.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
         <div style="color:#fff;font-weight:700;font-size:.9rem;">📄 Study Material</div>
@@ -1279,7 +1286,7 @@ const frameUrl = isSupabasePdf
           ✕ Close
         </button>
       </div>
-      <iframe src="${frameUrl}" 
+      <iframe src="${url}" 
         style="flex:1;border:none;width:100%;"
         oncontextmenu="return false;"
         allow="autoplay">
@@ -1287,9 +1294,114 @@ const frameUrl = isSupabasePdf
     `;
     document.body.appendChild(modal);
     document.body.style.overflow = "hidden";
-  } else {
-    window.open(url, "_blank");
+    return;
   }
+
+  window.open(url, "_blank");
+}
+
+// ── CUSTOM PDF VIEWER (PDF.js canvas rendering — no native toolbar, no download) ──
+let pdfDoc = null;
+let pdfCurrentPage = 1;
+let pdfScale = 1.2;
+
+async function openCustomPdfViewer(url) {
+  if (typeof pdfjsLib === "undefined") {
+    showToast("PDF viewer failed to load. Please refresh the page and try again.", "error");
+    return;
+  }
+
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "/js/pdf.worker.min.js";
+
+  const modal = document.createElement("div");
+  modal.id = "pdf-viewer-modal";
+  modal.style.cssText = `
+    position:fixed;inset:0;z-index:9999;background:#1a1a1a;
+    display:flex;flex-direction:column;
+  `;
+  modal.innerHTML = `
+    <div style="background:var(--navy);padding:.7rem 1.2rem;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;flex-wrap:wrap;gap:.6rem;">
+      <div style="color:#fff;font-weight:700;font-size:.85rem;">📄 Study Material</div>
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <button onclick="pdfPrevPage()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:.4rem .8rem;border-radius:6px;cursor:pointer;font-weight:700;font-size:.8rem;">‹ Prev</button>
+        <span id="pdf-page-info" style="color:#fff;font-size:.8rem;min-width:70px;text-align:center;">Page 1</span>
+        <button onclick="pdfNextPage()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:.4rem .8rem;border-radius:6px;cursor:pointer;font-weight:700;font-size:.8rem;">Next ›</button>
+      </div>
+      <button onclick="closePdfViewer()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;">✕</button>
+    </div>
+    <div id="pdf-canvas-wrap" style="flex:1;overflow:auto;display:flex;justify-content:center;padding:1rem;overflow-x:auto;">
+      <canvas id="pdf-canvas" oncontextmenu="return false;" style="user-select:none;box-shadow:0 4px 20px rgba(0,0,0,.4);"></canvas>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.body.style.overflow = "hidden";
+
+  // Disable text selection / copy on canvas wrap
+  document.getElementById("pdf-canvas-wrap").style.userSelect = "none";
+
+  try {
+    const loadingTask = pdfjsLib.getDocument(url);
+    pdfDoc = await loadingTask.promise;
+    pdfCurrentPage = 1;
+    renderPdfPage(pdfCurrentPage);
+  } catch (err) {
+    console.error("PDF load error:", err);
+    document.getElementById("pdf-canvas-wrap").innerHTML =
+      `<div style="color:#fff;text-align:center;padding:2rem;">Failed to load document. Please try again.</div>`;
+  }
+}
+
+async function renderPdfPage(pageNum) {
+  if (!pdfDoc) return;
+  const page = await pdfDoc.getPage(pageNum);
+
+  const wrap = document.getElementById("pdf-canvas-wrap");
+  const canvas = document.getElementById("pdf-canvas");
+  const context = canvas.getContext("2d");
+
+  // Account for device pixel ratio (fixes blurriness on retina/mobile screens)
+  const dpr = window.devicePixelRatio || 1;
+
+  // Fit PDF width to container, with padding
+  const wrapWidth = wrap.clientWidth - 24;
+  const viewport = page.getViewport({ scale: 1 });
+  const scale = wrapWidth / viewport.width;
+
+  const scaledViewport = page.getViewport({ scale });
+
+  // Set canvas physical size (multiplied by DPR for sharpness)
+  canvas.width  = Math.floor(scaledViewport.width  * dpr);
+  canvas.height = Math.floor(scaledViewport.height * dpr);
+
+  // Set canvas CSS size (what's visible on screen — fits container exactly)
+  canvas.style.width  = `${Math.floor(scaledViewport.width)}px`;
+  canvas.style.height = `${Math.floor(scaledViewport.height)}px`;
+
+  // Scale context by DPR so PDF renders sharply
+  context.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
+
+  document.getElementById("pdf-page-info").textContent = `Page ${pageNum} / ${pdfDoc.numPages}`;
+}
+
+function pdfNextPage() {
+  if (!pdfDoc || pdfCurrentPage >= pdfDoc.numPages) return;
+  pdfCurrentPage++;
+  renderPdfPage(pdfCurrentPage);
+}
+
+function pdfPrevPage() {
+  if (!pdfDoc || pdfCurrentPage <= 1) return;
+  pdfCurrentPage--;
+  renderPdfPage(pdfCurrentPage);
+}
+
+function closePdfViewer() {
+  const modal = document.getElementById("pdf-viewer-modal");
+  if (modal) modal.remove();
+  document.body.style.overflow = "";
+  pdfDoc = null;
 }
       // Load on page open
       loadDashboard();
