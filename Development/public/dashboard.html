@@ -1300,10 +1300,8 @@ function chooseEnrollment(idx) {
   window.open(url, "_blank");
 }
 
-// ── CUSTOM PDF VIEWER (PDF.js canvas rendering — no native toolbar, no download) ──
+// ── CUSTOM PDF VIEWER (scroll-based, all pages rendered) ──
 let pdfDoc = null;
-let pdfCurrentPage = 1;
-let pdfScale = 1.2;
 
 async function openCustomPdfViewer(url) {
   if (typeof pdfjsLib === "undefined") {
@@ -1320,81 +1318,64 @@ async function openCustomPdfViewer(url) {
     display:flex;flex-direction:column;
   `;
   modal.innerHTML = `
-    <div style="background:var(--navy);padding:.7rem 1.2rem;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;flex-wrap:wrap;gap:.6rem;">
+    <div style="background:var(--navy);padding:.7rem 1.2rem;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
       <div style="color:#fff;font-weight:700;font-size:.85rem;">📄 Study Material</div>
-      <div style="display:flex;align-items:center;gap:.6rem;">
-        <button onclick="pdfPrevPage()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:.4rem .8rem;border-radius:6px;cursor:pointer;font-weight:700;font-size:.8rem;">‹ Prev</button>
-        <span id="pdf-page-info" style="color:#fff;font-size:.8rem;min-width:70px;text-align:center;">Page 1</span>
-        <button onclick="pdfNextPage()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:.4rem .8rem;border-radius:6px;cursor:pointer;font-weight:700;font-size:.8rem;">Next ›</button>
-      </div>
+      <span id="pdf-page-info" style="color:rgba(255,255,255,.6);font-size:.78rem;"></span>
       <button onclick="closePdfViewer()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;">✕</button>
     </div>
-    <div id="pdf-canvas-wrap" style="flex:1;overflow:auto;display:flex;justify-content:center;padding:1rem;overflow-x:auto;">
-      <canvas id="pdf-canvas" oncontextmenu="return false;" style="user-select:none;box-shadow:0 4px 20px rgba(0,0,0,.4);"></canvas>
+    <div id="pdf-canvas-wrap" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:1rem;">
+      <div style="color:rgba(255,255,255,.5);font-size:.85rem;padding:2rem;">Loading document...</div>
     </div>
   `;
   document.body.appendChild(modal);
   document.body.style.overflow = "hidden";
 
-  // Disable text selection / copy on canvas wrap
-  document.getElementById("pdf-canvas-wrap").style.userSelect = "none";
-
   try {
     const loadingTask = pdfjsLib.getDocument(url);
     pdfDoc = await loadingTask.promise;
-    pdfCurrentPage = 1;
-    renderPdfPage(pdfCurrentPage);
+
+    const wrap = document.getElementById("pdf-canvas-wrap");
+    wrap.innerHTML = ""; // clear loading text
+
+    document.getElementById("pdf-page-info").textContent =
+      `${pdfDoc.numPages} page${pdfDoc.numPages > 1 ? "s" : ""}`;
+
+    // Render all pages sequentially
+    for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+      const page = await pdfDoc.getPage(pageNum);
+
+      const dpr = window.devicePixelRatio || 1;
+      const wrapWidth = wrap.clientWidth - 24;
+      const viewport = page.getViewport({ scale: 1 });
+      const scale = wrapWidth / viewport.width;
+      const scaledViewport = page.getViewport({ scale });
+
+      const canvas = document.createElement("canvas");
+      canvas.oncontextmenu = () => false;
+      canvas.style.cssText = `
+        width:${Math.floor(scaledViewport.width)}px;
+        height:${Math.floor(scaledViewport.height)}px;
+        display:block;
+        user-select:none;
+        box-shadow:0 4px 20px rgba(0,0,0,.4);
+        border-radius:4px;
+      `;
+      canvas.width  = Math.floor(scaledViewport.width  * dpr);
+      canvas.height = Math.floor(scaledViewport.height * dpr);
+
+      wrap.appendChild(canvas);
+
+      const context = canvas.getContext("2d");
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
+    }
+
   } catch (err) {
     console.error("PDF load error:", err);
     document.getElementById("pdf-canvas-wrap").innerHTML =
       `<div style="color:#fff;text-align:center;padding:2rem;">Failed to load document. Please try again.</div>`;
   }
-}
-
-async function renderPdfPage(pageNum) {
-  if (!pdfDoc) return;
-  const page = await pdfDoc.getPage(pageNum);
-
-  const wrap = document.getElementById("pdf-canvas-wrap");
-  const canvas = document.getElementById("pdf-canvas");
-  const context = canvas.getContext("2d");
-
-  // Account for device pixel ratio (fixes blurriness on retina/mobile screens)
-  const dpr = window.devicePixelRatio || 1;
-
-  // Fit PDF width to container, with padding
-  const wrapWidth = wrap.clientWidth - 24;
-  const viewport = page.getViewport({ scale: 1 });
-  const scale = wrapWidth / viewport.width;
-
-  const scaledViewport = page.getViewport({ scale });
-
-  // Set canvas physical size (multiplied by DPR for sharpness)
-  canvas.width  = Math.floor(scaledViewport.width  * dpr);
-  canvas.height = Math.floor(scaledViewport.height * dpr);
-
-  // Set canvas CSS size (what's visible on screen — fits container exactly)
-  canvas.style.width  = `${Math.floor(scaledViewport.width)}px`;
-  canvas.style.height = `${Math.floor(scaledViewport.height)}px`;
-
-  // Scale context by DPR so PDF renders sharply
-  context.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
-
-  document.getElementById("pdf-page-info").textContent = `Page ${pageNum} / ${pdfDoc.numPages}`;
-}
-
-function pdfNextPage() {
-  if (!pdfDoc || pdfCurrentPage >= pdfDoc.numPages) return;
-  pdfCurrentPage++;
-  renderPdfPage(pdfCurrentPage);
-}
-
-function pdfPrevPage() {
-  if (!pdfDoc || pdfCurrentPage <= 1) return;
-  pdfCurrentPage--;
-  renderPdfPage(pdfCurrentPage);
 }
 
 function closePdfViewer() {
