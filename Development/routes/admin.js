@@ -16,7 +16,10 @@ function sanitizeFilename(name) {
 }
 
 router.use(verifyJWT, isAdmin)
-const upload = multer({ storage: multer.memoryStorage() })
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 500 * 1024 * 1024 } // 500MB max
+})
 
 // GET all students
 router.get('/students', async (req, res) => {
@@ -429,6 +432,82 @@ router.patch('/enrollments/:studentId/batch', async (req, res) => {
   if (error) return res.status(500).json({ error: error.message })
 
   return res.status(200).json({ message: 'Student enrolled and assigned to batch!', enrollment: data })
+})
+
+// POST generate signed upload URL for lecture video (avoids RAM usage on server)
+router.post('/lectures/signed-upload-url', async (req, res) => {
+  try {
+    let { course, batch_id, filename } = req.body
+
+    if (!filename) {
+      return res.status(400).json({ error: 'filename is required' })
+    }
+
+    if (batch_id) {
+      const { data: batch } = await supabase
+        .from('batches')
+        .select('course')
+        .eq('id', batch_id)
+        .single()
+      if (batch) course = batch.course
+    }
+
+    if (!course) {
+      return res.status(400).json({ error: 'course is required' })
+    }
+
+    const safeName  = sanitizeFilename(filename)
+    const videoPath = `${course.toUpperCase()}/${Date.now()}-${safeName}`
+
+    const { data, error } = await supabase
+      .storage
+      .from('Lectures')
+      .createSignedUploadUrl(videoPath)
+
+    if (error) {
+      return res.status(500).json({ error: error.message })
+    }
+
+    return res.status(200).json({
+      signedUrl: data.signedUrl,
+      token:     data.token,
+      path:      videoPath
+    })
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
+})
+
+// POST save lecture metadata after direct browser upload
+router.post('/lectures/save-metadata', async (req, res) => {
+  try {
+    const { course, title, description, level, order_num, batch_id, video_path } = req.body
+
+    if (!course || !title || !video_path) {
+      return res.status(400).json({ error: 'course, title and video_path are required' })
+    }
+
+    const { data, error } = await supabase
+      .from('lectures')
+      .insert({
+        course,
+        title,
+        description: description || null,
+        video_path,
+        level:     level || 'A1',
+        order_num: parseInt(order_num) || 1,
+        batch_id:  batch_id || null
+      })
+      .select()
+      .single()
+
+    if (error) return res.status(500).json({ error: error.message })
+    return res.status(201).json({ message: 'Lecture saved!', lecture: data })
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
 })
 
 export default router

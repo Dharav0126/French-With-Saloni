@@ -1634,50 +1634,85 @@ async function uploadLecture() {
   btn.disabled = true
   btn.textContent = 'Uploading...'
   document.getElementById('upload-progress-wrap').style.display = 'block'
-  document.getElementById('upload-progress-label').textContent = `Uploading ${videoFile.name}...`
-
-  let progress = 0
-  const progressInterval = setInterval(() => {
-    progress = Math.min(progress + 5, 90)
-    document.getElementById('upload-progress-bar').style.width = `${progress}%`
-  }, 300)
+  document.getElementById('upload-progress-label').textContent = 'Preparing upload...'
+  document.getElementById('upload-progress-bar').style.width = '5%'
 
   try {
-    const formData = new FormData()
-    formData.append('video',        videoFile)
-    formData.append('course',       course)
-    formData.append('title',        title)
-    formData.append('description',  desc)
-    formData.append('level',        level)
-    formData.append('order_num',    order_num)
-    if (batch_id) formData.append('batch_id', batch_id)
-
-    const res = await fetch(`${API}/admin/lectures/upload`, {
+    // Step 1 — Get signed upload URL from server (no file data sent here)
+    const urlRes = await fetch(`${API}/admin/lectures/signed-upload-url`, {
       method:  'POST',
-      headers: { 'Authorization': `Bearer ${adminToken}` },
-      body:    formData
+      headers: authHeaders(),
+      body:    JSON.stringify({
+        course,
+        batch_id: batch_id || null,
+        filename: videoFile.name
+      })
     })
 
-    clearInterval(progressInterval)
+    const urlData = await urlRes.json()
+    if (!urlRes.ok) throw new Error(urlData.error || 'Failed to get upload URL')
+
+    document.getElementById('upload-progress-label').textContent = `Uploading ${videoFile.name}...`
+    document.getElementById('upload-progress-bar').style.width = '15%'
+
+    // Step 2 — Upload video DIRECTLY to Supabase from browser using XMLHttpRequest
+    // (fetch doesn't support progress events, XHR does)
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 70) + 15 // 15% → 85%
+          document.getElementById('upload-progress-bar').style.width = `${pct}%`
+          document.getElementById('upload-progress-label').textContent =
+            `Uploading... ${Math.round((e.loaded / e.total) * 100)}%`
+        }
+      })
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) resolve()
+        else reject(new Error(`Upload failed with status ${xhr.status}`))
+      })
+
+      xhr.addEventListener('error', () => reject(new Error('Network error during upload')))
+
+      xhr.open('PUT', urlData.signedUrl)
+      xhr.setRequestHeader('Content-Type', videoFile.type)
+      xhr.send(videoFile)
+    })
+
+    document.getElementById('upload-progress-bar').style.width = '90%'
+    document.getElementById('upload-progress-label').textContent = 'Saving lecture details...'
+
+    // Step 3 — Save metadata to database
+    const metaRes = await fetch(`${API}/admin/lectures/save-metadata`, {
+      method:  'POST',
+      headers: authHeaders(),
+      body:    JSON.stringify({
+        course,
+        title,
+        description: desc,
+        level,
+        order_num,
+        batch_id:   batch_id || null,
+        video_path: urlData.path
+      })
+    })
+
+    const metaData = await metaRes.json()
+    if (!metaRes.ok) throw new Error(metaData.error || 'Failed to save lecture metadata')
+
     document.getElementById('upload-progress-bar').style.width = '100%'
+    document.getElementById('upload-success').textContent = '✅ Lecture uploaded successfully!'
+    document.getElementById('upload-success').style.display = 'block'
+    document.getElementById('lec-title').value = ''
+    document.getElementById('lec-desc').value  = ''
+    document.getElementById('lec-video').value = ''
+    document.getElementById('lec-order').value = '1'
+    loadLectures()
 
-    const data = await res.json()
-
-    if (!res.ok) {
-      document.getElementById('upload-error').textContent = data.error || 'Upload failed.'
-      document.getElementById('upload-error').style.display = 'block'
-    } else {
-      document.getElementById('upload-success').textContent = '✅ Lecture uploaded successfully!'
-      document.getElementById('upload-success').style.display = 'block'
-      document.getElementById('lec-title').value = ''
-      document.getElementById('lec-desc').value  = ''
-      document.getElementById('lec-video').value = ''
-      document.getElementById('lec-order').value = '1'
-      loadLectures()
-    }
   } catch(err) {
-    clearInterval(progressInterval)
-    document.getElementById('upload-error').textContent = 'Server error. Please try again.'
+    document.getElementById('upload-error').textContent = err.message || 'Server error. Please try again.'
     document.getElementById('upload-error').style.display = 'block'
   } finally {
     btn.disabled = false
@@ -1688,7 +1723,6 @@ async function uploadLecture() {
     }, 2000)
   }
 }
-
 async function deleteLecture(id) {
   if (!confirm('Delete this lecture? The video will remain in storage.')) return
 
