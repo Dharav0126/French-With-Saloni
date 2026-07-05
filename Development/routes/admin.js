@@ -6,6 +6,15 @@ import multer from 'multer'
 
 const router = Router()
 
+// Sanitize filename: remove accents, special characters, keep only safe ASCII
+function sanitizeFilename(name) {
+  return name
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[()]/g, '')
+    .replace(/[^a-zA-Z0-9.\-_]/g, '-')
+    .replace(/-+/g, '-')
+}
+
 router.use(verifyJWT, isAdmin)
 const upload = multer({ storage: multer.memoryStorage() })
 
@@ -77,16 +86,15 @@ router.post('/lectures/upload', upload.single('video'), async (req, res) => {
     }
 
     // Upload video to Supabase Storage
-    const fileName  = `${Date.now()}-${req.file.originalname.replace(/\s+/g, '-')}`
-    const videoPath = `${course.toUpperCase()}/${fileName}`
+const fileName  = `${Date.now()}-${sanitizeFilename(req.file.originalname)}` 
+   const videoPath = `${course.toUpperCase()}/${fileName}`
 
     const { error: uploadError } = await supabase
   .storage
-  .from('Material')
-  .upload(filePath, req.file.buffer, {
+  .from('Lectures')
+  .upload(videoPath, req.file.buffer, {
     contentType: req.file.mimetype,
-    upsert: false,
-    contentDisposition: 'inline'
+    upsert: false
   })
 
     if (uploadError) {
@@ -230,7 +238,7 @@ router.post('/materials/upload', upload.single('file'), async (req, res) => {
     }
 
     // Upload file to Supabase Storage
-    const fileName = `${Date.now()}-${req.file.originalname.replace(/\s+/g, '-')}`
+    const fileName = `${Date.now()}-${sanitizeFilename(req.file.originalname)}`
     const folder    = course || exam_type || 'general'
     const filePath  = `${folder.toUpperCase()}/${fileName}`
 
