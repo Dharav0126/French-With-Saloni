@@ -650,22 +650,10 @@
                   background: var(--pale);
                   color: var(--blue);
                   transition: all 0.25s;
-                  opacity: 0.6;
-                  cursor: not-allowed;
                 "
               >
                 📝 Tests
-                <span
-                  style="
-                    font-size: 0.65rem;
-                    background: var(--gold);
-                    color: var(--navy);
-                    padding: 0.1rem 0.4rem;
-                    border-radius: 10px;
-                    margin-left: 0.3rem;
-                  "
-                  >Soon</span
-                >
+                
               </button>
             </div>
 
@@ -769,17 +757,35 @@
             </div>
 
             <!-- Tests Section -->
-            <div id="section-tests" style="display: none">
-              <div class="section-title">📝 Tests</div>
-              <div class="no-lectures">
-                <div class="no-lectures-icon">🚧</div>
-                <div class="no-lectures-title">Coming Soon</div>
-                <div class="no-lectures-sub">
-                  Online tests and quizzes will be available here soon. Stay
-                  tuned!
-                </div>
-              </div>
-            </div>
+            <!-- Tests Section -->
+<div id="section-tests" style="display: none">
+  <div class="section-title">📝 Tests</div>
+
+  <!-- Section sub-tabs -->
+  <div style="display:flex;gap:.5rem;margin-bottom:1.2rem;flex-wrap:wrap;">
+    <button onclick="switchTestTab('reading')"  id="test-tab-reading"
+      style="padding:.5rem 1.1rem;border-radius:20px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
+      📖 Reading
+    </button>
+    <button onclick="switchTestTab('listening')" id="test-tab-listening"
+      style="padding:.5rem 1.1rem;border-radius:20px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+      🎧 Listening
+    </button>
+    <button onclick="switchTestTab('speaking')"  id="test-tab-speaking"
+      style="padding:.5rem 1.1rem;border-radius:20px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+      🎙️ Speaking
+    </button>
+    <button onclick="switchTestTab('writing')"   id="test-tab-writing"
+      style="padding:.5rem 1.1rem;border-radius:20px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+      ✍️ Writing
+    </button>
+  </div>
+
+  <div id="tests-reading-container"></div>
+  <div id="tests-listening-container" style="display:none;"></div>
+  <div id="tests-speaking-container"  style="display:none;"></div>
+  <div id="tests-writing-container"   style="display:none;"></div>
+</div>
           </div>
 
           <!-- RIGHT COLUMN — Sidebar -->
@@ -1143,7 +1149,8 @@ function chooseEnrollment(idx) {
         }
 
         // Materials
-        renderMaterials(data.classNotes || [], data.examMaterials || []);
+       renderMaterials(data.classNotes || [], data.examMaterials || []);
+renderTests(data.testMaterials || []);
       }
 
       function getLevelName(level) {
@@ -1160,7 +1167,6 @@ function chooseEnrollment(idx) {
 
       // ── SECTION TABS ───────────────────────────────────
       function switchSection(section) {
-        if (section === "tests") return;
 
         document.getElementById("section-lectures").style.display = "none";
         document.getElementById("section-materials").style.display = "none";
@@ -1245,20 +1251,205 @@ function chooseEnrollment(idx) {
       }
 
       function renderMaterials(classNotes, examMaterials) {
-        renderMaterialList(
-          "materials-class-container",
-          classNotes,
-          "No class notes yet",
-          "Saloni will upload class notes and resources here.",
-        );
-        renderMaterialList(
-          "materials-exam-container",
-          examMaterials,
-          "No exam materials yet",
-          "Exam-specific resources will appear here.",
-        );
-      }
+  const currentEnrollment = allEnrollments[activeEnrollmentIdx]
+  const isTefTcf = currentEnrollment &&
+    (currentEnrollment.course === 'tef' || currentEnrollment.course === 'tcf')
 
+  if (isTefTcf) {
+    renderTefTcfMaterials(classNotes)
+  } else {
+    renderMaterialList(
+      'materials-class-container',
+      classNotes,
+      'No class notes yet',
+      'Saloni will upload class notes and resources here.'
+    )
+  }
+
+  renderMaterialList(
+    'materials-exam-container',
+    examMaterials,
+    'No exam materials yet',
+    'Exam-specific resources will appear here.'
+  )
+}
+
+function renderTefTcfMaterials(classNotes) {
+  const container = document.getElementById('materials-class-container')
+  container.innerHTML = `
+    <div style="display:flex;gap:.5rem;margin-bottom:1.2rem;flex-wrap:wrap;">
+      <button onclick="switchTefTab('all')" id="tef-tab-all"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
+        📚 All
+      </button>
+      <button onclick="switchTefTab('reading')" id="tef-tab-reading"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+        📖 Reading
+      </button>
+      <button onclick="switchTefTab('listening')" id="tef-tab-listening"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+        🎧 Listening
+      </button>
+      <button onclick="switchTefTab('speaking')" id="tef-tab-speaking"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+        🎙️ Speaking
+      </button>
+      <button onclick="switchTefTab('writing')" id="tef-tab-writing"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+        ✍️ Writing
+      </button>
+    </div>
+    <div id="tef-materials-content"></div>
+  `
+
+  window._tefClassNotes = classNotes
+  switchTefTab('all')
+}
+
+function switchTefTab(tab) {
+  const notes = window._tefClassNotes || []
+
+  const filtered = tab === 'all' ? notes
+    : notes.filter(m => m.section === tab)
+
+  ;['all','reading','listening','speaking','writing'].forEach(t => {
+    const btn = document.getElementById(`tef-tab-${t}`)
+    if (btn) {
+      btn.style.background = t === tab ? 'var(--blue)' : 'var(--pale)'
+      btn.style.color      = t === tab ? '#fff' : 'var(--blue)'
+    }
+  })
+
+  const content = document.getElementById('tef-materials-content')
+  if (!content) return
+
+  if (!filtered || filtered.length === 0) {
+    content.innerHTML = `
+      <div class="no-lectures">
+        <div class="no-lectures-icon">📂</div>
+        <div class="no-lectures-title">No materials ${tab === 'all' ? 'yet' : 'in ' + tab} yet</div>
+        <div class="no-lectures-sub">Saloni will upload materials here soon.</div>
+      </div>`
+    return
+  }
+
+  content.innerHTML = filtered.map(m => `
+    <div class="lecture-card" style="display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.5rem;">
+      <div style="font-size:2rem;flex-shrink:0;">
+        ${m.type === 'pdf' ? '📄' : m.type === 'link' ? '🔗' : '📎'}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div class="lecture-title">${m.title}</div>
+        ${m.description ? `<div class="lecture-desc">${m.description}</div>` : ''}
+      </div>
+      ${m.downloadUrl
+        ? `<a href="${m.downloadUrl}" target="_blank"
+            onclick="openMaterial(event, '${m.downloadUrl}', '${m.type}')"
+            style="flex-shrink:0;background:var(--blue);color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap;"
+            onmouseover="this.style.background='var(--sky)'"
+            onmouseout="this.style.background='var(--blue)'">
+            ${m.type === 'link' ? '🔗 Open' : '📖 View'}
+          </a>`
+        : `<span style="font-size:.78rem;color:var(--muted);">Unavailable</span>`
+      }
+    </div>
+  `).join('')
+}
+
+function renderTefTcfMaterials(classNotes) {
+  // Replace the class notes container with 5 sub-tabs
+  const container = document.getElementById('materials-class-container')
+  container.innerHTML = `
+    <div style="display:flex;gap:.5rem;margin-bottom:1.2rem;flex-wrap:wrap;">
+      <button onclick="switchTefTab('all')" id="tef-tab-all"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
+        📚 All
+      </button>
+      <button onclick="switchTefTab('reading')" id="tef-tab-reading"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+        📖 Reading
+      </button>
+      <button onclick="switchTefTab('listening')" id="tef-tab-listening"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+        🎧 Listening
+      </button>
+      <button onclick="switchTefTab('speaking')" id="tef-tab-speaking"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+        🎙️ Speaking
+      </button>
+      <button onclick="switchTefTab('writing')" id="tef-tab-writing"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+        ✍️ Writing
+      </button>
+    </div>
+    <div id="tef-materials-content"></div>
+  `
+
+  // Store all class notes globally for filtering
+  window._tefClassNotes = classNotes
+
+  // Default to All tab
+  switchTefTab('all')
+}
+
+function switchTefTab(tab) {
+  const notes = window._tefClassNotes || []
+
+  // Filter
+  const filtered = tab === 'all'
+    ? notes
+    : tab === 'reading'   ? notes.filter(m => m.section === 'reading')
+    : tab === 'listening' ? notes.filter(m => m.section === 'listening')
+    : tab === 'speaking'  ? notes.filter(m => m.section === 'speaking')
+    : tab === 'writing'   ? notes.filter(m => m.section === 'writing')
+    : notes
+
+  // Update tab styles
+  ;['all','reading','listening','speaking','writing'].forEach(t => {
+    const btn = document.getElementById(`tef-tab-${t}`)
+    if (btn) {
+      btn.style.background = t === tab ? 'var(--blue)' : 'var(--pale)'
+      btn.style.color      = t === tab ? '#fff' : 'var(--blue)'
+    }
+  })
+
+  // Render filtered list into content div
+  const content = document.getElementById('tef-materials-content')
+  if (!content) return
+
+  if (!filtered || filtered.length === 0) {
+    const sectionLabel = tab === 'all' ? 'here' : `in ${tab}`
+    content.innerHTML = `
+      <div class="no-lectures">
+        <div class="no-lectures-icon">📂</div>
+        <div class="no-lectures-title">No materials ${sectionLabel} yet</div>
+        <div class="no-lectures-sub">Saloni will upload materials here soon.</div>
+      </div>`
+    return
+  }
+
+  content.innerHTML = filtered.map(m => `
+    <div class="lecture-card" style="display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.5rem;">
+      <div style="font-size:2rem;flex-shrink:0;">
+        ${m.type === 'pdf' ? '📄' : m.type === 'link' ? '🔗' : '📎'}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div class="lecture-title">${m.title}</div>
+        ${m.description ? `<div class="lecture-desc">${m.description}</div>` : ''}
+      </div>
+      ${m.downloadUrl
+        ? `<a href="${m.downloadUrl}" target="_blank"
+            onclick="openMaterial(event, '${m.downloadUrl}', '${m.type}')"
+            style="flex-shrink:0;background:var(--blue);color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap;"
+            onmouseover="this.style.background='var(--sky)'"
+            onmouseout="this.style.background='var(--blue)'">
+            ${m.type === 'link' ? '🔗 Open' : '📖 View'}
+          </a>`
+        : `<span style="font-size:.78rem;color:var(--muted);">Unavailable</span>`
+      }
+    </div>
+  `).join('')
+}
      function openMaterial(e, url, type) {
   e.preventDefault();
 
@@ -1376,6 +1567,26 @@ async function openCustomPdfViewer(url) {
     document.getElementById("pdf-canvas-wrap").innerHTML =
       `<div style="color:#fff;text-align:center;padding:2rem;">Failed to load document. Please try again.</div>`;
   }
+}
+function switchTestTab(tab) {
+  ['reading','listening','speaking','writing'].forEach(s => {
+    document.getElementById(`tests-${s}-container`).style.display = s === tab ? 'block' : 'none'
+    const btn = document.getElementById(`test-tab-${s}`)
+    btn.style.background = s === tab ? 'var(--blue)' : 'var(--pale)'
+    btn.style.color      = s === tab ? '#fff' : 'var(--blue)'
+  })
+}
+
+function renderTests(testMaterials) {
+  ['reading','listening','speaking','writing'].forEach(section => {
+    const items = (testMaterials || []).filter(m => m.section === section)
+    renderMaterialList(
+      `tests-${section}-container`,
+      items,
+      `No ${section} tests yet`,
+      `Saloni will upload ${section} practice tests here.`
+    )
+  })
 }
 
 function closePdfViewer() {

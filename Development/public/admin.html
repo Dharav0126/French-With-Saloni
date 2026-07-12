@@ -670,13 +670,57 @@
   </div>
 
   <!-- BATCHES -->
-  <div class="page" id="page-batches">
-    <div class="page-title">Batches</div>
-    <div class="page-sub">Manage course batches — create different timings for the same course.</div>
+ <div class="page" id="page-batches">
+  <div class="page-title">Batches</div>
+  <div class="page-sub">Manage course batches and student assignments.</div>
 
-    <div class="table-card" style="margin-bottom:1.5rem;padding:1.5rem;">
-      <div class="table-title" style="margin-bottom:1rem;">Create New Batch</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+  <!-- Tab buttons -->
+  <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:2px solid var(--pale);padding-bottom:.5rem;">
+    <button onclick="switchBatchTab('list')" id="batch-tab-list"
+      style="padding:.6rem 1.4rem;border-radius:8px 8px 0 0;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
+      📋 All Batches
+    </button>
+    <button onclick="switchBatchTab('create')" id="batch-tab-create"
+      style="padding:.6rem 1.4rem;border-radius:8px 8px 0 0;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+      + Create Batch
+    </button>
+    <button onclick="switchBatchTab('assign')" id="batch-tab-assign"
+      style="padding:.6rem 1.4rem;border-radius:8px 8px 0 0;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+      👤 Assign Student
+    </button>
+  </div>
+
+  <!-- ALL BATCHES TAB -->
+  <div id="batch-panel-list">
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">All Batches</div>
+        <div class="table-count" id="batches-count">Loading...</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Batch Name</th>
+            <th>Days</th>
+            <th>Timing</th>
+            <th>Meet Link</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="batches-body">
+          <tr class="empty-row"><td colspan="7">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CREATE BATCH TAB -->
+  <div id="batch-panel-create" style="display:none;">
+    <div class="table-card" style="padding:2rem;max-width:700px;">
+      <div class="table-title" style="margin-bottom:1.5rem;">Create New Batch</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
         <div>
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
           <select id="new-batch-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
@@ -689,75 +733,137 @@
         </div>
         <div>
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">BATCH NAME</label>
-          <input id="new-batch-name" placeholder="e.g. Batch 1, Morning Batch" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+          <input id="new-batch-name" placeholder="e.g. Morning Batch, Batch 1"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
         </div>
         <div>
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">DAYS</label>
-          <input id="new-batch-days" placeholder="e.g. Mon, Wed, Fri" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+          <input id="new-batch-days" placeholder="e.g. Mon, Wed, Fri"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
         </div>
         <div>
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">TIMING</label>
-          <input id="new-batch-timing" placeholder="e.g. 9 PM – 10 PM EST" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+          <input id="new-batch-timing" placeholder="e.g. 9 PM – 10 PM EST"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
         </div>
-        <div>
-          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">GOOGLE MEET LINK</label>
-          <input id="new-batch-meet" placeholder="https://meet.google.com/..." style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        <div style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">GOOGLE MEET LINK (optional)</label>
+          <input id="new-batch-meet" placeholder="https://meet.google.com/..."
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
         </div>
       </div>
-      <button class="btn-sm btn-approve" style="padding:.6rem 1.5rem;" onclick="createBatch()">+ Create Batch</button>
+      <button class="btn-sm btn-approve" style="padding:.7rem 2rem;font-size:.88rem;" onclick="createBatch()">
+        + Create Batch
+      </button>
     </div>
+  </div>
 
-    <div class="table-card">
-      <div class="table-header">
-        <div class="table-title">All Batches</div>
-        <div class="table-count" id="batches-count">Loading...</div>
-      </div>
-      <table>
-        <thead><tr><th>Course</th><th>Batch Name</th><th>Days</th><th>Timing</th><th>Meet Link</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="batches-body"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
-      </table>
-    </div>
-
-    <div class="table-card" style="margin-top:1.5rem;padding:1.5rem;">
-      <div class="table-title" style="margin-bottom:1rem;">Assign Student to Batch</div>
+  <!-- ASSIGN STUDENT TAB -->
+  <div id="batch-panel-assign" style="display:none;">
+    <div class="table-card" style="padding:2rem;max-width:700px;">
+      <div class="table-title" style="margin-bottom:1.5rem;">Assign Student to Batch</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
         <div>
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">SEARCH STUDENT</label>
-          <input id="assign-student-search" placeholder="Type student name or email..." oninput="searchStudents(this.value)"
+          <input id="assign-student-search" placeholder="Type student name or email..."
+            oninput="searchStudents(this.value)"
             style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
           <div id="student-search-results" style="position:relative;">
-            <div id="student-dropdown" style="display:none;position:absolute;top:0;left:0;right:0;background:#fff;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;box-shadow:0 8px 24px rgba(10,35,66,.1);z-index:100;max-height:200px;overflow-y:auto;"></div>
+            <div id="student-dropdown"
+              style="display:none;position:absolute;top:0;left:0;right:0;background:#fff;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;box-shadow:0 8px 24px rgba(10,35,66,.1);z-index:100;max-height:200px;overflow-y:auto;">
+            </div>
           </div>
-          <div id="selected-student" style="display:none;margin-top:.5rem;padding:.5rem .8rem;background:var(--pale);border-radius:6px;font-size:.82rem;color:var(--navy);align-items:center;justify-content:space-between;">
+          <div id="selected-student"
+            style="display:none;margin-top:.5rem;padding:.5rem .8rem;background:var(--pale);border-radius:6px;font-size:.82rem;color:var(--navy);align-items:center;justify-content:space-between;">
             <span id="selected-student-name"></span>
-            <button onclick="clearSelectedStudent()" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;">✕</button>
+            <button onclick="clearSelectedStudent()"
+              style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;">✕</button>
           </div>
           <input type="hidden" id="assign-student-id"/>
         </div>
         <div>
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">BATCH</label>
-          <select id="assign-batch-id" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+          <select id="assign-batch-id"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
             <option value="">Select a batch</option>
           </select>
         </div>
       </div>
-      <button class="btn-sm btn-approve" style="padding:.6rem 1.5rem;" onclick="assignBatch()">Assign to Batch</button>
+      <button class="btn-sm btn-approve" style="padding:.7rem 2rem;font-size:.88rem;" onclick="assignBatch()">
+        Assign to Batch
+      </button>
+    </div>
+  </div>
+</div>
+
+  <!-- LECTURES -->
+ <div class="page" id="page-lectures">
+  <div class="page-title">Lectures</div>
+  <div class="page-sub">Upload and manage course lecture videos.</div>
+
+  <!-- Tab buttons -->
+  <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:2px solid var(--pale);padding-bottom:.5rem;">
+    <button onclick="switchLectureTab('list')" id="lecture-tab-list"
+      style="padding:.6rem 1.4rem;border-radius:8px 8px 0 0;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
+      📋 All Lectures
+    </button>
+    <button onclick="switchLectureTab('upload')" id="lecture-tab-upload"
+      style="padding:.6rem 1.4rem;border-radius:8px 8px 0 0;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+      ⬆️ Upload Lecture
+    </button>
+  </div>
+
+  <!-- ALL LECTURES TAB -->
+<div id="lecture-panel-list">
+  <!-- Batch selector -->
+  <div class="table-card" style="padding:1.2rem 1.5rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <label style="font-size:.78rem;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;">Select Batch</label>
+    <select id="view-batch-select" onchange="loadLecturesByBatch(this.value)"
+      style="flex:1;min-width:200px;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+      <option value="">— Choose a batch to view lectures —</option>
+      <option value="__course_wide__">🌐 Course Wide (no specific batch)</option>
+    </select>
+    <div class="table-count" id="lectures-count" style="white-space:nowrap;"></div>
+  </div>
+
+  <!-- Lectures table (hidden until batch selected) -->
+  <div id="lectures-table-wrap" style="display:none;">
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Level</th>
+            <th>Order</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="lectures-body"></tbody>
+      </table>
     </div>
   </div>
 
-  <!-- LECTURES -->
-  <div class="page" id="page-lectures">
-    <div class="page-title">Lectures</div>
-    <div class="page-sub">Upload and manage course lecture videos.</div>
+  <!-- Empty prompt -->
+  <div id="lectures-empty-prompt" style="background:#fff;border-radius:14px;padding:3rem;text-align:center;border:1px solid rgba(19,85,160,.08);">
+    <div style="font-size:2.5rem;margin-bottom:1rem;">📦</div>
+    <div style="font-family:'Libre Baskerville',serif;font-size:1.1rem;color:var(--navy);margin-bottom:.5rem;">Select a batch above</div>
+    <div style="font-size:.85rem;color:var(--muted);">Choose a batch to view its lectures.</div>
+  </div>
+</div>
 
-    <div class="table-card" style="margin-bottom:1.5rem;padding:1.5rem;">
-      <div class="table-title" style="margin-bottom:1rem;">Upload New Lecture</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+  <!-- UPLOAD LECTURE TAB -->
+  <div id="lecture-panel-upload" style="display:none;">
+    <div class="table-card" style="padding:2rem;max-width:700px;">
+      <div class="table-title" style="margin-bottom:1.5rem;">Upload New Lecture</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
         <div>
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
           <select id="lec-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
             <option value="tef">TEF Preparation</option>
-             <option value="tcf">TCF Preparation</option>
+            <option value="tcf">TCF Preparation</option>
             <option value="clb7-6mo">A1-B2 — 6 months</option>
             <option value="clb7-4mo">CLB 7 — 4 months</option>
             <option value="1on1">1-on-1 Private</option>
@@ -771,32 +877,39 @@
             <option value="B1">B1 — Intermediate</option>
             <option value="B2">B2 — Upper Intermediate</option>
             <option value="C1">C1 — Advanced</option>
+            <option value="General">General</option>
           </select>
         </div>
         <div>
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">ORDER NUMBER</label>
-          <input id="lec-order" type="number" min="1" value="1" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+          <input id="lec-order" type="number" min="1" value="1"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
         </div>
         <div>
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">BATCH (optional)</label>
-          <select id="lec-batch" onchange="updateCourseFromBatch(this.value)" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+          <select id="lec-batch" onchange="updateCourseFromBatch(this.value)"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
             <option value="">No specific batch (course wide)</option>
           </select>
         </div>
         <div style="grid-column:1/-1;">
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">TITLE</label>
-          <input id="lec-title" placeholder="e.g. Introduction to TEF Canada" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+          <input id="lec-title" placeholder="e.g. Introduction to TEF Canada"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
         </div>
         <div style="grid-column:1/-1;">
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">DESCRIPTION (optional)</label>
-          <input id="lec-desc" placeholder="Brief description of this lecture" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+          <input id="lec-desc" placeholder="Brief description of this lecture"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
         </div>
         <div style="grid-column:1/-1;">
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">VIDEO FILE</label>
-          <input type="file" id="lec-video" accept="video/*" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;background:#fff;"/>
+          <input type="file" id="lec-video" accept="video/*"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;background:#fff;"/>
         </div>
       </div>
 
+      <!-- Progress bar -->
       <div id="upload-progress-wrap" style="display:none;margin-bottom:1rem;">
         <div style="font-size:.8rem;color:var(--muted);margin-bottom:.4rem;" id="upload-progress-label">Uploading...</div>
         <div style="background:var(--pale);border-radius:20px;height:8px;overflow:hidden;">
@@ -807,127 +920,187 @@
       <div id="upload-error" style="display:none;background:#FEE2E2;color:#991B1B;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
       <div id="upload-success" style="display:none;background:#D1FAE5;color:#065F46;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
 
-      <button class="btn-sm btn-approve" style="padding:.6rem 1.5rem;" id="upload-btn" onclick="uploadLecture()">⬆️ Upload Lecture</button>
-    </div>
-
-    <div class="table-card">
-      <div class="table-header">
-        <div class="table-title">All Lectures</div>
-        <div class="table-count" id="lectures-count">Loading...</div>
-      </div>
-      <table>
-        <thead><tr><th>Course</th><th>Batch</th><th>Level</th><th>Order</th><th>Title</th><th>Description</th><th>Actions</th></tr></thead>
-        <tbody id="lectures-body"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
-      </table>
+      <button class="btn-sm btn-approve" style="padding:.7rem 2rem;font-size:.88rem;" id="upload-btn" onclick="uploadLecture()">
+        ⬆️ Upload Lecture
+      </button>
     </div>
   </div>
+</div>
   <!-- STUDY MATERIALS -->
+<!-- STUDY MATERIALS -->
 <div class="page" id="page-materials">
   <div class="page-title">Study Materials</div>
-  <div class="page-sub">Add study materials and PDFs via Google Drive links.</div>
+  <div class="page-sub">Upload and manage course study materials.</div>
 
-  <!-- Add material form -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
-  <div style="grid-column:1/-1;">
-    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">MATERIAL TYPE</label>
-    <select id="mat-category" onchange="toggleMaterialFields(this.value)" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
-      <option value="class_notes">📘 Class Notes (tied to a course)</option>
-      <option value="exam_prep">📝 Exam Materials (tied to TEF/TCF)</option>
-    </select>
-  </div>
-
-  <div id="mat-field-course">
-    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
-    <select id="mat-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
-      <option value="tef">TEF Preparation</option>
-        <option value="tcf">TCF Preparation</option>
-      <option value="clb7-6mo">A1-B2 6 months</option>
-      <option value="clb7-4mo">CLB 7 — 4 months</option>
-      <option value="1on1">1-on-1 Private</option>
-    </select>
-  </div>
-
-  <div id="mat-field-exam" style="display:none;">
-    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">EXAM TYPE</label>
-    <select id="mat-exam" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
-      <option value="TEF">TEF</option>
-      <option value="TCF">TCF</option>
-    </select>
-  </div>
-
-  <div>
-    <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">LEVEL</label>
-    <select id="mat-level" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
-      <option value="A1">A1 — Complete Beginner</option>
-      <option value="A2">A2 — Elementary</option>
-      <option value="B1">B1 — Intermediate</option>
-      <option value="B2">B2 — Upper Intermediate</option>
-      <option value="C1">C1 — Advanced</option>
-    </select>
-  </div>
-      <div>
-        <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">ORDER NUMBER</label>
-        <input id="mat-order" type="number" min="1" value="1" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
-      </div>
-      <div style="grid-column:1/-1;">
-        <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">TITLE</label>
-        <input id="mat-title" placeholder="e.g. TEF Exam Guide 2024" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
-      </div>
-      <div style="grid-column:1/-1;">
-        <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">DESCRIPTION (optional)</label>
-        <input id="mat-desc" placeholder="Brief description of this material" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
-      </div>
-      <div style="grid-column:1/-1;">
-  <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">UPLOAD METHOD</label>
-  <select id="mat-upload-method" onchange="toggleUploadMethod(this.value)" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
-    <option value="file">Upload PDF/File directly (recommended)</option>
-    <option value="link">Paste Google Drive link</option>
-  </select>
-</div>
-
-<div id="mat-field-file" style="grid-column:1/-1;">
-  <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">FILE</label>
-  <input type="file" id="mat-file" accept=".pdf,.doc,.docx" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;background:#fff;"/>
-</div>
-
-<div id="mat-field-link" style="grid-column:1/-1;display:none;">
-  <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">GOOGLE DRIVE LINK</label>
-  <input id="mat-url" placeholder="https://drive.google.com/file/d/.../view?usp=drive_link" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
-  <div style="font-size:.75rem;color:var(--muted);margin-top:.4rem;">Paste the share link — it will be converted automatically. Make sure download is disabled in Drive sharing settings.</div>
-</div>
-    </div>
-
-    <div id="mat-error" style="display:none;background:#FEE2E2;color:#991B1B;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
-    <div id="mat-success" style="display:none;background:#D1FAE5;color:#065F46;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
-
-    <button class="btn-sm btn-approve" style="padding:.6rem 1.5rem;" id="mat-btn" onclick="addMaterial()">
+  <!-- Tab buttons -->
+  <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:2px solid var(--pale);padding-bottom:.5rem;">
+    <button onclick="switchMaterialsTab('list')" id="materials-tab-list"
+      style="padding:.6rem 1.4rem;border-radius:8px 8px 0 0;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
+      📋 All Materials
+    </button>
+    <button onclick="switchMaterialsTab('add')" id="materials-tab-add"
+      style="padding:.6rem 1.4rem;border-radius:8px 8px 0 0;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
       + Add Material
     </button>
   </div>
 
-  <!-- Materials table -->
-  <div class="table-card">
-    <div class="table-header">
-      <div class="table-title">All Materials</div>
-      <div class="table-count" id="materials-count">Loading...</div>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Course</th>
-          <th>Level</th>
-              <th>Exam</th>
-          <th>Order</th>
-          <th>Title</th>
-          <th>Link</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="materials-body">
-        <tr class="empty-row"><td colspan="6">Loading...</td></tr>
-      </tbody>
-    </table>
+ <!-- ALL MATERIALS TAB -->
+<div id="materials-panel-list">
+  <!-- Course selector -->
+  <div class="table-card" style="padding:1.2rem 1.5rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <label style="font-size:.78rem;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;">Select Course</label>
+    <select id="view-material-course" onchange="loadMaterialsByCourse(this.value)"
+      style="flex:1;min-width:200px;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+      <option value="">— Choose a course to view materials —</option>
+      <option value="tef">TEF Preparation</option>
+      <option value="tcf">TCF Preparation</option>
+      <option value="clb7-6mo">A1-B2 — 6 months</option>
+      <option value="clb7-4mo">CLB 7 — 4 months</option>
+      <option value="1on1">1-on-1 Private</option>
+      <option value="exam_prep">📝 Exam Materials (TEF/TCF)</option>
+      <option value="test">📝 Test Materials</option>
+    </select>
+    <div class="table-count" id="materials-count" style="white-space:nowrap;"></div>
   </div>
+
+  <!-- Materials table (hidden until course selected) -->
+  <div id="materials-table-wrap" style="display:none;">
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Course / Exam</th>
+            <th>Section</th>
+            <th>Level</th>
+            <th>Order</th>
+            <th>Title</th>
+            <th>File</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="materials-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty prompt -->
+  <div id="materials-empty-prompt" style="background:#fff;border-radius:14px;padding:3rem;text-align:center;border:1px solid rgba(19,85,160,.08);">
+    <div style="font-size:2.5rem;margin-bottom:1rem;">📚</div>
+    <div style="font-family:'Libre Baskerville',serif;font-size:1.1rem;color:var(--navy);margin-bottom:.5rem;">Select a course above</div>
+    <div style="font-size:.85rem;color:var(--muted);">Choose a course to view its materials.</div>
+  </div>
+</div>
+
+  <!-- ADD MATERIAL TAB -->
+  <div id="materials-panel-add" style="display:none;">
+    <div class="table-card" style="padding:2rem;max-width:700px;">
+      <div class="table-title" style="margin-bottom:1.5rem;">Add New Material</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">MATERIAL TYPE</label>
+          <select id="mat-category" onchange="toggleMaterialFields(this.value)"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="class_notes">📘 Class Notes (tied to a course)</option>
+            <option value="exam_prep">📝 Exam Materials (tied to TEF/TCF)</option>
+            <option value="test">📝 Test Material (Reading/Listening/Speaking/Writing)</option>
+          </select>
+        </div>
+
+        <div id="mat-field-course">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
+<select id="mat-course" onchange="toggleSectionForCourse(this.value)" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">            <option value="tef">TEF Preparation</option>
+            <option value="tcf">TCF Preparation</option>
+            <option value="clb7-6mo">A1-B2 — 6 months</option>
+            <option value="clb7-4mo">CLB 7 — 4 months</option>
+            <option value="1on1">1-on-1 Private</option>
+          </select>
+        </div>
+
+        <div id="mat-field-exam" style="display:none;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">EXAM TYPE</label>
+          <select id="mat-exam" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="TEF">TEF</option>
+            <option value="TCF">TCF</option>
+          </select>
+        </div>
+
+        <div id="mat-field-section" style="display:none;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">SECTION</label>
+         <select id="mat-section" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+  <option value="">📚 General (no specific section)</option>
+  <option value="reading">📖 Reading</option>
+  <option value="listening">🎧 Listening</option>
+  <option value="speaking">🎙️ Speaking</option>
+  <option value="writing">✍️ Writing</option>
+</select>
+        </div>
+
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">LEVEL</label>
+          <select id="mat-level" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="A1">A1 — Complete Beginner</option>
+            <option value="A2">A2 — Elementary</option>
+            <option value="B1">B1 — Intermediate</option>
+            <option value="B2">B2 — Upper Intermediate</option>
+            <option value="C1">C1 — Advanced</option>
+            <option value="General">General</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">ORDER NUMBER</label>
+          <input id="mat-order" type="number" min="1" value="1"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">TITLE</label>
+          <input id="mat-title" placeholder="e.g. TEF Exam Guide 2024"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">DESCRIPTION (optional)</label>
+          <input id="mat-desc" placeholder="Brief description of this material"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">UPLOAD METHOD</label>
+          <select id="mat-upload-method" onchange="toggleUploadMethod(this.value)"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="file">Upload PDF/File directly (recommended)</option>
+            <option value="link">Paste Google Drive link</option>
+          </select>
+        </div>
+
+        <div id="mat-field-file" style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">FILE</label>
+          <input type="file" id="mat-file" accept=".pdf,.doc,.docx"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;background:#fff;"/>
+        </div>
+
+        <div id="mat-field-link" style="grid-column:1/-1;display:none;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">GOOGLE DRIVE LINK</label>
+          <input id="mat-url" placeholder="https://drive.google.com/file/d/.../view?usp=drive_link"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:.4rem;">Paste the share link — it will be converted automatically.</div>
+        </div>
+      </div>
+
+      <div id="mat-error" style="display:none;background:#FEE2E2;color:#991B1B;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
+      <div id="mat-success" style="display:none;background:#D1FAE5;color:#065F46;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
+
+      <button class="btn-sm btn-approve" style="padding:.7rem 2rem;font-size:.88rem;" id="mat-btn" onclick="addMaterial()">
+        + Add Material
+      </button>
+    </div>
+  </div>
+</div>
+
+  
 </div>
 
 </main>
@@ -984,7 +1157,19 @@ function searchStudents(query) {
     </div>
   `).join('')
 }
+async function updateMaterialSection(id, section) {
+  const res = await fetch(`${API}/admin/materials/${id}/section`, {
+    method:  'PATCH',
+    headers: authHeaders(),
+    body:    JSON.stringify({ section: section || null })
+  })
 
+  if (res.ok) {
+    showToast('Section updated!', 'success')
+  } else {
+    showToast('Failed to update section', 'error')
+  }
+}
 function selectStudent(id, name, email) {
   document.getElementById('assign-student-id').value        = id
   document.getElementById('assign-student-search').value    = ''
@@ -1007,6 +1192,33 @@ document.addEventListener('click', (e) => {
     if (dropdown) dropdown.style.display = 'none'
   }
 })
+
+function switchBatchTab(tab) {
+  ['list', 'create', 'assign'].forEach(t => {
+    document.getElementById(`batch-panel-${t}`).style.display = t === tab ? 'block' : 'none'
+    const btn = document.getElementById(`batch-tab-${t}`)
+    btn.style.background = t === tab ? 'var(--blue)' : 'var(--pale)'
+    btn.style.color      = t === tab ? '#fff' : 'var(--blue)'
+  })
+}
+
+function switchLectureTab(tab) {
+  ['list', 'upload'].forEach(t => {
+    document.getElementById(`lecture-panel-${t}`).style.display = t === tab ? 'block' : 'none'
+    const btn = document.getElementById(`lecture-tab-${t}`)
+    btn.style.background = t === tab ? 'var(--blue)' : 'var(--pale)'
+    btn.style.color      = t === tab ? '#fff' : 'var(--blue)'
+  })
+}
+
+function switchMaterialsTab(tab) {
+  ['list', 'add'].forEach(t => {
+    document.getElementById(`materials-panel-${t}`).style.display = t === tab ? 'block' : 'none'
+    const btn = document.getElementById(`materials-tab-${t}`)
+    btn.style.background = t === tab ? 'var(--blue)' : 'var(--pale)'
+    btn.style.color      = t === tab ? '#fff' : 'var(--blue)'
+  })
+}
 
 
 let allStudentsForFilter = [];
@@ -1561,52 +1773,92 @@ async function assignBatch() {
   }
 }
 
+function toggleSectionForCourse(course) {
+  const category     = document.getElementById('mat-category').value
+  const sectionField = document.getElementById('mat-field-section')
+  if (category === 'class_notes') {
+    sectionField.style.display = (course === 'tef' || course === 'tcf') ? 'block' : 'none'
+  }
+}
+
 
       // ── LECTURES ───────────────────────────────────────
 async function loadLectures() {
-  const tbody = document.getElementById('lectures-body')
-  tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Loading...</td></tr>`
-
-  // Load batches for dropdown
+  // Load batches for both dropdowns (view selector + upload form)
   try {
     const batchRes  = await fetch(`${API}/admin/batches`, { headers: authHeaders() })
     const batchData = await batchRes.json()
     const batches   = batchData.batches || []
+
+    // Populate upload batch dropdown
     const batchSelect = document.getElementById('lec-batch')
     batchSelect.innerHTML = '<option value="">No specific batch (course wide)</option>' +
       batches.map(b => `<option value="${b.id}">${formatCourse(b.course)} — ${b.batch_name} (${b.timing})</option>`).join('')
+
+    // Populate view batch selector
+    const viewSelect = document.getElementById('view-batch-select')
+    viewSelect.innerHTML =
+      '<option value="">— Choose a batch to view lectures —</option>' +
+      '<option value="__course_wide__">🌐 Course Wide (no specific batch)</option>' +
+      batches.map(b => `<option value="${b.id}">${formatCourse(b.course)} — ${b.batch_name} (${b.timing})</option>`).join('')
+
   } catch {}
+}
+
+async function loadLecturesByBatch(batchId) {
+  const tableWrap   = document.getElementById('lectures-table-wrap')
+  const emptyPrompt = document.getElementById('lectures-empty-prompt')
+  const tbody       = document.getElementById('lectures-body')
+  const countEl     = document.getElementById('lectures-count')
+
+  if (!batchId) {
+    tableWrap.style.display   = 'none'
+    emptyPrompt.style.display = 'block'
+    countEl.textContent = ''
+    return
+  }
+
+  tableWrap.style.display   = 'none'
+  emptyPrompt.style.display = 'none'
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Loading...</td></tr>`
+  tableWrap.style.display = 'block'
 
   try {
     const res  = await fetch(`${API}/admin/lectures`, { headers: authHeaders() })
     const data = await res.json()
-    const lectures = data.lectures || []
+    const all  = data.lectures || []
 
-    document.getElementById('lectures-count').textContent = `${lectures.length} total`
+    // Filter by selected batch
+    const lectures = batchId === '__course_wide__'
+      ? all.filter(l => !l.batch_id)
+      : all.filter(l => l.batch_id === batchId)
+
+    countEl.textContent = `${lectures.length} lecture${lectures.length !== 1 ? 's' : ''}`
 
     if (lectures.length === 0) {
-      tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No lectures yet</td></tr>`
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No lectures for this batch yet</td></tr>`
       return
     }
 
-    tbody.innerHTML = lectures.map(l => `
-      <tr>
-        <td>${formatCourse(l.course)}</td>
-        <td>${l.batch_id ? '📦 Batch specific' : '🌐 Course wide'}</td>
-        <td><span class="badge badge-active">${l.level || 'A1'}</span></td>
-        <td>${l.order_num}</td>
-        <td><strong>${l.title}</strong></td>
-        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.description || '—'}</td>
-        <td>
-          <button class="btn-sm btn-reject" onclick="deleteLecture('${l.id}')">Delete</button>
-        </td>
-      </tr>
-    `).join('')
+    tbody.innerHTML = lectures
+      .sort((a, b) => (a.order_num || 0) - (b.order_num || 0))
+      .map(l => `
+        <tr>
+          <td>${formatCourse(l.course)}</td>
+          <td><span class="badge badge-active">${l.level || 'A1'}</span></td>
+          <td>${l.order_num}</td>
+          <td><strong>${l.title}</strong></td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.description || '—'}</td>
+          <td>
+            <button class="btn-sm btn-reject" onclick="deleteLecture('${l.id}')">Delete</button>
+          </td>
+        </tr>
+      `).join('')
+
   } catch(err) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Failed to load lectures</td></tr>`
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load lectures</td></tr>`
   }
 }
-
 async function uploadLecture() {
   const course    = document.getElementById('lec-course').value
   const level     = document.getElementById('lec-level').value
@@ -1764,39 +2016,104 @@ function convertDriveLink(url) {
 }
 
 async function loadMaterials() {
-  const tbody = document.getElementById('materials-body')
-  tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Loading...</td></tr>`
+  // Just reset the view — don't fetch anything yet
+  const courseSelect = document.getElementById('view-material-course')
+  if (courseSelect) courseSelect.value = ''
+  document.getElementById('materials-table-wrap').style.display = 'none'
+  document.getElementById('materials-empty-prompt').style.display = 'block'
+  document.getElementById('materials-count').textContent = ''
+}
+
+async function loadMaterialsByCourse(courseValue) {
+  const tableWrap   = document.getElementById('materials-table-wrap')
+  const emptyPrompt = document.getElementById('materials-empty-prompt')
+  const tbody       = document.getElementById('materials-body')
+  const countEl     = document.getElementById('materials-count')
+
+  if (!courseValue) {
+    tableWrap.style.display   = 'none'
+    emptyPrompt.style.display = 'block'
+    countEl.textContent = ''
+    return
+  }
+
+  tableWrap.style.display   = 'none'
+  emptyPrompt.style.display = 'none'
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="8">Loading...</td></tr>`
+  tableWrap.style.display = 'block'
 
   try {
     const res  = await fetch(`${API}/admin/materials`, { headers: authHeaders() })
     const data = await res.json()
-    const materials = data.materials || []
+    const all  = data.materials || []
 
-    document.getElementById('materials-count').textContent = `${materials.length} total`
+    // Filter by selected course/type
+    let materials
+    if (courseValue === 'exam_prep') {
+      materials = all.filter(m => m.material_category === 'exam_prep')
+    } else if (courseValue === 'test') {
+      materials = all.filter(m => m.material_category === 'test')
+    } else {
+      materials = all.filter(m => m.course === courseValue && m.material_category === 'class_notes')
+    }
+
+    countEl.textContent = `${materials.length} material${materials.length !== 1 ? 's' : ''}`
 
     if (materials.length === 0) {
-      tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No materials yet</td></tr>`
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No materials for this course yet</td></tr>`
       return
     }
 
-    tbody.innerHTML = materials.map(m => `
-  <tr>
-    <td>${formatCourse(m.course)}</td>
-    <td><span class="badge badge-active">${m.level || 'A1'}</span></td>
-    <td><span class="badge ${m.exam_type === 'TCF' ? 'badge-pending' : 'badge-active'}">${m.exam_type || 'TEF'}</span></td>
-    <td>${m.order_num}</td>
-    <td><strong>${m.title}</strong></td>
-    <td><a href="${m.url}" target="_blank" style="color:var(--sky);font-size:.82rem;">View Link</a></td>
-    <td>
-      <button class="btn-sm btn-reject" onclick="deleteMaterial('${m.id}')">Delete</button>
-    </td>
-  </tr>
-`).join('')
+    tbody.innerHTML = materials.map(m => {
+      const typeLabel = m.material_category === 'class_notes' ? '📘 Class Notes'
+        : m.material_category === 'exam_prep' ? '📝 Exam Prep'
+        : m.material_category === 'test' ? '📝 Test'
+        : m.material_category || '—'
+
+      const scopeLabel = m.course ? formatCourse(m.course)
+        : m.exam_type ? `${m.exam_type} Canada`
+        : m.section ? m.section.charAt(0).toUpperCase() + m.section.slice(1)
+        : '—'
+
+      const fileLink = m.url
+        ? `<a href="${m.url}" target="_blank" style="color:var(--sky);font-size:.82rem;">View Link</a>`
+        : m.file_path
+          ? `<span style="color:var(--green);font-size:.82rem;">✓ Uploaded</span>`
+          : `<span style="color:var(--muted);font-size:.82rem;">—</span>`
+
+      const showSectionSelector = m.material_category === 'class_notes' &&
+        (m.course === 'tef' || m.course === 'tcf')
+
+      const sectionSelector = showSectionSelector ? `
+        <select onchange="updateMaterialSection('${m.id}', this.value)"
+          style="padding:.3rem .5rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.78rem;max-width:120px;">
+          <option value="" ${!m.section ? 'selected' : ''}>📚 General</option>
+          <option value="reading"   ${m.section === 'reading'   ? 'selected' : ''}>📖 Reading</option>
+          <option value="listening" ${m.section === 'listening' ? 'selected' : ''}>🎧 Listening</option>
+          <option value="speaking"  ${m.section === 'speaking'  ? 'selected' : ''}>🎙️ Speaking</option>
+          <option value="writing"   ${m.section === 'writing'   ? 'selected' : ''}>✍️ Writing</option>
+        </select>` : `<span style="color:var(--muted);font-size:.82rem;">—</span>`
+
+      return `
+        <tr>
+          <td>${typeLabel}</td>
+          <td>${scopeLabel}</td>
+          <td>${sectionSelector}</td>
+          <td><span class="badge badge-active">${m.level || 'General'}</span></td>
+          <td>${m.order_num}</td>
+          <td><strong>${m.title}</strong></td>
+          <td>${fileLink}</td>
+          <td>
+            <button class="btn-sm btn-reject" onclick="deleteMaterial('${m.id}')">Delete</button>
+          </td>
+        </tr>
+      `
+    }).join('')
+
   } catch(err) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load materials</td></tr>`
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">Failed to load materials</td></tr>`
   }
 }
-
 async function addMaterial() {
   const category    = document.getElementById('mat-category').value
   const level        = document.getElementById('mat-level').value
@@ -1814,8 +2131,12 @@ async function addMaterial() {
     return
   }
 
-  const course    = category === 'class_notes' ? document.getElementById('mat-course').value : null
-  const exam_type = category === 'exam_prep'    ? document.getElementById('mat-exam').value   : null
+ const course    = category === 'class_notes' ? document.getElementById('mat-course').value  : null
+const exam_type = category === 'exam_prep'   ? document.getElementById('mat-exam').value    : null
+const sectionEl = document.getElementById('mat-section')
+const section = (sectionEl && sectionEl.style.display !== 'none' && sectionEl.value)
+  ? sectionEl.value
+  : null
 
   const btn = document.getElementById('mat-btn')
   btn.disabled = true
@@ -1843,6 +2164,7 @@ async function addMaterial() {
       formData.append('order_num', order_num)
       if (course) formData.append('course', course)
       if (exam_type) formData.append('exam_type', exam_type)
+      if (section) formData.append('section', section)
 
       res = await fetch(`${API}/admin/materials/upload`, {
         method:  'POST',
@@ -1871,7 +2193,8 @@ async function addMaterial() {
           url,
           level,
           order_num,
-          exam_type
+          exam_type,
+          section 
         })
       })
     }
@@ -1890,6 +2213,8 @@ async function addMaterial() {
       document.getElementById('mat-file').value  = ''
       document.getElementById('mat-order').value = '1'
       loadMaterials()
+      switchMaterialsTab('list')
+
     }
   } catch (err) {
     document.getElementById('mat-error').textContent = 'Server error. Please try again.'
@@ -1901,15 +2226,18 @@ async function addMaterial() {
 }
 
 function toggleMaterialFields(category) {
-  const courseField = document.getElementById('mat-field-course')
-  const examField    = document.getElementById('mat-field-exam')
+  const courseField   = document.getElementById('mat-field-course')
+  const examField     = document.getElementById('mat-field-exam')
+  const sectionField  = document.getElementById('mat-field-section')
 
-  if (category === 'exam_prep') {
-    courseField.style.display = 'none'
-    examField.style.display   = 'block'
-  } else {
-    courseField.style.display = 'block'
-    examField.style.display   = 'none'
+  courseField.style.display  = category === 'class_notes' ? 'block' : 'none'
+  examField.style.display    = category === 'exam_prep'   ? 'block' : 'none'
+  sectionField.style.display = category === 'test'        ? 'block' : 'none'
+
+  // Also toggle section for TEF/TCF class notes
+  if (category === 'class_notes') {
+    const course = document.getElementById('mat-course').value
+    sectionField.style.display = (course === 'tef' || course === 'tcf') ? 'block' : 'none'
   }
 }
 
@@ -1923,7 +2251,8 @@ async function deleteMaterial(id) {
 
   if (res.ok) {
     showToast('Material deleted', 'success')
-    loadMaterials()
+    const courseValue = document.getElementById('view-material-course')?.value
+    if (courseValue) loadMaterialsByCourse(courseValue)
   } else {
     showToast('Failed to delete material', 'error')
   }

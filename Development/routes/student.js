@@ -47,14 +47,15 @@ async function buildEnrollmentData(enrollment) {
   });
 
   // Get class notes (tied to course)
-  const { data: classNotes } = await supabase
-    .from("study_materials")
-    .select(
-      "id, title, description, type, file_path, url, level, order_num, material_category",
-    )
-    .eq("material_category", "class_notes")
-    .eq("course", enrollment.course)
-    .order("order_num", { ascending: true });
+ const { data: classNotes } = await supabase
+  .from("study_materials")
+  .select(
+    "id, title, description, type, file_path, url, level, order_num, material_category, section",
+  )
+  .eq("material_category", "class_notes")
+  .eq("course", enrollment.course)
+  .order("order_num", { ascending: true });
+
 
   // Get exam materials (tied to exam_type)
   const { data: examMaterials } = await supabase
@@ -65,6 +66,16 @@ async function buildEnrollmentData(enrollment) {
     .eq("material_category", "exam_prep")
     .eq("exam_type", enrollment.exam_type || "TEF")
     .order("order_num", { ascending: true });
+  
+  // Fetch test materials (section-based)
+const { data: testMaterials } = await supabase
+  .from('study_materials')
+  .select('*')
+  .eq('material_category', 'test')
+  .order('section', { ascending: true })
+  .order('order_num', { ascending: true });
+
+  
 
   // Generate signed URLs helper
   async function attachUrls(items) {
@@ -101,6 +112,7 @@ async function buildEnrollmentData(enrollment) {
     groupedLectures: groupedLectures,
     classNotes:      classNotesWithUrls,
     examMaterials:   examMaterialsWithUrls,
+testMaterials: await attachUrls(testMaterials || []),
     meetLink:        enrollment.batches?.meet_link || settings?.meet_link || null,
     schedule:        enrollment.batches
       ? `${enrollment.batches.days} · ${enrollment.batches.timing}`

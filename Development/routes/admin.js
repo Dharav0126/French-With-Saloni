@@ -189,7 +189,7 @@ router.get('/materials', async (req, res) => {
 
 // POST create material
 router.post('/materials', async (req, res) => {
-  const { material_category, course, title, description, type, url, level, order_num, exam_type } = req.body
+  const { material_category, course, title, description, type, url, level, order_num, exam_type, section } = req.body
 
   if (!title || !url) {
     return res.status(400).json({ error: 'Title and URL are required' })
@@ -214,7 +214,8 @@ router.post('/materials', async (req, res) => {
       type: type || 'link',
       url,
       level: level || 'A1',
-      order_num: parseInt(order_num) || 1
+      order_num: parseInt(order_num) || 1,
+      section: category === 'test' ? section : null,
     })
     .select()
     .single()
@@ -226,7 +227,7 @@ router.post('/materials', async (req, res) => {
 // POST upload material as a file (PDF/Doc) to Supabase Storage
 router.post('/materials/upload', upload.single('file'), async (req, res) => {
   try {
-    const { material_category, course, title, description, level, order_num, exam_type } = req.body
+    const { material_category, course, title, description, level, order_num, exam_type,section} = req.body
 
     if (!title || !req.file) {
       return res.status(400).json({ error: 'Title and file are required' })
@@ -262,19 +263,20 @@ router.post('/materials/upload', upload.single('file'), async (req, res) => {
 
     // Save metadata to database
     const { data, error: dbError } = await supabase
-      .from('study_materials')
-      .insert({
-        material_category: material_category || 'class_notes',
-        course:    material_category === 'class_notes' ? course : null,
-        exam_type: material_category === 'exam_prep'    ? exam_type : null,
-        title,
-        description: description || null,
-        type,
-        file_path: filePath,
-        url: null,
-        level: level || 'A1',
-        order_num: parseInt(order_num) || 1
-      })
+  .from('study_materials')
+  .insert({
+    material_category: material_category || 'class_notes',
+    course:    material_category === 'class_notes' ? course : null,
+    exam_type: material_category === 'exam_prep'    ? exam_type : null,
+    section:   section || null,
+    title,
+    description: description || null,
+    type,
+    file_path: filePath,
+    url: null,
+    level: level || 'A1',
+    order_num: parseInt(order_num) || 1
+  })
       .select()
       .single()
 
@@ -508,6 +510,22 @@ router.post('/lectures/save-metadata', async (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: err.message })
   }
+})
+
+// PATCH update section for a material
+router.patch('/materials/:id/section', async (req, res) => {
+  const { id } = req.params
+  const { section } = req.body
+
+  const { data, error } = await supabase
+    .from('study_materials')
+    .update({ section: section || null })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) return res.status(500).json({ error: error.message })
+  return res.status(200).json({ message: 'Section updated', data })
 })
 
 export default router
