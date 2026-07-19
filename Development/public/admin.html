@@ -2101,7 +2101,11 @@ async function loadMaterialsByCourse(courseValue) {
           <td>${sectionSelector}</td>
           <td><span class="badge badge-active">${m.level || 'General'}</span></td>
           <td>${m.order_num}</td>
-          <td><strong>${m.title}</strong></td>
+          <td>
+  <span id="title-${m.id}">${m.title}</span>
+  <button onclick="editMaterialTitle('${m.id}', '${m.title.replace(/'/g, "\\'")}')"
+    style="background:none;border:none;cursor:pointer;color:var(--sky);font-size:.8rem;margin-left:.5rem;">✏️</button>
+</td>
           <td>${fileLink}</td>
           <td>
             <button class="btn-sm btn-reject" onclick="deleteMaterial('${m.id}')">Delete</button>
@@ -2255,6 +2259,24 @@ async function deleteMaterial(id) {
     if (courseValue) loadMaterialsByCourse(courseValue)
   } else {
     showToast('Failed to delete material', 'error')
+  }
+}
+async function editMaterialTitle(id, currentTitle) {
+  const newTitle = prompt('Edit title:', currentTitle)
+  if (!newTitle || newTitle.trim() === currentTitle) return
+
+  const res = await fetch(`${API}/admin/materials/${id}/title`, {
+    method:  'PATCH',
+    headers: authHeaders(),
+    body:    JSON.stringify({ title: newTitle.trim() })
+  })
+
+  if (res.ok) {
+    showToast('Title updated!', 'success')
+    const span = document.getElementById(`title-${id}`)
+    if (span) span.textContent = newTitle.trim()
+  } else {
+    showToast('Failed to update title', 'error')
   }
 }
 // ── PAGE NAVIGATION ────────────────────────────────

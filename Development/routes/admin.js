@@ -512,6 +512,24 @@ router.post('/lectures/save-metadata', async (req, res) => {
   }
 })
 
+// PATCH update title for a material
+router.patch('/materials/:id/title', async (req, res) => {
+  const { id } = req.params
+  const { title } = req.body
+
+  if (!title) return res.status(400).json({ error: 'Title is required' })
+
+  const { data, error } = await supabase
+    .from('study_materials')
+    .update({ title })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) return res.status(500).json({ error: error.message })
+  return res.status(200).json({ message: 'Title updated', data })
+})
+
 // PATCH update section for a material
 router.patch('/materials/:id/section', async (req, res) => {
   const { id } = req.params
