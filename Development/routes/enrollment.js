@@ -24,6 +24,22 @@ router.get('/check', verifyJWT, async (req, res) => {
   return res.status(200).json({ enrolled: true, course: data.course })
 })
 
+// PATCH update enrollment status by enrollment ID (not student ID)
+router.patch('/:enrollmentId/status-by-id', async (req, res) => {
+  const { enrollmentId } = req.params
+  const { status } = req.body
+
+  const { data, error } = await supabase
+    .from('enrollments')
+    .update({ status })
+    .eq('id', enrollmentId)
+    .select()
+    .single()
+
+  if (error) return res.status(500).json({ error: error.message })
+  return res.status(200).json({ message: 'Enrollment updated', data })
+})
+
 // ── Admin only routes ─────────────────────────
 router.use(verifyJWT, isAdmin)
 

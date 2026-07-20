@@ -1386,16 +1386,15 @@ function renderStudentsTable() {
           );
           const allStudents = studentsData.students || [];
           const allEnrollments = enrollmentsData.enrollments || [];
-          const activeEnroll = allEnrollments.filter(
-            (e) => e.status === "active",
-          );
+          const uniqueActiveStudents = new Set(
+  allEnrollments.filter(e => e.status === 'active').map(e => e.student_id)
+).size;
           const allContacts = contactsData.contacts || [];
 
           // Stats
           document.getElementById("stat-students").textContent =
             allStudents.length;
-          document.getElementById("stat-enrollments").textContent =
-            activeEnroll.length;
+          document.getElementById("stat-enrollments").textContent = uniqueActiveStudents;
           document.getElementById("stat-reviews").textContent =
             pendingReviews.length;
           document.getElementById("stat-contacts").textContent =
@@ -1544,34 +1543,50 @@ function renderStudentsTable() {
             return;
           }
 
-          tbody.innerHTML = enrollments
-  .map(
-    (e) => `
-<tr>
-  <td><strong>${e.students?.full_name || "—"}</strong></td>
-  <td>${e.students?.email || "—"}</td>
-  <td>${formatCourse(e.course)}</td>
-  <td>
-    <select onchange="updateExamType('${e.student_id}', this.value)" style="padding:.3rem .5rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.78rem;">
-      <option value="TEF" ${e.exam_type === 'TEF' ? 'selected' : ''}>TEF</option>
-      <option value="TCF" ${e.exam_type === 'TCF' ? 'selected' : ''}>TCF</option>
-    </select>
-  </td>
-  <td><span class="badge badge-${e.status}">${e.status}</span></td>
-  <td>${formatDate(e.enrolled_at)}</td>
-  <td>
-    <div class="btn-actions">
-      ${
-        e.status === "active"
-          ? `<button class="btn-sm btn-deactivate" onclick="updateEnrollment('${e.student_id}','inactive')">Deactivate</button>`
-          : `<button class="btn-sm btn-activate"   onclick="updateEnrollment('${e.student_id}','active')">Activate</button>`
-      }
-    </div>
-  </td>
-</tr>
-`,
-  )
-  .join("");
+          // Group enrollments by student
+const grouped = {}
+enrollments.forEach(e => {
+  if (!grouped[e.student_id]) {
+    grouped[e.student_id] = {
+      student_id: e.student_id,
+      name: e.students?.full_name || '—',
+      email: e.students?.email || '—',
+      enrollments: []
+    }
+  }
+  grouped[e.student_id].enrollments.push(e)
+})
+
+const students = Object.values(grouped)
+document.getElementById("enrollments-count").textContent =
+  `${students.length} students · ${enrollments.length} enrollments`
+
+tbody.innerHTML = students.map(s => {
+  return s.enrollments.map((e, idx) => `
+    <tr>
+      ${idx === 0 ? `<td rowspan="${s.enrollments.length}" style="vertical-align:top;padding-top:1rem;"><strong>${s.name}</strong></td>` : ''}
+      ${idx === 0 ? `<td rowspan="${s.enrollments.length}" style="vertical-align:top;padding-top:1rem;">${s.email}</td>` : ''}
+      <td>${formatCourse(e.course)}</td>
+      <td>
+        <select onchange="updateExamType('${e.student_id}', this.value)"
+          style="padding:.3rem .5rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.78rem;">
+          <option value="TEF" ${e.exam_type === 'TEF' ? 'selected' : ''}>TEF</option>
+          <option value="TCF" ${e.exam_type === 'TCF' ? 'selected' : ''}>TCF</option>
+        </select>
+      </td>
+      <td><span class="badge badge-${e.status}">${e.status}</span></td>
+      <td>${formatDate(e.enrolled_at)}</td>
+      <td>
+        <div class="btn-actions">
+          ${e.status === "active"
+            ? `<button class="btn-sm btn-deactivate" onclick="updateEnrollmentById('${e.id}','inactive')">Deactivate</button>`
+            : `<button class="btn-sm btn-activate" onclick="updateEnrollmentById('${e.id}','active')">Activate</button>`
+          }
+        </div>
+      </td>
+    </tr>
+  `).join('')
+}).join('');
         } catch (err) {
           tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load enrollments</td></tr>`;
         }
@@ -1700,6 +1715,24 @@ async function loadBatches() {
     `).join('')
   } catch(err) {
     tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Failed to load batches</td></tr>`
+  }
+}
+
+async function updateEnrollmentById(enrollmentId, status) {
+  try {
+    const res = await fetch(`${API}/enrollments/${enrollmentId}/status-by-id`, {
+      method: "PATCH",
+      headers: authHeaders(),
+      body: JSON.stringify({ status }),
+    })
+    if (res.ok) {
+      showToast(`Enrollment ${status === 'active' ? 'activated' : 'deactivated'}!`, "success")
+      loadEnrollments()
+    } else {
+      showToast("Failed to update enrollment", "error")
+    }
+  } catch {
+    showToast("Server error", "error")
   }
 }
 
