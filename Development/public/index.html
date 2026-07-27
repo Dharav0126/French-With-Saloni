@@ -130,22 +130,22 @@
         letter-spacing: 0.04em;
       }
       .nav-login-btn {
-  background: transparent;
-  color: var(--navy);
-  border: 1.5px solid rgba(19, 85, 160, 0.2);
-  padding: 0.55rem 1.3rem;
-  border-radius: 6px;
-  font-size: 0.88rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: all 0.25s;
-  font-family: "Nunito", sans-serif;
-}
-.nav-login-btn:hover {
-  border-color: var(--sky);
-  color: var(--sky);
-}
+        background: transparent;
+        color: var(--navy);
+        border: 1.5px solid rgba(19, 85, 160, 0.2);
+        padding: 0.55rem 1.3rem;
+        border-radius: 6px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        transition: all 0.25s;
+        font-family: "Nunito", sans-serif;
+      }
+      .nav-login-btn:hover {
+        border-color: var(--sky);
+        color: var(--sky);
+      }
       .nav-cta:hover {
         background: var(--sky) !important;
         transform: translateY(-1px);
@@ -1884,6 +1884,24 @@
         font-weight: 600;
       }
     </style>
+    <!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1170055101779735');
+fbq('track', 'PageView');
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1170055101779735&ev=PageView&noscript=1"/>
+</noscript>
+<!-- End Meta Pixel Code -->
   </head>
   <body>
     <!-- ── TOAST ── -->
@@ -3151,21 +3169,21 @@
 
       // ── NAV STATE ──────────────────────────────────────
       function updateNavState() {
-  const user = getUser();
-  const authButtons = document.getElementById("nav-auth-buttons");
-  const navUser = document.getElementById("nav-user");
-  const navUserName = document.getElementById("nav-user-name");
+        const user = getUser();
+        const authButtons = document.getElementById("nav-auth-buttons");
+        const navUser = document.getElementById("nav-user");
+        const navUserName = document.getElementById("nav-user-name");
 
-  if (user) {
-    authButtons.style.display = "none";
-    navUser.classList.add("visible");
-    navUserName.textContent = `👋 ${user.full_name?.split(" ")[0] || "Student"}`;
-    checkEnrollmentForReview();
-  } else {
-    authButtons.style.display = "flex";
-    navUser.classList.remove("visible");
-  }
-}
+        if (user) {
+          authButtons.style.display = "none";
+          navUser.classList.add("visible");
+          navUserName.textContent = `👋 ${user.full_name?.split(" ")[0] || "Student"}`;
+          checkEnrollmentForReview();
+        } else {
+          authButtons.style.display = "flex";
+          navUser.classList.remove("visible");
+        }
+      }
       // ── REGISTER ───────────────────────────────────────
       async function handleRegister() {
         hideFormMessages("register");
