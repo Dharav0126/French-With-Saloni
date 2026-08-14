@@ -641,6 +641,11 @@
   <div class="page" id="page-enrollments">
     <div class="page-title">Enrollments</div>
     <div class="page-sub">Manage student enrollments — activate or deactivate access.</div>
+<div style="margin-bottom:1.5rem;">
+  <input id="enrollment-search" placeholder="🔍 Search by name or email..."
+    oninput="filterEnrollments(this.value)"
+    style="width:100%;max-width:400px;padding:.7rem 1rem;border:1.5px solid rgba(19,85,160,.15);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.88rem;outline:none;"/>
+</div>
     <div class="table-card">
       <div class="table-header">
         <div class="table-title">All Enrollments</div>
@@ -1121,6 +1126,7 @@
 
       // ── STUDENT SEARCH ─────────────────────────────────
 let allStudentsCache = []
+let allGroupedEnrollments = []
 
 async function loadStudentsCache() {
   try {
@@ -1435,6 +1441,8 @@ function renderStudentsTable() {
       async function loadReviews() {
         const tbody = document.getElementById("reviews-body");
         tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Loading...</td></tr>`;
+        const searchInput = document.getElementById('enrollment-search')
+if (searchInput) searchInput.value = ''
 
         try {
           const res = await fetch(`${API}/reviews/admin`, {
@@ -1558,35 +1566,11 @@ enrollments.forEach(e => {
 })
 
 const students = Object.values(grouped)
+allGroupedEnrollments = students
 document.getElementById("enrollments-count").textContent =
   `${students.length} students · ${enrollments.length} enrollments`
 
-tbody.innerHTML = students.map(s => {
-  return s.enrollments.map((e, idx) => `
-    <tr>
-      ${idx === 0 ? `<td rowspan="${s.enrollments.length}" style="vertical-align:top;padding-top:1rem;"><strong>${s.name}</strong></td>` : ''}
-      ${idx === 0 ? `<td rowspan="${s.enrollments.length}" style="vertical-align:top;padding-top:1rem;">${s.email}</td>` : ''}
-      <td>${formatCourse(e.course)}</td>
-      <td>
-        <select onchange="updateExamType('${e.student_id}', this.value)"
-          style="padding:.3rem .5rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.78rem;">
-          <option value="TEF" ${e.exam_type === 'TEF' ? 'selected' : ''}>TEF</option>
-          <option value="TCF" ${e.exam_type === 'TCF' ? 'selected' : ''}>TCF</option>
-        </select>
-      </td>
-      <td><span class="badge badge-${e.status}">${e.status}</span></td>
-      <td>${formatDate(e.enrolled_at)}</td>
-      <td>
-        <div class="btn-actions">
-          ${e.status === "active"
-            ? `<button class="btn-sm btn-deactivate" onclick="updateEnrollmentById('${e.id}','inactive')">Deactivate</button>`
-            : `<button class="btn-sm btn-activate" onclick="updateEnrollmentById('${e.id}','active')">Activate</button>`
-          }
-        </div>
-      </td>
-    </tr>
-  `).join('')
-}).join('');
+renderEnrollmentsTable(students)
         } catch (err) {
           tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load enrollments</td></tr>`;
         }
@@ -1623,6 +1607,54 @@ tbody.innerHTML = students.map(s => {
   } else {
     showToast('Failed to update exam type', 'error')
   }
+}
+function renderEnrollmentsTable(students) {
+  const tbody = document.getElementById("enrollments-body")
+
+  if (students.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No students found</td></tr>`
+    return
+  }
+
+  tbody.innerHTML = students.map(s => {
+    return s.enrollments.map((e, idx) => `
+      <tr>
+        ${idx === 0 ? `<td rowspan="${s.enrollments.length}" style="vertical-align:top;padding-top:1rem;"><strong>${s.name}</strong></td>` : ''}
+        ${idx === 0 ? `<td rowspan="${s.enrollments.length}" style="vertical-align:top;padding-top:1rem;">${s.email}</td>` : ''}
+        <td>${formatCourse(e.course)}</td>
+        <td>
+          <select onchange="updateExamType('${e.student_id}', this.value)"
+            style="padding:.3rem .5rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.78rem;">
+            <option value="TEF" ${e.exam_type === 'TEF' ? 'selected' : ''}>TEF</option>
+            <option value="TCF" ${e.exam_type === 'TCF' ? 'selected' : ''}>TCF</option>
+          </select>
+        </td>
+        <td><span class="badge badge-${e.status}">${e.status}</span></td>
+        <td>${formatDate(e.enrolled_at)}</td>
+        <td>
+          <div class="btn-actions">
+            ${e.status === "active"
+              ? `<button class="btn-sm btn-deactivate" onclick="updateEnrollmentById('${e.id}','inactive')">Deactivate</button>`
+              : `<button class="btn-sm btn-activate" onclick="updateEnrollmentById('${e.id}','active')">Activate</button>`
+            }
+          </div>
+        </td>
+      </tr>
+    `).join('')
+  }).join('')
+}
+
+function filterEnrollments(query) {
+  const q = query.toLowerCase().trim()
+  if (!q) {
+    renderEnrollmentsTable(allGroupedEnrollments)
+    return
+  }
+  const filtered = allGroupedEnrollments.filter(s =>
+    s.name.toLowerCase().includes(q) ||
+    s.email.toLowerCase().includes(q)
+  )
+  renderEnrollmentsTable(filtered)
 }
 
       // ── CONTACTS ───────────────────────────────────────
