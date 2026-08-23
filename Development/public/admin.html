@@ -732,6 +732,10 @@
         <div>
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
           <select id="new-batch-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="a1">A1 — Complete Beginner</option>
+<option value="a2">A2 — Elementary</option>
+<option value="b1">B1 — Intermediate</option>
+<option value="b2">B2 — Upper Intermediate</option>
             <option value="tef">TEF Preparation</option>
             <option value="tcf">TCF Preparation</option>
             <option value="clb7-6mo">A1-B2 — 6 months</option>
@@ -870,6 +874,10 @@
         <div>
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
           <select id="lec-course" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="a1">A1 — Complete Beginner</option>
+<option value="a2">A2 — Elementary</option>
+<option value="b1">B1 — Intermediate</option>
+<option value="b2">B2 — Upper Intermediate</option>
             <option value="tef">TEF Preparation</option>
             <option value="tcf">TCF Preparation</option>
             <option value="clb7-6mo">A1-B2 — 6 months</option>
@@ -960,6 +968,10 @@
     <select id="view-material-course" onchange="loadMaterialsByCourse(this.value)"
       style="flex:1;min-width:200px;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
       <option value="">— Choose a course to view materials —</option>
+      <option value="a1">A1 — Complete Beginner</option>
+<option value="a2">A2 — Elementary</option>
+<option value="b1">B1 — Intermediate</option>
+<option value="b2">B2 — Upper Intermediate</option>
       <option value="tef">TEF Preparation</option>
       <option value="tcf">TCF Preparation</option>
       <option value="clb7-6mo">A1-B2 — 6 months</option>
@@ -1019,7 +1031,11 @@
         <div id="mat-field-course">
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
 <select id="mat-course" onchange="toggleSectionForCourse(this.value)" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">            <option value="tef">TEF Preparation</option>
-            <option value="tcf">TCF Preparation</option>
+            <option value="a1">A1 — Complete Beginner</option>
+<option value="a2">A2 — Elementary</option>
+<option value="b1">B1 — Intermediate</option>
+<option value="b2">B2 — Upper Intermediate</option>
+  <option value="tcf">TCF Preparation</option>
             <option value="clb7-6mo">A1-B2 — 6 months</option>
             <option value="clb7-4mo">CLB 7 — 4 months</option>
             <option value="1on1">1-on-1 Private</option>
@@ -1263,6 +1279,10 @@
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
           <select id="new-quiz-course"
             style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="a1">A1 — Complete Beginner</option>
+<option value="a2">A2 — Elementary</option>
+<option value="b1">B1 — Intermediate</option>
+<option value="b2">B2 — Upper Intermediate</option>
             <option value="tef">TEF Preparation</option>
             <option value="tcf">TCF Preparation</option>
             <option value="clb7-6mo">A1-B2 — 6 months</option>
@@ -1487,15 +1507,19 @@ function renderStudentsTable() {
       }
 
       function formatCourse(course) {
-        const map = {
-          tef: "TEF Preparation",
-              tcf: "TCF Preparation",
-          "clb7-6mo": "A1-B2 — 6 months",
-          "clb7-4mo": "CLB 7 — 4 months",
-          "1on1": "1-on-1 Private",
-        };
-        return map[course] || course || "—";
-      }
+  const map = {
+    tef: "TEF Preparation",
+    tcf: "TCF Preparation",
+    a1: "A1 — Complete Beginner",
+    a2: "A2 — Elementary",
+    b1: "B1 — Intermediate",
+    b2: "B2 — Upper Intermediate",
+    "clb7-6mo": "CLB 7 — 6 months",
+    "clb7-4mo": "CLB 7 — 4 months",
+    "1on1": "1-on-1 Private",
+  };
+  return map[course] || course || "—";
+}
 
       // ── LOGIN ──────────────────────────────────────────
       async function handleAdminLogin() {

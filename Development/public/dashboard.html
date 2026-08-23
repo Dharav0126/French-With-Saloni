@@ -928,14 +928,33 @@ fbq('track', 'PageView');
       }
 
       const COURSE_NAMES = {
-        tef: "TEF Preparation",
-        tcf: "TCF Preparation",
-        "clb7-6mo": "A1-B2 — 6 months",
-        "clb7-4mo": "A1-B2 — 4 months",
-        "1on1": "1-on-1 Private Classes",
-      };
-
+  tef: "TEF Preparation",
+  tcf: "TCF Preparation",
+  a1: "A1 — Complete Beginner",
+  a2: "A2 — Elementary",
+  b1: "B1 — Intermediate",
+  b2: "B2 — Upper Intermediate",
+  "clb7-6mo": "Zero to CLB 7 — 6 months",
+  "clb7-4mo": "Zero to CLB 7 — 4 months",
+  "1on1": "1-on-1 Private Classes",
+};
       const SCHEDULES = {
+        a1: [
+  { label: "Format", val: "Pre-Recorded online classes" },
+  { label: "Level", val: "Complete Beginner" },
+],
+a2: [
+  { label: "Format", val: "Pre-Recorded online classes" },
+  { label: "Level", val: "Elementary" },
+],
+b1: [
+  { label: "Format", val: "Pre-Recorded online classes" },
+  { label: "Level", val: "Intermediate" },
+],
+b2: [
+  { label: "Format", val: "Pre-Recorded online classes" },
+  { label: "Level", val: "Upper Intermediate" },
+],
         tef: [
           { label: "Days", val: "Mon – Fri" },
           { label: "Time", val: "9 PM – 10 PM EST" },
