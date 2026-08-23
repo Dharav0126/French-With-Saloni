@@ -548,6 +548,9 @@
 <div class="nav-item" onclick="showPage('materials')">
   <span class="nav-item-icon">📚</span> Study Materials
 </div>
+<div class="nav-item" onclick="showPage('quizzes', event)">
+  <span class="nav-icon">📝</span> Quizzes
+</div>
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user" id="sidebar-user-name">
@@ -1107,7 +1110,193 @@
 
   
 </div>
+<!-- QUIZZES -->
+<div class="page" id="page-quizzes">
+  <div class="page-title">Quizzes</div>
+  <div class="page-sub">Create and manage quizzes for each course.</div>
 
+  <!-- Tab buttons -->
+  <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:2px solid var(--pale);padding-bottom:.5rem;">
+    <button onclick="switchQuizTab('list')" id="quiz-tab-list"
+      style="padding:.6rem 1.4rem;border-radius:8px 8px 0 0;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
+      📋 All Quizzes
+    </button>
+    <button onclick="switchQuizTab('create')" id="quiz-tab-create"
+      style="padding:.6rem 1.4rem;border-radius:8px 8px 0 0;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+      + Create Quiz
+    </button>
+  </div>
+
+  <!-- ALL QUIZZES TAB -->
+  <div id="quiz-panel-list">
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">All Quizzes</div>
+        <div class="table-count" id="quizzes-count"></div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Level</th>
+            <th>Title</th>
+            <th>Attempts Allowed</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="quizzes-body">
+          <tr class="empty-row"><td colspan="6">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Questions panel (shown when a quiz is selected) -->
+    <div id="questions-panel" style="display:none;margin-top:1.5rem;">
+      <div class="table-card" style="padding:2rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+          <div>
+            <div class="table-title" id="questions-panel-title">Questions</div>
+            <div style="font-size:.82rem;color:var(--muted);margin-top:.3rem;" id="questions-panel-sub"></div>
+          </div>
+          <button onclick="showAddQuestionForm()" id="add-question-btn"
+            style="background:var(--blue);color:#fff;border:none;padding:.6rem 1.2rem;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+            + Add Question
+          </button>
+        </div>
+
+        <!-- Add question form (hidden by default) -->
+        <div id="add-question-form" style="display:none;background:var(--frost);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div style="grid-column:1/-1;">
+              <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">QUESTION TYPE</label>
+              <select id="q-type" onchange="toggleQuestionType(this.value)"
+                style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+                <option value="mcq">Multiple Choice (MCQ)</option>
+                <option value="text">Short Answer (one word/sentence)</option>
+              </select>
+            </div>
+            <div style="grid-column:1/-1;">
+              <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">QUESTION TEXT</label>
+              <textarea id="q-text" placeholder="Enter your question here..."
+                style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;resize:vertical;min-height:80px;"></textarea>
+            </div>
+
+            <!-- MCQ options -->
+            <div id="q-mcq-fields" style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:.8rem;">
+              <div>
+                <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">OPTION A</label>
+                <input id="q-opt-a" placeholder="Option A"
+                  style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+              </div>
+              <div>
+                <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">OPTION B</label>
+                <input id="q-opt-b" placeholder="Option B"
+                  style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+              </div>
+              <div>
+                <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">OPTION C</label>
+                <input id="q-opt-c" placeholder="Option C"
+                  style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+              </div>
+              <div>
+                <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">OPTION D</label>
+                <input id="q-opt-d" placeholder="Option D"
+                  style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+              </div>
+            </div>
+
+            <div style="grid-column:1/-1;">
+              <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">CORRECT ANSWER</label>
+              <!-- MCQ correct answer dropdown -->
+              <select id="q-correct-mcq"
+                style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+                <option value="">Select correct option</option>
+                <option value="a">Option A</option>
+                <option value="b">Option B</option>
+                <option value="c">Option C</option>
+                <option value="d">Option D</option>
+              </select>
+              <!-- Text correct answer input -->
+              <input id="q-correct-text" placeholder="Type the correct answer"
+                style="display:none;width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+            </div>
+
+            <div>
+              <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">ORDER NUMBER</label>
+              <input id="q-order" type="number" min="1" value="1"
+                style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+            </div>
+          </div>
+
+          <div id="q-error" style="display:none;background:#FEE2E2;color:#991B1B;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
+
+          <div style="display:flex;gap:.8rem;">
+            <button onclick="saveQuestion()" id="save-q-btn"
+              style="background:var(--blue);color:#fff;border:none;padding:.6rem 1.4rem;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+              Save Question
+            </button>
+            <button onclick="document.getElementById('add-question-form').style.display='none'"
+              style="background:var(--pale);color:var(--blue);border:none;padding:.6rem 1.4rem;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- Questions list -->
+        <div id="questions-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE QUIZ TAB -->
+  <div id="quiz-panel-create" style="display:none;">
+    <div class="table-card" style="padding:2rem;max-width:700px;">
+      <div class="table-title" style="margin-bottom:1.5rem;">Create New Quiz</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">TITLE</label>
+          <input id="new-quiz-title" placeholder="e.g. TEF Speaking Practice Quiz"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">COURSE</label>
+          <select id="new-quiz-course"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="tef">TEF Preparation</option>
+            <option value="tcf">TCF Preparation</option>
+            <option value="clb7-6mo">A1-B2 — 6 months</option>
+            <option value="clb7-4mo">CLB 7 — 4 months</option>
+            <option value="1on1">1-on-1 Private</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">LEVEL</label>
+          <select id="new-quiz-level"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="General">General</option>
+            <option value="A1">A1 — Complete Beginner</option>
+            <option value="A2">A2 — Elementary</option>
+            <option value="B1">B1 — Intermediate</option>
+            <option value="B2">B2 — Upper Intermediate</option>
+            <option value="C1">C1 — Advanced</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">ATTEMPTS ALLOWED</label>
+          <input id="new-quiz-attempts" type="number" min="1" max="10" value="3"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+      </div>
+      <div id="create-quiz-error" style="display:none;background:#FEE2E2;color:#991B1B;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
+      <div id="create-quiz-success" style="display:none;background:#D1FAE5;color:#065F46;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
+      <button onclick="createQuiz()" id="create-quiz-btn"
+        style="background:var(--blue);color:#fff;border:none;padding:.7rem 2rem;border-radius:8px;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+        + Create Quiz
+      </button>
+    </div>
+  </div>
+</div>
 </main>
     <!-- BATCHES -->
 
@@ -2344,6 +2533,330 @@ async function editMaterialTitle(id, currentTitle) {
     showToast('Failed to update title', 'error')
   }
 }
+
+// ── QUIZZES ─────────────────────────────────────────
+let currentQuizId = null
+let currentQuizTitle = ''
+
+function switchQuizTab(tab) {
+  ['list', 'create'].forEach(t => {
+    document.getElementById(`quiz-panel-${t}`).style.display = t === tab ? 'block' : 'none'
+    const btn = document.getElementById(`quiz-tab-${t}`)
+    btn.style.background = t === tab ? 'var(--blue)' : 'var(--pale)'
+    btn.style.color      = t === tab ? '#fff' : 'var(--blue)'
+  })
+  if (tab === 'list') loadQuizzes()
+}
+
+async function loadQuizzes() {
+  const tbody = document.getElementById('quizzes-body')
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Loading...</td></tr>`
+
+  try {
+    const res  = await fetch(`${API}/quiz/admin`, { headers: authHeaders() })
+    const data = await res.json()
+    const quizzes = data.quizzes || []
+
+    document.getElementById('quizzes-count').textContent = `${quizzes.length} quizzes`
+
+    if (quizzes.length === 0) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No quizzes yet — create one!</td></tr>`
+      return
+    }
+
+    tbody.innerHTML = quizzes.map(q => `
+      <tr>
+        <td>${formatCourse(q.course)}</td>
+        <td><span class="badge badge-active">${q.level || 'General'}</span></td>
+        <td><strong>${q.title}</strong></td>
+        <td style="text-align:center;">${q.attempts_allowed}</td>
+        <td>
+          <span class="badge ${q.is_active ? 'badge-active' : 'badge-inactive'}">
+            ${q.is_active ? 'Active' : 'Inactive'}
+          </span>
+        </td>
+        <td>
+          <div class="btn-actions">
+            <button class="btn-sm btn-approve" onclick="openQuizQuestions('${q.id}', '${q.title.replace(/'/g, "\\'")}')">
+              📝 Questions
+            </button>
+            <button class="btn-sm" onclick="toggleQuizStatus('${q.id}', ${q.is_active})"
+              style="background:rgba(240,192,64,.15);color:#b45309;border:none;padding:.3rem .8rem;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;">
+              ${q.is_active ? 'Deactivate' : 'Activate'}
+            </button>
+            <button class="btn-sm btn-reject" onclick="deleteQuiz('${q.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('')
+
+  } catch(err) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load quizzes</td></tr>`
+  }
+}
+
+async function createQuiz() {
+  const title    = document.getElementById('new-quiz-title').value.trim()
+  const course   = document.getElementById('new-quiz-course').value
+  const level    = document.getElementById('new-quiz-level').value
+  const attempts = document.getElementById('new-quiz-attempts').value
+
+  document.getElementById('create-quiz-error').style.display   = 'none'
+  document.getElementById('create-quiz-success').style.display = 'none'
+
+  if (!title) {
+    document.getElementById('create-quiz-error').textContent = 'Please enter a quiz title.'
+    document.getElementById('create-quiz-error').style.display = 'block'
+    return
+  }
+
+  const btn = document.getElementById('create-quiz-btn')
+  btn.disabled = true
+  btn.textContent = 'Creating...'
+
+  try {
+    const res  = await fetch(`${API}/quiz/admin`, {
+      method:  'POST',
+      headers: authHeaders(),
+      body:    JSON.stringify({ title, course, level, attempts_allowed: attempts })
+    })
+    const data = await res.json()
+
+    if (!res.ok) {
+      document.getElementById('create-quiz-error').textContent = data.error || 'Failed to create quiz.'
+      document.getElementById('create-quiz-error').style.display = 'block'
+    } else {
+      document.getElementById('create-quiz-success').textContent = '✅ Quiz created! Go to All Quizzes to add questions.'
+      document.getElementById('create-quiz-success').style.display = 'block'
+      document.getElementById('new-quiz-title').value = ''
+    }
+  } catch {
+    document.getElementById('create-quiz-error').textContent = 'Server error. Please try again.'
+    document.getElementById('create-quiz-error').style.display = 'block'
+  } finally {
+    btn.disabled = false
+    btn.textContent = '+ Create Quiz'
+  }
+}
+
+async function deleteQuiz(id) {
+  if (!confirm('Delete this quiz and all its questions?')) return
+
+  const res = await fetch(`${API}/quiz/admin/${id}`, {
+    method:  'DELETE',
+    headers: authHeaders()
+  })
+
+  if (res.ok) {
+    showToast('Quiz deleted', 'success')
+    loadQuizzes()
+    document.getElementById('questions-panel').style.display = 'none'
+  } else {
+    showToast('Failed to delete quiz', 'error')
+  }
+}
+
+async function toggleQuizStatus(id, currentStatus) {
+  const res = await fetch(`${API}/quiz/admin/${id}`, {
+    method:  'PATCH',
+    headers: authHeaders(),
+    body:    JSON.stringify({ is_active: !currentStatus })
+  })
+
+  if (res.ok) {
+    showToast(`Quiz ${!currentStatus ? 'activated' : 'deactivated'}`, 'success')
+    loadQuizzes()
+  } else {
+    showToast('Failed to update quiz', 'error')
+  }
+}
+
+async function openQuizQuestions(quizId, quizTitle) {
+  currentQuizId    = quizId
+  currentQuizTitle = quizTitle
+
+  document.getElementById('questions-panel').style.display       = 'block'
+  document.getElementById('questions-panel-title').textContent   = `Questions: ${quizTitle}`
+  document.getElementById('add-question-form').style.display     = 'none'
+  document.getElementById('questions-list').innerHTML            = '<div style="color:var(--muted);font-size:.85rem;">Loading questions...</div>'
+
+  // Scroll to questions panel
+  document.getElementById('questions-panel').scrollIntoView({ behavior: 'smooth' })
+
+  await loadQuestions(quizId)
+}
+
+async function loadQuestions(quizId) {
+  try {
+    const res  = await fetch(`${API}/quiz/admin/${quizId}/questions`, { headers: authHeaders() })
+    const data = await res.json()
+    const questions = data.questions || []
+
+    document.getElementById('questions-panel-sub').textContent =
+      `${questions.length} question${questions.length !== 1 ? 's' : ''}`
+
+    const container = document.getElementById('questions-list')
+
+    if (questions.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:2rem;color:var(--muted);">
+          <div style="font-size:2rem;margin-bottom:.5rem;">❓</div>
+          <div>No questions yet — click "+ Add Question" to start.</div>
+        </div>`
+      return
+    }
+
+    container.innerHTML = questions.map((q, idx) => `
+      <div style="border:1.5px solid rgba(19,85,160,.08);border-radius:10px;padding:1.2rem;margin-bottom:.8rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+          <div style="flex:1;">
+            <div style="font-size:.72rem;font-weight:700;color:var(--sky);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem;">
+              Q${idx + 1} · ${q.question_type === 'mcq' ? 'Multiple Choice' : 'Short Answer'}
+            </div>
+            <div style="font-weight:700;color:var(--navy);margin-bottom:.6rem;">${q.question_text}</div>
+            ${q.question_type === 'mcq' && q.options ? `
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.5rem;">
+                ${(q.options || []).map((opt, i) => `
+                  <div style="font-size:.82rem;padding:.3rem .6rem;border-radius:6px;background:${q.correct_answer === String.fromCharCode(97+i) ? 'rgba(16,185,129,.1)' : 'var(--pale)'};color:${q.correct_answer === String.fromCharCode(97+i) ? 'var(--green)' : 'var(--navy)'};">
+                    ${String.fromCharCode(65+i)}. ${opt} ${q.correct_answer === String.fromCharCode(97+i) ? '✓' : ''}
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <div style="font-size:.82rem;color:var(--green);">✓ Correct: ${q.correct_answer}</div>
+            `}
+          </div>
+          <button onclick="deleteQuestion('${q.id}')"
+            style="background:#FEE2E2;color:#991B1B;border:none;padding:.3rem .7rem;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;flex-shrink:0;">
+            Delete
+          </button>
+        </div>
+      </div>
+    `).join('')
+
+  } catch {
+    document.getElementById('questions-list').innerHTML =
+      `<div style="color:var(--muted);">Failed to load questions.</div>`
+  }
+}
+
+function showAddQuestionForm() {
+  document.getElementById('add-question-form').style.display = 'block'
+  document.getElementById('q-text').value        = ''
+  document.getElementById('q-opt-a').value       = ''
+  document.getElementById('q-opt-b').value       = ''
+  document.getElementById('q-opt-c').value       = ''
+  document.getElementById('q-opt-d').value       = ''
+  document.getElementById('q-correct-mcq').value = ''
+  document.getElementById('q-correct-text').value = ''
+  document.getElementById('q-order').value       = '1'
+  document.getElementById('q-type').value        = 'mcq'
+  document.getElementById('q-error').style.display = 'none'
+  toggleQuestionType('mcq')
+  document.getElementById('add-question-form').scrollIntoView({ behavior: 'smooth' })
+}
+
+function toggleQuestionType(type) {
+  const mcqFields   = document.getElementById('q-mcq-fields')
+  const correctMcq  = document.getElementById('q-correct-mcq')
+  const correctText = document.getElementById('q-correct-text')
+
+  mcqFields.style.display   = type === 'mcq' ? 'grid' : 'none'
+  correctMcq.style.display  = type === 'mcq' ? 'block' : 'none'
+  correctText.style.display = type === 'text' ? 'block' : 'none'
+}
+
+async function saveQuestion() {
+  const type        = document.getElementById('q-type').value
+  const questionText = document.getElementById('q-text').value.trim()
+  const order_num   = document.getElementById('q-order').value
+  const errorEl     = document.getElementById('q-error')
+
+  errorEl.style.display = 'none'
+
+  if (!questionText) {
+    errorEl.textContent = 'Please enter the question text.'
+    errorEl.style.display = 'block'
+    return
+  }
+
+  let options = null
+  let correct_answer = ''
+
+  if (type === 'mcq') {
+    const a = document.getElementById('q-opt-a').value.trim()
+    const b = document.getElementById('q-opt-b').value.trim()
+    const c = document.getElementById('q-opt-c').value.trim()
+    const d = document.getElementById('q-opt-d').value.trim()
+
+    if (!a || !b) {
+      errorEl.textContent = 'Please enter at least Option A and Option B.'
+      errorEl.style.display = 'block'
+      return
+    }
+
+    options = [a, b, c, d].filter(o => o !== '')
+    correct_answer = document.getElementById('q-correct-mcq').value
+
+    if (!correct_answer) {
+      errorEl.textContent = 'Please select the correct option.'
+      errorEl.style.display = 'block'
+      return
+    }
+  } else {
+    correct_answer = document.getElementById('q-correct-text').value.trim()
+    if (!correct_answer) {
+      errorEl.textContent = 'Please enter the correct answer.'
+      errorEl.style.display = 'block'
+      return
+    }
+  }
+
+  const btn = document.getElementById('save-q-btn')
+  btn.disabled = true
+  btn.textContent = 'Saving...'
+
+  try {
+    const res = await fetch(`${API}/quiz/admin/${currentQuizId}/questions`, {
+      method:  'POST',
+      headers: authHeaders(),
+      body:    JSON.stringify({ question_text: questionText, question_type: type, options, correct_answer, order_num })
+    })
+    const data = await res.json()
+
+    if (!res.ok) {
+      errorEl.textContent = data.error || 'Failed to save question.'
+      errorEl.style.display = 'block'
+    } else {
+      document.getElementById('add-question-form').style.display = 'none'
+      showToast('Question added!', 'success')
+      loadQuestions(currentQuizId)
+    }
+  } catch {
+    errorEl.textContent = 'Server error. Please try again.'
+    errorEl.style.display = 'block'
+  } finally {
+    btn.disabled = false
+    btn.textContent = 'Save Question'
+  }
+}
+
+async function deleteQuestion(questionId) {
+  if (!confirm('Delete this question?')) return
+
+  const res = await fetch(`${API}/quiz/admin/questions/${questionId}`, {
+    method:  'DELETE',
+    headers: authHeaders()
+  })
+
+  if (res.ok) {
+    showToast('Question deleted', 'success')
+    loadQuestions(currentQuizId)
+  } else {
+    showToast('Failed to delete question', 'error')
+  }
+}
+
 // ── PAGE NAVIGATION ────────────────────────────────
       function showPage(page) {
         document
@@ -2364,6 +2877,7 @@ async function editMaterialTitle(id, currentTitle) {
         if (page === 'batches') loadBatches();
         if (page === 'lectures') loadLectures()
         if (page === 'materials') loadMaterials()
+        if (page === 'quizzes') loadQuizzes()
       }
 
 

@@ -673,6 +673,10 @@ fbq('track', 'PageView');
                 📝 Tests
                 
               </button>
+              <button id="sec-tab-quizzes" onclick="switchSection('quizzes')"
+  style="padding:.6rem 1.4rem;border-radius:20px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+  🧠 Quizzes
+</button>
             </div>
 
             <!-- Lectures Section -->
@@ -803,6 +807,43 @@ fbq('track', 'PageView');
   <div id="tests-listening-container" style="display:none;"></div>
   <div id="tests-speaking-container"  style="display:none;"></div>
   <div id="tests-writing-container"   style="display:none;"></div>
+</div>
+<!-- Quizzes Section -->
+<div id="section-quizzes" style="display:none;">
+  <div class="section-title">🧠 Quizzes</div>
+  <div id="quizzes-list-container"></div>
+
+  <!-- Quiz attempt screen (hidden until student starts a quiz) -->
+  <div id="quiz-attempt-screen" style="display:none;">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+      <button onclick="exitQuiz()"
+        style="background:var(--pale);color:var(--blue);border:none;padding:.5rem 1rem;border-radius:8px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+        ← Back
+      </button>
+      <div style="font-family:'Libre Baskerville',serif;font-size:1.1rem;color:var(--navy);" id="quiz-attempt-title"></div>
+    </div>
+    <div id="quiz-questions-wrap"></div>
+    <button onclick="submitQuiz()" id="quiz-submit-btn"
+      style="margin-top:1.5rem;background:var(--blue);color:#fff;border:none;padding:.8rem 2rem;border-radius:10px;font-size:.9rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;width:100%;">
+      Submit Quiz
+    </button>
+  </div>
+
+  <!-- Quiz result screen -->
+<div id="quiz-result-screen" style="display:none;padding:1.5rem 0;">
+  <div style="text-align:center;margin-bottom:2rem;">
+    <div style="font-size:3.5rem;margin-bottom:.8rem;" id="quiz-result-emoji"></div>
+    <div style="font-family:'Libre Baskerville',serif;font-size:1.6rem;color:var(--navy);margin-bottom:.5rem;" id="quiz-result-score"></div>
+    <div id="quiz-result-sub" style="margin-bottom:1.5rem;"></div>
+    <button onclick="exitQuiz()"
+      style="background:var(--blue);color:#fff;border:none;padding:.7rem 1.8rem;border-radius:10px;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+      ← Back to Quizzes
+    </button>
+  </div>
+
+  <!-- Question review -->
+  <div id="quiz-result-review"></div>
+</div>
 </div>
           </div>
 
@@ -1185,19 +1226,23 @@ renderTests(data.testMaterials || []);
 
       // ── SECTION TABS ───────────────────────────────────
       function switchSection(section) {
+  document.getElementById("section-lectures").style.display  = "none";
+  document.getElementById("section-materials").style.display = "none";
+  document.getElementById("section-tests").style.display     = "none";
+  document.getElementById("section-quizzes").style.display   = "none";
 
-        document.getElementById("section-lectures").style.display = "none";
-        document.getElementById("section-materials").style.display = "none";
-        document.getElementById("section-tests").style.display = "none";
+  document.getElementById(`section-${section}`).style.display = "block";
 
-        document.getElementById(`section-${section}`).style.display = "block";
+  ["lectures", "materials", "tests", "quizzes"].forEach((s) => {
+    const tab = document.getElementById(`sec-tab-${s}`);
+    if (tab) {
+      tab.style.background = s === section ? "var(--blue)" : "var(--pale)";
+      tab.style.color      = s === section ? "#fff" : "var(--blue)";
+    }
+  });
 
-        ["lectures", "materials", "tests"].forEach((s) => {
-          const tab = document.getElementById(`sec-tab-${s}`);
-          tab.style.background = s === section ? "var(--blue)" : "var(--pale)";
-          tab.style.color = s === section ? "#fff" : "var(--blue)";
-        });
-      }
+  if (section === "quizzes") loadQuizzesForStudent();
+}
 
       function switchMaterialTab(tab) {
         document.getElementById("materials-class-container").style.display =
@@ -1612,6 +1657,251 @@ function closePdfViewer() {
   if (modal) modal.remove();
   document.body.style.overflow = "";
   pdfDoc = null;
+}
+// ── STUDENT QUIZ ─────────────────────────────────────
+let currentQuizAttempt = null // { quizId, questions, answers }
+
+async function loadQuizzesForStudent() {
+  const enrollment = allEnrollments[activeEnrollmentIdx]
+  if (!enrollment) return
+
+  const container = document.getElementById('quizzes-list-container')
+  const attemptScreen = document.getElementById('quiz-attempt-screen')
+  const resultScreen  = document.getElementById('quiz-result-screen')
+
+  attemptScreen.style.display = 'none'
+  resultScreen.style.display  = 'none'
+  container.style.display     = 'block'
+  container.innerHTML = `<div style="color:var(--muted);font-size:.85rem;padding:1rem;">Loading quizzes...</div>`
+
+  try {
+    const res  = await fetch(`${API}/quiz/course/${enrollment.course}`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+    const data = await res.json()
+    const quizzes = data.quizzes || []
+
+    if (quizzes.length === 0) {
+      container.innerHTML = `
+        <div class="no-lectures">
+          <div class="no-lectures-icon">🧠</div>
+          <div class="no-lectures-title">No quizzes yet</div>
+          <div class="no-lectures-sub">Saloni will add quizzes here soon. Check back later!</div>
+        </div>`
+      return
+    }
+
+    container.innerHTML = quizzes.map(q => {
+      const pct = q.bestScore !== null ? q.bestScore : null
+      const emoji = pct === null ? '📝'
+        : pct >= 80 ? '🏆'
+        : pct >= 50 ? '👍'
+        : '💪'
+
+      return `
+        <div class="lecture-card" style="padding:1.5rem;margin-bottom:1rem;">
+          <div style="display:flex;align-items:flex-start;gap:1.2rem;flex-wrap:wrap;">
+            <div style="font-size:2.2rem;flex-shrink:0;">${emoji}</div>
+            <div style="flex:1;min-width:180px;">
+              <div class="lecture-title">${q.title}</div>
+              <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.4rem;">
+                <span style="font-size:.78rem;color:var(--muted);">Level: ${q.level}</span>
+                <span style="font-size:.78rem;color:var(--muted);">Attempts left: <strong style="color:${q.attemptsLeft > 0 ? 'var(--green)' : '#ef4444'}">${q.attemptsLeft}/${q.attempts_allowed}</strong></span>
+                ${pct !== null ? `<span style="font-size:.78rem;color:var(--muted);">Best score: <strong style="color:var(--blue)">${pct}%</strong></span>` : ''}
+              </div>
+            </div>
+            <button onclick="startQuiz('${q.id}', '${q.title.replace(/'/g, "\\'")}')"
+              ${!q.canAttempt ? 'disabled' : ''}
+              style="flex-shrink:0;background:${q.canAttempt ? 'var(--blue)' : 'var(--pale)'};color:${q.canAttempt ? '#fff' : 'var(--muted)'};border:none;padding:.6rem 1.4rem;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:${q.canAttempt ? 'pointer' : 'not-allowed'};">
+              ${q.canAttempt ? (pct !== null ? '🔄 Retry' : '▶ Start') : '✅ No attempts left'}
+            </button>
+          </div>
+        </div>
+      `
+    }).join('')
+
+  } catch(err) {
+    container.innerHTML = `<div style="color:var(--muted);padding:1rem;">Failed to load quizzes.</div>`
+  }
+}
+
+async function startQuiz(quizId, quizTitle) {
+  try {
+    const res  = await fetch(`${API}/quiz/${quizId}/questions`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+    const data = await res.json()
+
+    if (!res.ok) {
+      showToast(data.error || 'Cannot start quiz', 'error')
+      return
+    }
+
+    const questions = data.questions || []
+    if (questions.length === 0) {
+      showToast('This quiz has no questions yet', 'error')
+      return
+    }
+
+    currentQuizAttempt = { quizId, quizTitle, questions, answers: {} }
+
+    // Hide quiz list, show attempt screen
+    document.getElementById('quizzes-list-container').style.display = 'none'
+    document.getElementById('quiz-result-screen').style.display      = 'none'
+    document.getElementById('quiz-attempt-screen').style.display     = 'block'
+    document.getElementById('quiz-attempt-title').textContent        = quizTitle
+
+    // Render questions
+    document.getElementById('quiz-questions-wrap').innerHTML = questions.map((q, idx) => `
+      <div style="border:1.5px solid rgba(19,85,160,.08);border-radius:12px;padding:1.5rem;margin-bottom:1rem;">
+        <div style="font-size:.75rem;font-weight:700;color:var(--sky);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem;">
+          Question ${idx + 1} of ${questions.length}
+        </div>
+        <div style="font-weight:700;color:var(--navy);font-size:.95rem;margin-bottom:1rem;">${q.question_text}</div>
+
+        ${q.question_type === 'mcq' && q.options ? `
+          <div style="display:flex;flex-direction:column;gap:.5rem;">
+            ${q.options.map((opt, i) => `
+              <label style="display:flex;align-items:center;gap:.8rem;padding:.7rem 1rem;border-radius:8px;border:1.5px solid rgba(19,85,160,.1);cursor:pointer;transition:all .2s;"
+                onmouseover="this.style.borderColor='var(--sky)'"
+                onmouseout="this.style.borderColor='rgba(19,85,160,.1)'">
+                <input type="radio" name="q_${q.id}" value="${String.fromCharCode(97+i)}"
+                  onchange="currentQuizAttempt.answers['${q.id}'] = this.value"
+                  style="accent-color:var(--blue);width:16px;height:16px;flex-shrink:0;"/>
+                <span style="font-size:.88rem;color:var(--navy);">${String.fromCharCode(65+i)}. ${opt}</span>
+              </label>
+            `).join('')}
+          </div>
+        ` : `
+          <input type="text" placeholder="Type your answer here..."
+            onchange="currentQuizAttempt.answers['${q.id}'] = this.value"
+            oninput="currentQuizAttempt.answers['${q.id}'] = this.value"
+            style="width:100%;padding:.7rem;border:1.5px solid rgba(19,85,160,.15);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.88rem;outline:none;"/>
+        `}
+      </div>
+    `).join('')
+
+  } catch(err) {
+    showToast('Failed to load quiz questions', 'error')
+  }
+}
+
+async function submitQuiz() {
+  if (!currentQuizAttempt) return
+
+  const { quizId, questions, answers } = currentQuizAttempt
+
+  // Check all questions answered
+  const unanswered = questions.filter(q => !answers[q.id])
+  if (unanswered.length > 0) {
+    showToast(`Please answer all questions (${unanswered.length} remaining)`, 'error')
+    return
+  }
+
+  const btn = document.getElementById('quiz-submit-btn')
+  btn.disabled = true
+  btn.textContent = 'Submitting...'
+
+  try {
+    const res  = await fetch(`${API}/quiz/${quizId}/submit`, {
+      method:  'POST',
+      headers: { Authorization: `Bearer ${getToken()}`, 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ answers })
+    })
+    const data = await res.json()
+
+    if (!res.ok) {
+      showToast(data.error || 'Failed to submit quiz', 'error')
+      btn.disabled = false
+      btn.textContent = 'Submit Quiz'
+      return
+    }
+
+    // Show result screen
+    document.getElementById('quiz-attempt-screen').style.display = 'none'
+    document.getElementById('quiz-result-screen').style.display  = 'block'
+
+    const pct = data.percentage
+
+    let emoji, heading, msg
+    if (pct === 100) {
+      emoji   = '🏆'
+      heading = 'Perfect Score!'
+      msg     = 'Absolutely brilliant! You got every single question right. Saloni would be proud!'
+    } else if (pct >= 80) {
+      emoji   = '🌟'
+      heading = `Great job! ${pct}%`
+      msg     = 'Excellent work! You have a strong grasp of the material. Keep it up!'
+    } else if (pct >= 60) {
+      emoji   = '👍'
+      heading = `Good effort! ${pct}%`
+      msg     = "You're on the right track! Review the topics you missed and try again."
+    } else if (pct >= 40) {
+      emoji   = '📚'
+      heading = `Keep going! ${pct}%`
+      msg     = "You're making progress! Go back to your class notes and give it another shot."
+    } else {
+      emoji   = '💪'
+      heading = `Don't give up! ${pct}%`
+      msg     = "Learning takes time — review your materials, practice more, and you'll improve!"
+    }
+
+    document.getElementById('quiz-result-emoji').textContent = emoji
+    document.getElementById('quiz-result-score').textContent =
+      `${data.score} / ${data.total} correct`
+    document.getElementById('quiz-result-sub').innerHTML = `
+      <div style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">${heading}</div>
+      <div style="font-size:.88rem;color:var(--muted);margin-bottom:.8rem;">${msg}</div>
+      <div style="font-size:.82rem;color:var(--muted);">
+        Attempts remaining: <strong style="color:${data.attemptsLeft > 0 ? 'var(--green)' : '#ef4444'}">
+          ${data.attemptsLeft}
+        </strong>
+      </div>
+    `
+
+    // Render question review
+    const review = data.review || []
+    document.getElementById('quiz-result-review').innerHTML = review.length === 0 ? '' : `
+      <div style="font-family:'Libre Baskerville',serif;font-size:1rem;color:var(--navy);margin-bottom:1rem;border-top:2px solid var(--pale);padding-top:1.5rem;">
+        📋 Question Review
+      </div>
+      ${review.map((r, idx) => `
+        <div style="border:1.5px solid ${r.correct ? 'rgba(16,185,129,.2)' : 'rgba(239,68,68,.2)'};border-radius:12px;padding:1.2rem;margin-bottom:.8rem;background:${r.correct ? 'rgba(16,185,129,.04)' : 'rgba(239,68,68,.04)'};">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;">
+            <span>${r.correct ? '✅' : '❌'}</span>
+            <span style="font-size:.75rem;font-weight:700;color:${r.correct ? 'var(--green)' : '#ef4444'};text-transform:uppercase;letter-spacing:.06em;">
+              Question ${idx + 1} — ${r.correct ? 'Correct' : 'Incorrect'}
+            </span>
+          </div>
+          <div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;font-size:.9rem;">${r.question_text}</div>
+          ${!r.correct ? `
+            <div style="font-size:.82rem;color:#ef4444;margin-bottom:.2rem;">
+              Your answer: <strong>${r.student_answer}</strong>
+            </div>
+            <div style="font-size:.82rem;color:var(--green);">
+              Correct answer: <strong>${r.correct_answer}</strong>
+            </div>
+          ` : ''}
+        </div>
+      `).join('')}
+    `
+
+    currentQuizAttempt = null
+
+  } catch(err) {
+    showToast('Server error. Please try again.', 'error')
+  } finally {
+    btn.disabled = false
+    btn.textContent = 'Submit Quiz'
+  }
+}
+
+function exitQuiz() {
+  currentQuizAttempt = null
+  document.getElementById('quiz-attempt-screen').style.display  = 'none'
+  document.getElementById('quiz-result-screen').style.display   = 'none'
+  document.getElementById('quizzes-list-container').style.display = 'block'
+  loadQuizzesForStudent()
 }
       // Load on page open
       loadDashboard();
