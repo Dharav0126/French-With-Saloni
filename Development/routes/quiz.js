@@ -191,10 +191,6 @@ router.get('/:id/questions', verifyJWT, async (req, res) => {
     .eq('quiz_id', id)
     .eq('student_id', studentId)
 
-  const attemptsUsed = (attempts || []).length
-  if (attemptsUsed >= quiz.attempts_allowed) {
-    return res.status(403).json({ error: 'No attempts remaining for this quiz' })
-  }
 
   // Return questions WITHOUT correct_answer
   const { data: questions, error } = await supabase
@@ -222,16 +218,9 @@ router.post('/:id/submit', verifyJWT, async (req, res) => {
 
   if (!quiz) return res.status(404).json({ error: 'Quiz not found' })
 
-  const { data: attempts } = await supabase
-    .from('quiz_attempts')
-    .select('id')
-    .eq('quiz_id', id)
-    .eq('student_id', studentId)
+  
 
-  if ((attempts || []).length >= quiz.attempts_allowed) {
-    return res.status(403).json({ error: 'No attempts remaining' })
-  }
-
+  
   // Get correct answers
 const { data: questions, error } = await supabase
   .from('quiz_questions')

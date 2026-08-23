@@ -1725,7 +1725,7 @@ async function loadQuizzesForStudent() {
               <div class="lecture-title">${q.title}</div>
               <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.4rem;">
                 <span style="font-size:.78rem;color:var(--muted);">Level: ${q.level}</span>
-                <span style="font-size:.78rem;color:var(--muted);">Attempts left: <strong style="color:${q.attemptsLeft > 0 ? 'var(--green)' : '#ef4444'}">${q.attemptsLeft}/${q.attempts_allowed}</strong></span>
+                <span style="font-size:.78rem;color:var(--muted);">Attempts: <strong style="color:var(--green);">Unlimited</strong></span>
                 ${pct !== null ? `<span style="font-size:.78rem;color:var(--muted);">Best score: <strong style="color:var(--blue)">${pct}%</strong></span>` : ''}
               </div>
             </div>
@@ -1871,11 +1871,7 @@ async function submitQuiz() {
     document.getElementById('quiz-result-sub').innerHTML = `
       <div style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">${heading}</div>
       <div style="font-size:.88rem;color:var(--muted);margin-bottom:.8rem;">${msg}</div>
-      <div style="font-size:.82rem;color:var(--muted);">
-        Attempts remaining: <strong style="color:${data.attemptsLeft > 0 ? 'var(--green)' : '#ef4444'}">
-          ${data.attemptsLeft}
-        </strong>
-      </div>
+      <div style="font-size:.82rem;color:var(--muted);">You can retake this quiz anytime.</div>
     `
 
     // Render question review
