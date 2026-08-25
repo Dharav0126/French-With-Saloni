@@ -1337,7 +1337,7 @@
           : window.location.origin;
       let adminToken = localStorage.getItem("fws_admin_token");
       let currentPage = "dashboard";
-
+      let loadedQuestions = {} // id → question object
       // ── STUDENT SEARCH ─────────────────────────────────
 let allStudentsCache = []
 let allGroupedEnrollments = []
@@ -2718,9 +2718,12 @@ async function openQuizQuestions(quizId, quizTitle) {
 
 async function loadQuestions(quizId) {
   try {
-    const res  = await fetch(`${API}/quiz/admin/${quizId}/questions`, { headers: authHeaders() })
-    const data = await res.json()
+    const res       = await fetch(`${API}/quiz/admin/${quizId}/questions`, { headers: authHeaders() })
+    const data      = await res.json()
     const questions = data.questions || []
+
+    // Store for editing
+    questions.forEach(q => { loadedQuestions[q.id] = q })
 
     document.getElementById('questions-panel-sub').textContent =
       `${questions.length} question${questions.length !== 1 ? 's' : ''}`
@@ -2756,10 +2759,16 @@ async function loadQuestions(quizId) {
               <div style="font-size:.82rem;color:var(--green);">✓ Correct: ${q.correct_answer}</div>
             `}
           </div>
-          <button onclick="deleteQuestion('${q.id}')"
-            style="background:#FEE2E2;color:#991B1B;border:none;padding:.3rem .7rem;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;flex-shrink:0;">
-            Delete
-          </button>
+          <div style="display:flex;gap:.5rem;flex-shrink:0;">
+            <button onclick="editQuestion('${q.id}')"
+              style="background:rgba(19,85,160,.1);color:var(--blue);border:none;padding:.3rem .7rem;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;">
+              ✏️ Edit
+            </button>
+            <button onclick="deleteQuestion('${q.id}')"
+              style="background:#FEE2E2;color:#991B1B;border:none;padding:.3rem .7rem;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;">
+              Delete
+            </button>
+          </div>
         </div>
       </div>
     `).join('')
@@ -2767,6 +2776,112 @@ async function loadQuestions(quizId) {
   } catch {
     document.getElementById('questions-list').innerHTML =
       `<div style="color:var(--muted);">Failed to load questions.</div>`
+  }
+}
+function editQuestion(questionId) {
+  const q = loadedQuestions[questionId]
+  if (!q) return
+
+  // Show the add question form pre-filled with existing data
+  showAddQuestionForm()
+
+  // Pre-fill fields
+  document.getElementById('q-type').value  = q.question_type
+  document.getElementById('q-text').value  = q.question_text
+  document.getElementById('q-order').value = q.order_num
+  toggleQuestionType(q.question_type)
+
+  if (q.question_type === 'mcq' && q.options) {
+    const opts = ['a','b','c','d']
+    q.options.forEach((opt, i) => {
+      const el = document.getElementById(`q-opt-${opts[i]}`)
+      if (el) el.value = opt
+    })
+    document.getElementById('q-correct-mcq').value = q.correct_answer
+  } else {
+    document.getElementById('q-correct-text').value = q.correct_answer
+  }
+
+  // Change save button to update mode
+  const btn = document.getElementById('save-q-btn')
+  btn.textContent = 'Update Question'
+  btn.onclick = () => updateQuestion(questionId)
+}
+
+async function updateQuestion(questionId) {
+  const type         = document.getElementById('q-type').value
+  const questionText = document.getElementById('q-text').value.trim()
+  const order_num    = document.getElementById('q-order').value
+  const errorEl      = document.getElementById('q-error')
+
+  errorEl.style.display = 'none'
+
+  if (!questionText) {
+    errorEl.textContent = 'Please enter the question text.'
+    errorEl.style.display = 'block'
+    return
+  }
+
+  let options = null
+  let correct_answer = ''
+
+  if (type === 'mcq') {
+    const a = document.getElementById('q-opt-a').value.trim()
+    const b = document.getElementById('q-opt-b').value.trim()
+    const c = document.getElementById('q-opt-c').value.trim()
+    const d = document.getElementById('q-opt-d').value.trim()
+
+    if (!a || !b) {
+      errorEl.textContent = 'Please enter at least Option A and Option B.'
+      errorEl.style.display = 'block'
+      return
+    }
+
+    options        = [a, b, c, d].filter(o => o !== '')
+    correct_answer = document.getElementById('q-correct-mcq').value
+
+    if (!correct_answer) {
+      errorEl.textContent = 'Please select the correct option.'
+      errorEl.style.display = 'block'
+      return
+    }
+  } else {
+    correct_answer = document.getElementById('q-correct-text').value.trim()
+    if (!correct_answer) {
+      errorEl.textContent = 'Please enter the correct answer.'
+      errorEl.style.display = 'block'
+      return
+    }
+  }
+
+  const btn = document.getElementById('save-q-btn')
+  btn.disabled = true
+  btn.textContent = 'Updating...'
+
+  try {
+    const res = await fetch(`${API}/quiz/admin/questions/${questionId}`, {
+      method:  'PATCH',
+      headers: authHeaders(),
+      body:    JSON.stringify({ question_text: questionText, question_type: type, options, correct_answer, order_num })
+    })
+    const data = await res.json()
+
+    if (!res.ok) {
+      errorEl.textContent = data.error || 'Failed to update question.'
+      errorEl.style.display = 'block'
+    } else {
+      document.getElementById('add-question-form').style.display = 'none'
+      showToast('Question updated!', 'success')
+      // Reset save button back to normal
+      btn.onclick = saveQuestion
+      loadQuestions(currentQuizId)
+    }
+  } catch {
+    errorEl.textContent = 'Server error. Please try again.'
+    errorEl.style.display = 'block'
+  } finally {
+    btn.disabled = false
+    btn.textContent = 'Save Question'
   }
 }
 

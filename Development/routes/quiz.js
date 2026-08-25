@@ -172,6 +172,32 @@ router.get('/course/:course', verifyJWT, async (req, res) => {
   return res.status(200).json({ quizzes: quizzesWithAttempts })
 })
 
+// PATCH update a question
+router.patch('/admin/questions/:questionId', verifyJWT, isAdmin, async (req, res) => {
+  const { questionId } = req.params
+  const { question_text, question_type, options, correct_answer, order_num } = req.body
+
+  if (!question_text || !correct_answer) {
+    return res.status(400).json({ error: 'Question text and correct answer are required' })
+  }
+
+  const { data, error } = await supabase
+    .from('quiz_questions')
+    .update({
+      question_text,
+      question_type,
+      options: question_type === 'mcq' ? options : null,
+      correct_answer,
+      order_num: parseInt(order_num) || 1
+    })
+    .eq('id', questionId)
+    .select()
+    .single()
+
+  if (error) return res.status(500).json({ error: error.message })
+  return res.status(200).json({ message: 'Question updated', question: data })
+})
+
 // GET questions for a quiz (student — no correct answers)
 router.get('/:id/questions', verifyJWT, async (req, res) => {
   const { id } = req.params
