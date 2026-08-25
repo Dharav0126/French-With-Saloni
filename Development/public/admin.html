@@ -1307,6 +1307,11 @@
           <input id="new-quiz-attempts" type="number" min="1" max="10" value="3"
             style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
         </div>
+        <div>
+  <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">TIMER PER QUESTION (seconds)</label>
+  <input id="new-quiz-timer" type="number" min="5" max="120" value="20"
+    style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+</div>
       </div>
       <div id="create-quiz-error" style="display:none;background:#FEE2E2;color:#991B1B;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
       <div id="create-quiz-success" style="display:none;background:#D1FAE5;color:#065F46;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
@@ -2624,6 +2629,7 @@ async function createQuiz() {
   const course   = document.getElementById('new-quiz-course').value
   const level    = document.getElementById('new-quiz-level').value
   const attempts = document.getElementById('new-quiz-attempts').value
+  const timer    = document.getElementById('new-quiz-timer').value
 
   document.getElementById('create-quiz-error').style.display   = 'none'
   document.getElementById('create-quiz-success').style.display = 'none'
@@ -2639,11 +2645,11 @@ async function createQuiz() {
   btn.textContent = 'Creating...'
 
   try {
-    const res  = await fetch(`${API}/quiz/admin`, {
-      method:  'POST',
-      headers: authHeaders(),
-      body:    JSON.stringify({ title, course, level, attempts_allowed: attempts })
-    })
+   const res  = await fetch(`${API}/quiz/admin`, {
+  method:  'POST',
+  headers: authHeaders(),
+  body:    JSON.stringify({ title, course, level, attempts_allowed: attempts, timer_seconds: parseInt(timer) || 20 })
+})
     const data = await res.json()
 
     if (!res.ok) {

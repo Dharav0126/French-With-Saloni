@@ -20,20 +20,21 @@ router.get('/admin', verifyJWT, isAdmin, async (req, res) => {
 
 // POST create quiz
 router.post('/admin', verifyJWT, isAdmin, async (req, res) => {
-  const { title, course, level, attempts_allowed } = req.body
+const { title, course, level, attempts_allowed, timer_seconds } = req.body
 
   if (!title || !course) {
     return res.status(400).json({ error: 'Title and course are required' })
   }
 
   const { data, error } = await supabase
-    .from('quizzes')
-    .insert({
-      title,
-      course,
-      level: level || 'General',
-      attempts_allowed: parseInt(attempts_allowed) || 3
-    })
+  .from('quizzes')
+  .insert({
+    title,
+    course,
+    level: level || 'General',
+    attempts_allowed: parseInt(attempts_allowed) || 3,
+    timer_seconds: parseInt(timer_seconds) || 20
+  })
     .select()
     .single()
 
@@ -200,7 +201,7 @@ router.get('/:id/questions', verifyJWT, async (req, res) => {
     .order('order_num', { ascending: true })
 
   if (error) return res.status(500).json({ error: error.message })
-  return res.status(200).json({ questions })
+return res.status(200).json({ questions, timer_seconds: quiz.timer_seconds || 20 })
 })
 
 // POST submit quiz attempt
@@ -210,11 +211,11 @@ router.post('/:id/submit', verifyJWT, async (req, res) => {
   const { answers } = req.body // { questionId: "student answer", ... }
 
   // Check attempts remaining
-  const { data: quiz } = await supabase
-    .from('quizzes')
-    .select('attempts_allowed')
-    .eq('id', id)
-    .single()
+ const { data: quiz } = await supabase
+  .from('quizzes')
+  .select('attempts_allowed, timer_seconds')
+  .eq('id', id)
+  .single()
 
   if (!quiz) return res.status(404).json({ error: 'Quiz not found' })
 
@@ -269,8 +270,7 @@ const { data: questions, error } = await supabase
 
   if (saveError) return res.status(500).json({ error: saveError.message })
 
-  const attemptsUsedNow = (attempts || []).length + 1
-  const attemptsLeft    = Math.max(0, quiz.attempts_allowed - attemptsUsedNow)
+  const attemptsLeft = '∞'
 
   return res.status(200).json({
     message:    'Quiz submitted!',

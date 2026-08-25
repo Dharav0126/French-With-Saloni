@@ -813,21 +813,54 @@ fbq('track', 'PageView');
   <div class="section-title">🧠 Quizzes</div>
   <div id="quizzes-list-container"></div>
 
-  <!-- Quiz attempt screen (hidden until student starts a quiz) -->
-  <div id="quiz-attempt-screen" style="display:none;">
-    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
-      <button onclick="exitQuiz()"
-        style="background:var(--pale);color:var(--blue);border:none;padding:.5rem 1rem;border-radius:8px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
-        ← Back
-      </button>
-      <div style="font-family:'Libre Baskerville',serif;font-size:1.1rem;color:var(--navy);" id="quiz-attempt-title"></div>
+  <!-- Quiz attempt screen — Kahoot style -->
+<div id="quiz-attempt-screen" style="display:none;">
+  <!-- Header bar -->
+  <div style="background:var(--navy);border-radius:14px;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.8rem;">
+    <div style="color:#fff;font-weight:700;font-size:.9rem;" id="quiz-attempt-title"></div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <div style="color:rgba(255,255,255,.7);font-size:.82rem;" id="quiz-question-counter">Question 1 of 1</div>
+      <!-- Timer circle -->
+      <div style="position:relative;width:52px;height:52px;">
+        <svg style="position:absolute;top:0;left:0;transform:rotate(-90deg);" width="52" height="52">
+          <circle cx="26" cy="26" r="22" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="4"/>
+          <circle id="timer-circle" cx="26" cy="26" r="22" fill="none" stroke="#fff" stroke-width="4"
+            stroke-dasharray="138" stroke-dashoffset="0" style="transition:stroke-dashoffset 1s linear;"/>
+        </svg>
+        <div id="timer-display" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1rem;font-family:'Nunito',sans-serif;">20</div>
+      </div>
     </div>
-    <div id="quiz-questions-wrap"></div>
-    <button onclick="submitQuiz()" id="quiz-submit-btn"
-      style="margin-top:1.5rem;background:var(--blue);color:#fff;border:none;padding:.8rem 2rem;border-radius:10px;font-size:.9rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;width:100%;">
-      Submit Quiz
+  </div>
+
+  <!-- Question card -->
+  <div id="kahoot-question-card" style="background:#fff;border-radius:16px;padding:2rem;margin-bottom:1.5rem;border:1px solid rgba(19,85,160,.08);min-height:100px;display:flex;align-items:center;justify-content:center;">
+    <div id="kahoot-question-text" style="font-family:'Libre Baskerville',serif;font-size:1.15rem;color:var(--navy);text-align:center;line-height:1.6;font-weight:700;"></div>
+  </div>
+
+  <!-- Answer options (MCQ) -->
+  <div id="kahoot-options-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1rem;"></div>
+
+  <!-- Text answer input -->
+  <div id="kahoot-text-wrap" style="display:none;margin-bottom:1rem;">
+    <input id="kahoot-text-input" type="text" placeholder="Type your answer and press Enter..."
+      style="width:100%;padding:.9rem 1rem;border:2px solid rgba(19,85,160,.2);border-radius:12px;font-family:'Nunito',sans-serif;font-size:.95rem;outline:none;"
+      onkeydown="if(event.key==='Enter') submitCurrentAnswer()"/>
+    <button onclick="submitCurrentAnswer()"
+      style="margin-top:.8rem;width:100%;background:var(--blue);color:#fff;border:none;padding:.8rem;border-radius:10px;font-size:.9rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+      Submit Answer
     </button>
   </div>
+
+  <!-- Feedback bar (shown after answering) -->
+  <div id="kahoot-feedback" style="display:none;border-radius:12px;padding:1rem 1.5rem;text-align:center;margin-bottom:1rem;">
+    <div id="kahoot-feedback-text" style="font-size:1rem;font-weight:700;"></div>
+  </div>
+
+  <!-- Progress bar -->
+  <div style="background:var(--pale);border-radius:20px;height:6px;overflow:hidden;margin-top:.5rem;">
+    <div id="quiz-progress-bar" style="background:var(--blue);height:100%;width:0%;transition:width .5s;border-radius:20px;"></div>
+  </div>
+</div>
 
   <!-- Quiz result screen -->
 <div id="quiz-result-screen" style="display:none;padding:1.5rem 0;">
@@ -1744,6 +1777,63 @@ async function loadQuizzesForStudent() {
   }
 }
 
+// ── KAHOOT-STYLE QUIZ ────────────────────────────────
+let kahootTimer        = null
+let kahootAudio        = null
+
+const KAHOOT_COLORS = [
+  { bg: '#e21b3c', hover: '#c01535' }, // red
+  { bg: '#1368ce', hover: '#0f52a4' }, // blue
+  { bg: '#d89e00', hover: '#b07e00' }, // yellow
+  { bg: '#26890c', hover: '#1d6609' }, // green
+]
+
+const SHAPES = ['▲', '●', '■', '♦']
+
+function startKahootMusic() {
+  if (kahootAudio) return
+  try {
+    // Use a royalty-free upbeat loop via Web Audio API
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const notes = [261, 329, 392, 523, 392, 329, 261, 329, 392, 440, 392, 329]
+    let time = ctx.currentTime
+
+    function playLoop() {
+      notes.forEach((freq, i) => {
+        const osc  = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.connect(gain)
+        gain.connect(ctx.destination)
+        osc.frequency.value = freq
+        osc.type = 'square'
+        gain.gain.setValueAtTime(0.04, time + i * 0.25)
+        gain.gain.exponentialRampToValueAtTime(0.001, time + i * 0.25 + 0.2)
+        osc.start(time + i * 0.25)
+        osc.stop(time + i * 0.25 + 0.25)
+      })
+      time += notes.length * 0.25
+    }
+
+    playLoop()
+    playLoop()
+    playLoop()
+    playLoop()
+
+    kahootAudio = ctx
+  } catch(e) {
+    console.log('Audio not supported:', e)
+  }
+}
+
+function stopKahootMusic() {
+  try {
+    if (kahootAudio) {
+      kahootAudio.close()
+      kahootAudio = null
+    }
+  } catch(e) {}
+}
+
 async function startQuiz(quizId, quizTitle) {
   try {
     const res  = await fetch(`${API}/quiz/${quizId}/questions`, {
@@ -1762,64 +1852,186 @@ async function startQuiz(quizId, quizTitle) {
       return
     }
 
-    currentQuizAttempt = { quizId, quizTitle, questions, answers: {} }
+    // Get timer from quiz data
+    const timerSeconds = data.timer_seconds || 20
 
-    // Hide quiz list, show attempt screen
-    document.getElementById('quizzes-list-container').style.display = 'none'
+    currentQuizAttempt = {
+      quizId,
+      quizTitle,
+      questions,
+      answers:       {},
+      currentIndex:  0,
+      timerSeconds,
+      answered:      false
+    }
+
+    // Hide list, show attempt screen
+    document.getElementById('quizzes-list-container').style.display  = 'none'
     document.getElementById('quiz-result-screen').style.display      = 'none'
     document.getElementById('quiz-attempt-screen').style.display     = 'block'
     document.getElementById('quiz-attempt-title').textContent        = quizTitle
 
-    // Render questions
-    document.getElementById('quiz-questions-wrap').innerHTML = questions.map((q, idx) => `
-      <div style="border:1.5px solid rgba(19,85,160,.08);border-radius:12px;padding:1.5rem;margin-bottom:1rem;">
-        <div style="font-size:.75rem;font-weight:700;color:var(--sky);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem;">
-          Question ${idx + 1} of ${questions.length}
-        </div>
-        <div style="font-weight:700;color:var(--navy);font-size:.95rem;margin-bottom:1rem;">${q.question_text}</div>
-
-        ${q.question_type === 'mcq' && q.options ? `
-          <div style="display:flex;flex-direction:column;gap:.5rem;">
-            ${q.options.map((opt, i) => `
-              <label style="display:flex;align-items:center;gap:.8rem;padding:.7rem 1rem;border-radius:8px;border:1.5px solid rgba(19,85,160,.1);cursor:pointer;transition:all .2s;"
-                onmouseover="this.style.borderColor='var(--sky)'"
-                onmouseout="this.style.borderColor='rgba(19,85,160,.1)'">
-                <input type="radio" name="q_${q.id}" value="${String.fromCharCode(97+i)}"
-                  onchange="currentQuizAttempt.answers['${q.id}'] = this.value"
-                  style="accent-color:var(--blue);width:16px;height:16px;flex-shrink:0;"/>
-                <span style="font-size:.88rem;color:var(--navy);">${String.fromCharCode(65+i)}. ${opt}</span>
-              </label>
-            `).join('')}
-          </div>
-        ` : `
-          <input type="text" placeholder="Type your answer here..."
-            onchange="currentQuizAttempt.answers['${q.id}'] = this.value"
-            oninput="currentQuizAttempt.answers['${q.id}'] = this.value"
-            style="width:100%;padding:.7rem;border:1.5px solid rgba(19,85,160,.15);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.88rem;outline:none;"/>
-        `}
-      </div>
-    `).join('')
+    startKahootMusic()
+    showKahootQuestion(0)
 
   } catch(err) {
     showToast('Failed to load quiz questions', 'error')
   }
 }
 
-async function submitQuiz() {
+function showKahootQuestion(index) {
   if (!currentQuizAttempt) return
+  clearInterval(kahootTimer)
 
-  const { quizId, questions, answers } = currentQuizAttempt
+  const { questions, timerSeconds } = currentQuizAttempt
+  const q = questions[index]
+  currentQuizAttempt.currentIndex = index
+  currentQuizAttempt.answered     = false
 
-  // Check all questions answered
-  const unanswered = questions.filter(q => !answers[q.id])
-  if (unanswered.length > 0) {
-    showToast(`Please answer all questions (${unanswered.length} remaining)`, 'error')
-    return
+  // Update counter + progress
+  document.getElementById('quiz-question-counter').textContent =
+    `Question ${index + 1} of ${questions.length}`
+  document.getElementById('quiz-progress-bar').style.width =
+    `${((index) / questions.length) * 100}%`
+
+  // Set question text
+  document.getElementById('kahoot-question-text').textContent = q.question_text
+
+  // Hide feedback
+  const feedback = document.getElementById('kahoot-feedback')
+  feedback.style.display = 'none'
+
+  // Render answer options
+  const optionsGrid = document.getElementById('kahoot-options-grid')
+  const textWrap    = document.getElementById('kahoot-text-wrap')
+  const textInput   = document.getElementById('kahoot-text-input')
+
+  if (q.question_type === 'mcq' && q.options) {
+    optionsGrid.style.display = 'grid'
+    textWrap.style.display    = 'none'
+    textInput.value           = ''
+
+    optionsGrid.innerHTML = q.options.map((opt, i) => {
+      const color = KAHOOT_COLORS[i % KAHOOT_COLORS.length]
+      const letter = String.fromCharCode(97 + i) // a, b, c, d
+      return `
+        <button onclick="selectKahootAnswer('${letter}', this)"
+          data-letter="${letter}"
+          style="background:${color.bg};color:#fff;border:none;border-radius:12px;padding:1.2rem 1rem;font-size:.92rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;text-align:left;display:flex;align-items:center;gap:.8rem;transition:transform .1s;min-height:70px;"
+          onmouseover="this.style.transform='scale(1.02)'"
+          onmouseout="this.style.transform='scale(1)'">
+          <span style="font-size:1.3rem;">${SHAPES[i % SHAPES.length]}</span>
+          <span>${opt}</span>
+        </button>
+      `
+    }).join('')
+  } else {
+    optionsGrid.style.display = 'none'
+    textWrap.style.display    = 'block'
+    textInput.value           = ''
+    textInput.focus()
   }
 
-  const btn = document.getElementById('quiz-submit-btn')
-  btn.disabled = true
-  btn.textContent = 'Submitting...'
+  // Start countdown timer
+  let timeLeft = timerSeconds
+  const circumference = 138
+  document.getElementById('timer-display').textContent    = timeLeft
+  document.getElementById('timer-circle').style.strokeDashoffset = 0
+
+  kahootTimer = setInterval(() => {
+    timeLeft--
+    document.getElementById('timer-display').textContent = timeLeft
+
+    // Animate circle
+    const offset = circumference - (timeLeft / timerSeconds) * circumference
+    document.getElementById('timer-circle').style.strokeDashoffset = offset
+
+    // Change color when time is low
+    const circle  = document.getElementById('timer-circle')
+    const display = document.getElementById('timer-display')
+    if (timeLeft <= 5) {
+      circle.style.stroke  = '#ef4444'
+      display.style.color  = '#ef4444'
+    } else {
+      circle.style.stroke  = '#fff'
+      display.style.color  = '#fff'
+    }
+
+    if (timeLeft <= 0) {
+      clearInterval(kahootTimer)
+      if (!currentQuizAttempt.answered) {
+        // Time's up — mark as no answer
+        currentQuizAttempt.answers[currentQuizAttempt.questions[index].id] = ''
+        showKahootFeedback(false, 'Time\'s up!', null)
+      }
+    }
+  }, 1000)
+}
+
+function selectKahootAnswer(letter, btn) {
+  if (!currentQuizAttempt || currentQuizAttempt.answered) return
+  clearInterval(kahootTimer)
+
+  currentQuizAttempt.answered = true
+  const q = currentQuizAttempt.questions[currentQuizAttempt.currentIndex]
+  currentQuizAttempt.answers[q.id] = letter
+
+  // Disable all buttons
+  document.querySelectorAll('#kahoot-options-grid button').forEach(b => {
+    b.style.opacity = b === btn ? '1' : '0.4'
+    b.style.cursor  = 'not-allowed'
+    b.onclick       = null
+  })
+
+  // We don't know correct answer yet (backend sends it after submit)
+  // Show neutral "Answer recorded" feedback, then auto-advance
+  showKahootFeedback(null, '✓ Answer recorded!', btn)
+}
+
+function submitCurrentAnswer() {
+  if (!currentQuizAttempt || currentQuizAttempt.answered) return
+  clearInterval(kahootTimer)
+
+  currentQuizAttempt.answered = true
+  const q   = currentQuizAttempt.questions[currentQuizAttempt.currentIndex]
+  const val = document.getElementById('kahoot-text-input').value.trim()
+  currentQuizAttempt.answers[q.id] = val
+
+  document.getElementById('kahoot-text-input').disabled = true
+  showKahootFeedback(null, val ? '✓ Answer recorded!' : 'Skipped', null)
+}
+
+function showKahootFeedback(correct, message, btn) {
+  const feedback = document.getElementById('kahoot-feedback')
+  const text     = document.getElementById('kahoot-feedback-text')
+
+  feedback.style.display    = 'block'
+  feedback.style.background = correct === null
+    ? 'rgba(19,85,160,.1)'
+    : correct ? 'rgba(16,185,129,.15)' : 'rgba(239,68,68,.15)'
+  feedback.style.border     = correct === null
+    ? '1.5px solid rgba(19,85,160,.2)'
+    : correct ? '1.5px solid rgba(16,185,129,.3)' : '1.5px solid rgba(239,68,68,.3)'
+
+  text.textContent  = message
+  text.style.color  = correct === null ? 'var(--navy)' : correct ? 'var(--green)' : '#ef4444'
+
+  // Auto-advance after 1.5 seconds
+  setTimeout(() => {
+    const next = currentQuizAttempt.currentIndex + 1
+    if (next < currentQuizAttempt.questions.length) {
+      showKahootQuestion(next)
+    } else {
+      finishKahootQuiz()
+    }
+  }, 1500)
+}
+
+async function finishKahootQuiz() {
+  clearInterval(kahootTimer)
+  stopKahootMusic()
+
+  const { quizId, answers } = currentQuizAttempt
 
   try {
     const res  = await fetch(`${API}/quiz/${quizId}/submit`, {
@@ -1831,10 +2043,11 @@ async function submitQuiz() {
 
     if (!res.ok) {
       showToast(data.error || 'Failed to submit quiz', 'error')
-      btn.disabled = false
-      btn.textContent = 'Submit Quiz'
       return
     }
+
+    // Update progress bar to 100%
+    document.getElementById('quiz-progress-bar').style.width = '100%'
 
     // Show result screen
     document.getElementById('quiz-attempt-screen').style.display = 'none'
@@ -1866,15 +2079,14 @@ async function submitQuiz() {
     }
 
     document.getElementById('quiz-result-emoji').textContent = emoji
-    document.getElementById('quiz-result-score').textContent =
-      `${data.score} / ${data.total} correct`
+    document.getElementById('quiz-result-score').textContent = `${data.score} / ${data.total} correct`
     document.getElementById('quiz-result-sub').innerHTML = `
       <div style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">${heading}</div>
       <div style="font-size:.88rem;color:var(--muted);margin-bottom:.8rem;">${msg}</div>
       <div style="font-size:.82rem;color:var(--muted);">You can retake this quiz anytime.</div>
     `
 
-    // Render question review
+    // Render review
     const review = data.review || []
     document.getElementById('quiz-result-review').innerHTML = review.length === 0 ? '' : `
       <div style="font-family:'Libre Baskerville',serif;font-size:1rem;color:var(--navy);margin-bottom:1rem;border-top:2px solid var(--pale);padding-top:1.5rem;">
@@ -1890,12 +2102,8 @@ async function submitQuiz() {
           </div>
           <div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;font-size:.9rem;">${r.question_text}</div>
           ${!r.correct ? `
-            <div style="font-size:.82rem;color:#ef4444;margin-bottom:.2rem;">
-              Your answer: <strong>${r.student_answer}</strong>
-            </div>
-            <div style="font-size:.82rem;color:var(--green);">
-              Correct answer: <strong>${r.correct_answer}</strong>
-            </div>
+            <div style="font-size:.82rem;color:#ef4444;margin-bottom:.2rem;">Your answer: <strong>${r.student_answer}</strong></div>
+            <div style="font-size:.82rem;color:var(--green);">Correct answer: <strong>${r.correct_answer}</strong></div>
           ` : ''}
         </div>
       `).join('')}
@@ -1904,20 +2112,21 @@ async function submitQuiz() {
     currentQuizAttempt = null
 
   } catch(err) {
-    showToast('Server error. Please try again.', 'error')
-  } finally {
-    btn.disabled = false
-    btn.textContent = 'Submit Quiz'
+    showToast('Server error submitting quiz', 'error')
   }
 }
 
 function exitQuiz() {
+  clearInterval(kahootTimer)
+  stopKahootMusic()
   currentQuizAttempt = null
-  document.getElementById('quiz-attempt-screen').style.display  = 'none'
-  document.getElementById('quiz-result-screen').style.display   = 'none'
+  document.getElementById('quiz-attempt-screen').style.display    = 'none'
+  document.getElementById('quiz-result-screen').style.display     = 'none'
   document.getElementById('quizzes-list-container').style.display = 'block'
   loadQuizzesForStudent()
 }
+
+
       // Load on page open
       loadDashboard();
     </script>
