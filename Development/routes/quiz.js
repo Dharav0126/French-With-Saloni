@@ -88,7 +88,7 @@ router.get('/admin/:id/questions', verifyJWT, isAdmin, async (req, res) => {
 // POST add question to quiz
 router.post('/admin/:id/questions', verifyJWT, isAdmin, async (req, res) => {
   const { id } = req.params
-  const { question_text, question_type, options, correct_answer, order_num } = req.body
+  const { question_text, question_type, options, correct_answer, order_num, explanation } = req.body
 
   if (!question_text || !correct_answer) {
     return res.status(400).json({ error: 'Question text and correct answer are required' })
@@ -99,15 +99,16 @@ router.post('/admin/:id/questions', verifyJWT, isAdmin, async (req, res) => {
   }
 
   const { data, error } = await supabase
-    .from('quiz_questions')
-    .insert({
-      quiz_id:       id,
-      question_text,
-      question_type: question_type || 'mcq',
-      options:       question_type === 'mcq' ? options : null,
-      correct_answer,
-      order_num:     parseInt(order_num) || 1
-    })
+  .from('quiz_questions')
+  .insert({
+    quiz_id:       id,
+    question_text,
+    question_type: question_type || 'mcq',
+    options:       question_type === 'mcq' ? options : null,
+    correct_answer,
+    order_num:     parseInt(order_num) || 1,
+    explanation:   explanation || null
+  })
     .select()
     .single()
 
@@ -175,21 +176,22 @@ router.get('/course/:course', verifyJWT, async (req, res) => {
 // PATCH update a question
 router.patch('/admin/questions/:questionId', verifyJWT, isAdmin, async (req, res) => {
   const { questionId } = req.params
-  const { question_text, question_type, options, correct_answer, order_num } = req.body
+  const { question_text, question_type, options, correct_answer, order_num, explanation } = req.body
 
   if (!question_text || !correct_answer) {
     return res.status(400).json({ error: 'Question text and correct answer are required' })
   }
 
   const { data, error } = await supabase
-    .from('quiz_questions')
-    .update({
-      question_text,
-      question_type,
-      options: question_type === 'mcq' ? options : null,
-      correct_answer,
-      order_num: parseInt(order_num) || 1
-    })
+  .from('quiz_questions')
+  .update({
+    question_text,
+    question_type,
+    options: question_type === 'mcq' ? options : null,
+    correct_answer,
+    order_num: parseInt(order_num) || 1,
+    explanation: explanation || null
+  })
     .eq('id', questionId)
     .select()
     .single()
@@ -221,13 +223,13 @@ router.get('/:id/questions', verifyJWT, async (req, res) => {
 
   // Return questions WITHOUT correct_answer
   const { data: questions, error } = await supabase
-    .from('quiz_questions')
-    .select('id, question_text, question_type, options, order_num')
-    .eq('quiz_id', id)
-    .order('order_num', { ascending: true })
+  .from('quiz_questions')
+  .select('id, question_text, question_type, options, order_num, explanation')
+  .eq('quiz_id', id)
+  .order('order_num', { ascending: true })
 
   if (error) return res.status(500).json({ error: error.message })
-return res.status(200).json({ questions, timer_seconds: quiz.timer_seconds || 20 })
+return res.status(200).json({ questions, timer_seconds: quiz.timer_seconds || 30 })
 })
 
 // POST submit quiz attempt

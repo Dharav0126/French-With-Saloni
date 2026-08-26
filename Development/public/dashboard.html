@@ -814,27 +814,34 @@ fbq('track', 'PageView');
   <div id="quizzes-list-container"></div>
 
   <!-- Quiz attempt screen — Kahoot style -->
+<!-- Quiz attempt screen — Kahoot style -->
 <div id="quiz-attempt-screen" style="display:none;">
   <!-- Header bar -->
-  <div style="background:var(--navy);border-radius:14px;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.8rem;">
-    <div style="color:#fff;font-weight:700;font-size:.9rem;" id="quiz-attempt-title"></div>
-    <div style="display:flex;align-items:center;gap:1rem;">
-      <div style="color:rgba(255,255,255,.7);font-size:.82rem;" id="quiz-question-counter">Question 1 of 1</div>
+  <div style="background:var(--navy);border-radius:16px;padding:1.2rem 1.8rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.8rem;box-shadow:0 4px 20px rgba(10,35,66,.15);">
+    <div>
+      <div style="color:rgba(255,255,255,.6);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.2rem;">French with Saloni</div>
+      <div style="color:#fff;font-weight:700;font-size:.95rem;font-family:'Nunito',sans-serif;" id="quiz-attempt-title"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:1.2rem;">
+      <div style="text-align:center;">
+        <div style="color:rgba(255,255,255,.6);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Progress</div>
+        <div style="color:#fff;font-size:.85rem;font-weight:700;" id="quiz-question-counter">1 of 1</div>
+      </div>
       <!-- Timer circle -->
-      <div style="position:relative;width:52px;height:52px;">
-        <svg style="position:absolute;top:0;left:0;transform:rotate(-90deg);" width="52" height="52">
-          <circle cx="26" cy="26" r="22" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="4"/>
-          <circle id="timer-circle" cx="26" cy="26" r="22" fill="none" stroke="#fff" stroke-width="4"
-            stroke-dasharray="138" stroke-dashoffset="0" style="transition:stroke-dashoffset 1s linear;"/>
+      <div style="position:relative;width:56px;height:56px;">
+        <svg style="position:absolute;top:0;left:0;transform:rotate(-90deg);" width="56" height="56">
+          <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="4"/>
+          <circle id="timer-circle" cx="28" cy="28" r="24" fill="none" stroke="var(--sky)" stroke-width="4"
+            stroke-dasharray="150" stroke-dashoffset="0" style="transition:stroke-dashoffset 1s linear;"/>
         </svg>
-        <div id="timer-display" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1rem;font-family:'Nunito',sans-serif;">20</div>
+        <div id="timer-display" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.1rem;font-family:'Nunito',sans-serif;">30</div>
       </div>
     </div>
   </div>
 
   <!-- Question card -->
-  <div id="kahoot-question-card" style="background:#fff;border-radius:16px;padding:2rem;margin-bottom:1.5rem;border:1px solid rgba(19,85,160,.08);min-height:100px;display:flex;align-items:center;justify-content:center;">
-    <div id="kahoot-question-text" style="font-family:'Libre Baskerville',serif;font-size:1.15rem;color:var(--navy);text-align:center;line-height:1.6;font-weight:700;"></div>
+  <div style="background:#fff;border-radius:16px;padding:2rem 2.5rem;margin-bottom:1.5rem;border:1px solid rgba(19,85,160,.08);min-height:120px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(10,35,66,.06);">
+    <div id="kahoot-question-text" style="font-family:'Libre Baskerville',serif;font-size:1.15rem;color:var(--navy);text-align:center;line-height:1.7;font-weight:700;"></div>
   </div>
 
   <!-- Answer options (MCQ) -->
@@ -843,22 +850,26 @@ fbq('track', 'PageView');
   <!-- Text answer input -->
   <div id="kahoot-text-wrap" style="display:none;margin-bottom:1rem;">
     <input id="kahoot-text-input" type="text" placeholder="Type your answer and press Enter..."
-      style="width:100%;padding:.9rem 1rem;border:2px solid rgba(19,85,160,.2);border-radius:12px;font-family:'Nunito',sans-serif;font-size:.95rem;outline:none;"
+      style="width:100%;padding:.9rem 1.2rem;border:2px solid rgba(19,85,160,.2);border-radius:12px;font-family:'Nunito',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;"
+      onfocus="this.style.borderColor='var(--blue)'"
+      onblur="this.style.borderColor='rgba(19,85,160,.2)'"
       onkeydown="if(event.key==='Enter') submitCurrentAnswer()"/>
     <button onclick="submitCurrentAnswer()"
-      style="margin-top:.8rem;width:100%;background:var(--blue);color:#fff;border:none;padding:.8rem;border-radius:10px;font-size:.9rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
-      Submit Answer
+      style="margin-top:.8rem;width:100%;background:var(--blue);color:#fff;border:none;padding:.9rem;border-radius:12px;font-size:.92rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;transition:background .2s;"
+      onmouseover="this.style.background='var(--sky)'"
+      onmouseout="this.style.background='var(--blue)'">
+      Submit Answer ›
     </button>
   </div>
 
-  <!-- Feedback bar (shown after answering) -->
-  <div id="kahoot-feedback" style="display:none;border-radius:12px;padding:1rem 1.5rem;text-align:center;margin-bottom:1rem;">
-    <div id="kahoot-feedback-text" style="font-size:1rem;font-weight:700;"></div>
+  <!-- Feedback bar -->
+  <div id="kahoot-feedback" style="display:none;border-radius:12px;padding:1.2rem 1.5rem;margin-bottom:1rem;transition:all .3s;">
+    <div id="kahoot-feedback-text"></div>
   </div>
 
   <!-- Progress bar -->
-  <div style="background:var(--pale);border-radius:20px;height:6px;overflow:hidden;margin-top:.5rem;">
-    <div id="quiz-progress-bar" style="background:var(--blue);height:100%;width:0%;transition:width .5s;border-radius:20px;"></div>
+  <div style="background:var(--pale);border-radius:20px;height:5px;overflow:hidden;margin-top:.8rem;">
+    <div id="quiz-progress-bar" style="background:var(--blue);height:100%;width:0%;transition:width .5s ease;border-radius:20px;"></div>
   </div>
 </div>
 
@@ -1782,10 +1793,10 @@ let kahootTimer        = null
 let kahootAudio        = null
 
 const KAHOOT_COLORS = [
-  { bg: '#e21b3c', hover: '#c01535' }, // red
-  { bg: '#1368ce', hover: '#0f52a4' }, // blue
-  { bg: '#d89e00', hover: '#b07e00' }, // yellow
-  { bg: '#26890c', hover: '#1d6609' }, // green
+  { bg: 'var(--blue)',  hover: '#0f52a4' }, // primary blue
+  { bg: 'var(--sky)',   hover: '#1a7abf' }, // sky blue
+  { bg: '#1a3a5c',      hover: '#142e4a' }, // dark navy
+  { bg: '#2563a8',      hover: '#1d4f8a' }, // mid blue
 ]
 
 const SHAPES = ['▲', '●', '■', '♦']
@@ -1895,7 +1906,7 @@ function showKahootQuestion(index) {
     `${((index) / questions.length) * 100}%`
 
   // Set question text
-  document.getElementById('kahoot-question-text').textContent = q.question_text
+  document.getElementById('kahoot-question-text').innerHTML = q.question_text.replace(/\n/g, '<br>')
 
   // Hide feedback
   const feedback = document.getElementById('kahoot-feedback')
@@ -1912,19 +1923,21 @@ function showKahootQuestion(index) {
     textInput.value           = ''
 
     optionsGrid.innerHTML = q.options.map((opt, i) => {
-      const color = KAHOOT_COLORS[i % KAHOOT_COLORS.length]
-      const letter = String.fromCharCode(97 + i) // a, b, c, d
-      return `
-        <button onclick="selectKahootAnswer('${letter}', this)"
-          data-letter="${letter}"
-          style="background:${color.bg};color:#fff;border:none;border-radius:12px;padding:1.2rem 1rem;font-size:.92rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;text-align:left;display:flex;align-items:center;gap:.8rem;transition:transform .1s;min-height:70px;"
-          onmouseover="this.style.transform='scale(1.02)'"
-          onmouseout="this.style.transform='scale(1)'">
-          <span style="font-size:1.3rem;">${SHAPES[i % SHAPES.length]}</span>
-          <span>${opt}</span>
-        </button>
-      `
-    }).join('')
+  const letter = String.fromCharCode(97 + i)
+  const labels = ['A', 'B', 'C', 'D']
+  return `
+    <button onclick="selectKahootAnswer('${letter}', this)"
+      data-letter="${letter}"
+      style="background:#fff;color:var(--navy);border:2px solid rgba(19,85,160,.12);border-radius:14px;padding:1.1rem 1.2rem;font-size:.9rem;font-weight:600;font-family:'Nunito',sans-serif;cursor:pointer;text-align:left;display:flex;align-items:center;gap:.9rem;transition:all .2s;box-shadow:0 2px 8px rgba(10,35,66,.06);min-height:70px;"
+      onmouseover="this.style.borderColor='var(--blue)';this.style.background='rgba(19,85,160,.04)'"
+      onmouseout="this.style.borderColor='rgba(19,85,160,.12)';this.style.background='#fff'">
+      <span style="width:32px;height:32px;border-radius:8px;background:var(--pale);color:var(--blue);font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;flex-shrink:0;">
+        ${labels[i]}
+      </span>
+      <span style="line-height:1.4;">${opt}</span>
+    </button>
+  `
+}).join('')
   } else {
     optionsGrid.style.display = 'none'
     textWrap.style.display    = 'block'
@@ -1934,7 +1947,7 @@ function showKahootQuestion(index) {
 
   // Start countdown timer
   let timeLeft = timerSeconds
-  const circumference = 138
+  const circumference = 150
   document.getElementById('timer-display').textContent    = timeLeft
   document.getElementById('timer-circle').style.strokeDashoffset = 0
 
@@ -1962,8 +1975,8 @@ function showKahootQuestion(index) {
       if (!currentQuizAttempt.answered) {
         // Time's up — mark as no answer
         currentQuizAttempt.answers[currentQuizAttempt.questions[index].id] = ''
-        showKahootFeedback(false, 'Time\'s up!', null)
-      }
+const explanation = currentQuizAttempt.questions[index].explanation
+showKahootFeedback(false, 'Time\'s up!', null, explanation)      }
     }
   }, 1000)
 }
@@ -1978,30 +1991,26 @@ function selectKahootAnswer(letter, btn) {
 
   // Disable all buttons
   document.querySelectorAll('#kahoot-options-grid button').forEach(b => {
-    b.style.opacity = b === btn ? '1' : '0.4'
-    b.style.cursor  = 'not-allowed'
-    b.onclick       = null
-  })
+  b.style.cursor  = 'not-allowed'
+  b.onclick       = null
+  if (b === btn) {
+    b.style.background   = 'var(--blue)'
+    b.style.color        = '#fff'
+    b.style.borderColor  = 'var(--blue)'
+    b.querySelector('span').style.background = 'rgba(255,255,255,.2)'
+    b.querySelector('span').style.color      = '#fff'
+  } else {
+    b.style.opacity = '0.4'
+  }
+})
 
   // We don't know correct answer yet (backend sends it after submit)
   // Show neutral "Answer recorded" feedback, then auto-advance
-  showKahootFeedback(null, '✓ Answer recorded!', btn)
+const explanation = currentQuizAttempt.questions[currentQuizAttempt.currentIndex].explanation
+showKahootFeedback(null, '✓ Answer recorded!', btn, explanation)
 }
 
-function submitCurrentAnswer() {
-  if (!currentQuizAttempt || currentQuizAttempt.answered) return
-  clearInterval(kahootTimer)
-
-  currentQuizAttempt.answered = true
-  const q   = currentQuizAttempt.questions[currentQuizAttempt.currentIndex]
-  const val = document.getElementById('kahoot-text-input').value.trim()
-  currentQuizAttempt.answers[q.id] = val
-
-  document.getElementById('kahoot-text-input').disabled = true
-  showKahootFeedback(null, val ? '✓ Answer recorded!' : 'Skipped', null)
-}
-
-function showKahootFeedback(correct, message, btn) {
+function showKahootFeedback(correct, message, btn, explanation) {
   const feedback = document.getElementById('kahoot-feedback')
   const text     = document.getElementById('kahoot-feedback-text')
 
@@ -2013,10 +2022,22 @@ function showKahootFeedback(correct, message, btn) {
     ? '1.5px solid rgba(19,85,160,.2)'
     : correct ? '1.5px solid rgba(16,185,129,.3)' : '1.5px solid rgba(239,68,68,.3)'
 
-  text.textContent  = message
-  text.style.color  = correct === null ? 'var(--navy)' : correct ? 'var(--green)' : '#ef4444'
+  text.style.color = correct === null ? 'var(--navy)' : correct ? 'var(--green)' : '#ef4444'
 
-  // Auto-advance after 1.5 seconds
+  // Show message + explanation if available
+  text.innerHTML = `
+    <div style="font-size:1rem;font-weight:700;margin-bottom:${explanation ? '.5rem' : '0'};">
+      ${message}
+    </div>
+    ${explanation ? `
+      <div style="font-size:.85rem;font-weight:400;color:var(--navy);opacity:.85;line-height:1.5;border-top:1px solid rgba(19,85,160,.1);padding-top:.5rem;margin-top:.3rem;">
+        💡 ${explanation}
+      </div>
+    ` : ''}
+  `
+
+  // Auto-advance — give more time if there's an explanation
+  const delay = explanation ? 3000 : 1500
   setTimeout(() => {
     const next = currentQuizAttempt.currentIndex + 1
     if (next < currentQuizAttempt.questions.length) {
@@ -2024,7 +2045,7 @@ function showKahootFeedback(correct, message, btn) {
     } else {
       finishKahootQuiz()
     }
-  }, 1500)
+  }, delay)
 }
 
 async function finishKahootQuiz() {
@@ -2100,7 +2121,7 @@ async function finishKahootQuiz() {
               Question ${idx + 1} — ${r.correct ? 'Correct' : 'Incorrect'}
             </span>
           </div>
-          <div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;font-size:.9rem;">${r.question_text}</div>
+<div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;font-size:.9rem;">${r.question_text.replace(/\n/g, '<br>')}</div>
           ${!r.correct ? `
             <div style="font-size:.82rem;color:#ef4444;margin-bottom:.2rem;">Your answer: <strong>${r.student_answer}</strong></div>
             <div style="font-size:.82rem;color:var(--green);">Correct answer: <strong>${r.correct_answer}</strong></div>

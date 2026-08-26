@@ -1243,6 +1243,11 @@
               <input id="q-order" type="number" min="1" value="1"
                 style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
             </div>
+            <div style="grid-column:1/-1;">
+  <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">EXPLANATION (optional — shown to student after answering)</label>
+  <textarea id="q-explanation" placeholder="e.g. The correct answer is B because..."
+    style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;resize:vertical;min-height:70px;"></textarea>
+</div>
           </div>
 
           <div id="q-error" style="display:none;background:#FEE2E2;color:#991B1B;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
@@ -1309,7 +1314,7 @@
         </div>
         <div>
   <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">TIMER PER QUESTION (seconds)</label>
-  <input id="new-quiz-timer" type="number" min="5" max="120" value="20"
+  <input id="new-quiz-timer" type="number" min="5" max="120" value="30"
     style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
 </div>
       </div>
@@ -2746,7 +2751,7 @@ async function loadQuestions(quizId) {
             <div style="font-size:.72rem;font-weight:700;color:var(--sky);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem;">
               Q${idx + 1} · ${q.question_type === 'mcq' ? 'Multiple Choice' : 'Short Answer'}
             </div>
-            <div style="font-weight:700;color:var(--navy);margin-bottom:.6rem;">${q.question_text}</div>
+            <div style="font-weight:700;color:var(--navy);margin-bottom:.6rem;">${q.question_text.replace(/\n/g, '<br>')}</div>
             ${q.question_type === 'mcq' && q.options ? `
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.5rem;">
                 ${(q.options || []).map((opt, i) => `
@@ -2758,6 +2763,11 @@ async function loadQuestions(quizId) {
             ` : `
               <div style="font-size:.82rem;color:var(--green);">✓ Correct: ${q.correct_answer}</div>
             `}
+            ${q.explanation ? `
+  <div style="font-size:.82rem;color:var(--muted);margin-top:.5rem;padding:.5rem .8rem;background:rgba(19,85,160,.05);border-radius:6px;border-left:3px solid var(--sky);">
+    💡 <strong>Explanation:</strong> ${q.explanation}
+  </div>
+` : ''}
           </div>
           <div style="display:flex;gap:.5rem;flex-shrink:0;">
             <button onclick="editQuestion('${q.id}')"
@@ -2800,6 +2810,7 @@ function editQuestion(questionId) {
     document.getElementById('q-correct-mcq').value = q.correct_answer
   } else {
     document.getElementById('q-correct-text').value = q.correct_answer
+    document.getElementById('q-explanation').value = q.explanation || ''
   }
 
   // Change save button to update mode
@@ -2857,12 +2868,14 @@ async function updateQuestion(questionId) {
   const btn = document.getElementById('save-q-btn')
   btn.disabled = true
   btn.textContent = 'Updating...'
+  const explanation = document.getElementById('q-explanation').value.trim()
+
 
   try {
     const res = await fetch(`${API}/quiz/admin/questions/${questionId}`, {
       method:  'PATCH',
       headers: authHeaders(),
-      body:    JSON.stringify({ question_text: questionText, question_type: type, options, correct_answer, order_num })
+body: JSON.stringify({ question_text: questionText, question_type: type, options, correct_answer, order_num, explanation: explanation || null })
     })
     const data = await res.json()
 
@@ -2894,6 +2907,7 @@ function showAddQuestionForm() {
   document.getElementById('q-opt-d').value       = ''
   document.getElementById('q-correct-mcq').value = ''
   document.getElementById('q-correct-text').value = ''
+  document.getElementById('q-explanation').value = ''
   document.getElementById('q-order').value       = '1'
   document.getElementById('q-type').value        = 'mcq'
   document.getElementById('q-error').style.display = 'none'
@@ -2960,12 +2974,14 @@ async function saveQuestion() {
   const btn = document.getElementById('save-q-btn')
   btn.disabled = true
   btn.textContent = 'Saving...'
+  const explanation = document.getElementById('q-explanation').value.trim()
 
   try {
     const res = await fetch(`${API}/quiz/admin/${currentQuizId}/questions`, {
       method:  'POST',
       headers: authHeaders(),
-      body:    JSON.stringify({ question_text: questionText, question_type: type, options, correct_answer, order_num })
+      
+body: JSON.stringify({ question_text: questionText, question_type: type, options, correct_answer, order_num, explanation: explanation || null })
     })
     const data = await res.json()
 
