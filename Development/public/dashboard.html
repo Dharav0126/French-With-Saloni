@@ -604,7 +604,6 @@ fbq('track', 'PageView');
           "
         ></div>
         <!-- Grid -->
-        <!-- Grid -->
         <div class="dashboard-grid">
           <!-- LEFT COLUMN — Tabs + Sections -->
           <div>
@@ -779,7 +778,6 @@ fbq('track', 'PageView');
             </div>
 
             <!-- Tests Section -->
-            <!-- Tests Section -->
 <div id="section-tests" style="display: none">
   <div class="section-title">📝 Tests</div>
 
@@ -812,82 +810,6 @@ fbq('track', 'PageView');
 <div id="section-quizzes" style="display:none;">
   <div class="section-title">🧠 Quizzes</div>
   <div id="quizzes-list-container"></div>
-
-  <!-- Quiz attempt screen — Kahoot style -->
-<!-- Quiz attempt screen — Kahoot style -->
-<div id="quiz-attempt-screen" style="display:none;">
-  <!-- Header bar -->
-  <div style="background:var(--navy);border-radius:16px;padding:1.2rem 1.8rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.8rem;box-shadow:0 4px 20px rgba(10,35,66,.15);">
-    <div>
-      <div style="color:rgba(255,255,255,.6);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.2rem;">French with Saloni</div>
-      <div style="color:#fff;font-weight:700;font-size:.95rem;font-family:'Nunito',sans-serif;" id="quiz-attempt-title"></div>
-    </div>
-    <div style="display:flex;align-items:center;gap:1.2rem;">
-      <div style="text-align:center;">
-        <div style="color:rgba(255,255,255,.6);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Progress</div>
-        <div style="color:#fff;font-size:.85rem;font-weight:700;" id="quiz-question-counter">1 of 1</div>
-      </div>
-      <!-- Timer circle -->
-      <div style="position:relative;width:56px;height:56px;">
-        <svg style="position:absolute;top:0;left:0;transform:rotate(-90deg);" width="56" height="56">
-          <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="4"/>
-          <circle id="timer-circle" cx="28" cy="28" r="24" fill="none" stroke="var(--sky)" stroke-width="4"
-            stroke-dasharray="150" stroke-dashoffset="0" style="transition:stroke-dashoffset 1s linear;"/>
-        </svg>
-        <div id="timer-display" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.1rem;font-family:'Nunito',sans-serif;">30</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Question card -->
-  <div style="background:#fff;border-radius:16px;padding:2rem 2.5rem;margin-bottom:1.5rem;border:1px solid rgba(19,85,160,.08);min-height:120px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(10,35,66,.06);">
-    <div id="kahoot-question-text" style="font-family:'Libre Baskerville',serif;font-size:1.15rem;color:var(--navy);text-align:center;line-height:1.7;font-weight:700;"></div>
-  </div>
-
-  <!-- Answer options (MCQ) -->
-  <div id="kahoot-options-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1rem;"></div>
-
-  <!-- Text answer input -->
-  <div id="kahoot-text-wrap" style="display:none;margin-bottom:1rem;">
-    <input id="kahoot-text-input" type="text" placeholder="Type your answer and press Enter..."
-      style="width:100%;padding:.9rem 1.2rem;border:2px solid rgba(19,85,160,.2);border-radius:12px;font-family:'Nunito',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;"
-      onfocus="this.style.borderColor='var(--blue)'"
-      onblur="this.style.borderColor='rgba(19,85,160,.2)'"
-      onkeydown="if(event.key==='Enter') submitCurrentAnswer()"/>
-    <button onclick="submitCurrentAnswer()"
-      style="margin-top:.8rem;width:100%;background:var(--blue);color:#fff;border:none;padding:.9rem;border-radius:12px;font-size:.92rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;transition:background .2s;"
-      onmouseover="this.style.background='var(--sky)'"
-      onmouseout="this.style.background='var(--blue)'">
-      Submit Answer ›
-    </button>
-  </div>
-
-  <!-- Feedback bar -->
-  <div id="kahoot-feedback" style="display:none;border-radius:12px;padding:1.2rem 1.5rem;margin-bottom:1rem;transition:all .3s;">
-    <div id="kahoot-feedback-text"></div>
-  </div>
-
-  <!-- Progress bar -->
-  <div style="background:var(--pale);border-radius:20px;height:5px;overflow:hidden;margin-top:.8rem;">
-    <div id="quiz-progress-bar" style="background:var(--blue);height:100%;width:0%;transition:width .5s ease;border-radius:20px;"></div>
-  </div>
-</div>
-
-  <!-- Quiz result screen -->
-<div id="quiz-result-screen" style="display:none;padding:1.5rem 0;">
-  <div style="text-align:center;margin-bottom:2rem;">
-    <div style="font-size:3.5rem;margin-bottom:.8rem;" id="quiz-result-emoji"></div>
-    <div style="font-family:'Libre Baskerville',serif;font-size:1.6rem;color:var(--navy);margin-bottom:.5rem;" id="quiz-result-score"></div>
-    <div id="quiz-result-sub" style="margin-bottom:1.5rem;"></div>
-    <button onclick="exitQuiz()"
-      style="background:var(--blue);color:#fff;border:none;padding:.7rem 1.8rem;border-radius:10px;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
-      ← Back to Quizzes
-    </button>
-  </div>
-
-  <!-- Question review -->
-  <div id="quiz-result-review"></div>
-</div>
 </div>
           </div>
 
@@ -941,6 +863,93 @@ fbq('track', 'PageView');
       </div>
     </div>
 
+    <!-- Quiz attempt screen — TRUE top-level overlay (sibling of .container),
+         so hiding #dashboard-content can never hide this too -->
+    <div id="quiz-attempt-screen" style="display:none;position:fixed;inset:0;z-index:9999;background:#f0f4f8;overflow-y:auto;font-family:'Nunito',sans-serif;">
+
+      <!-- Top bar -->
+      <div style="background:var(--navy);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <button onclick="exitQuiz()"
+            style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:.45rem 1rem;border-radius:8px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+            ← Exit Quiz
+          </button>
+          <div>
+            <div style="color:rgba(255,255,255,.55);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">French with Saloni</div>
+            <div style="color:#fff;font-weight:700;font-size:.92rem;" id="quiz-attempt-title"></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:1.2rem;">
+          <div style="text-align:right;">
+            <div style="color:rgba(255,255,255,.55);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Progress</div>
+            <div style="color:#fff;font-size:.85rem;font-weight:700;" id="quiz-question-counter">1 of 1</div>
+          </div>
+          <div style="position:relative;width:48px;height:48px;">
+            <svg style="position:absolute;top:0;left:0;transform:rotate(-90deg);" width="48" height="48">
+              <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="3"/>
+              <circle id="timer-circle" cx="24" cy="24" r="20" fill="none" stroke="#fff" stroke-width="3"
+                stroke-dasharray="126" stroke-dashoffset="0" style="transition:stroke-dashoffset 1s linear;"/>
+            </svg>
+            <div id="timer-display" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1rem;font-family:'Nunito',sans-serif;">30</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div style="background:rgba(19,85,160,.1);height:4px;">
+        <div id="quiz-progress-bar" style="background:var(--blue);height:100%;width:0%;transition:width .5s ease;"></div>
+      </div>
+
+      <!-- Greeting + Question + Options -->
+      <div style="max-width:700px;margin:0 auto;padding:2rem 1.5rem;">
+        <div style="text-align:center;margin-bottom:1.5rem;">
+          <div id="quiz-greeting" style="font-family:'Libre Baskerville',serif;font-size:1.3rem;color:var(--navy);font-weight:700;"></div>
+          <div style="font-size:.85rem;color:var(--muted);margin-top:.3rem;">Answer the question below before the timer runs out!</div>
+        </div>
+
+        <div style="background:#fff;border-radius:20px;padding:2.5rem;margin-bottom:1.5rem;box-shadow:0 2px 16px rgba(10,35,66,.08);text-align:center;">
+          <div id="kahoot-question-text" style="font-family:'Libre Baskerville',serif;font-size:1.15rem;color:var(--navy);line-height:1.7;font-weight:700;"></div>
+        </div>
+
+        <!-- MCQ options -->
+        <div id="kahoot-options-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;"></div>
+
+        <!-- Text input -->
+        <div id="kahoot-text-wrap" style="display:none;margin-bottom:1rem;">
+          <input id="kahoot-text-input" type="text" placeholder="Type your answer here..."
+            style="width:100%;padding:1rem 1.2rem;border:2px solid rgba(19,85,160,.15);border-radius:14px;font-family:'Nunito',sans-serif;font-size:.95rem;outline:none;background:#fff;"
+            onfocus="this.style.borderColor='var(--blue)'"
+            onblur="this.style.borderColor='rgba(19,85,160,.15)'"
+            onkeydown="if(event.key==='Enter') submitCurrentAnswer()"/>
+          <button onclick="submitCurrentAnswer()"
+            style="margin-top:.8rem;width:100%;background:var(--blue);color:#fff;border:none;padding:1rem;border-radius:14px;font-size:.92rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+            Submit Answer ›
+          </button>
+        </div>
+
+        <!-- Feedback -->
+        <div id="kahoot-feedback" style="display:none;border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1rem;">
+          <div id="kahoot-feedback-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz result screen — TRUE top-level overlay (sibling of .container) -->
+    <div id="quiz-result-screen" style="display:none;position:fixed;inset:0;z-index:9999;background:#f0f4f8;overflow-y:auto;padding:2rem;font-family:'Nunito',sans-serif;">
+      <div style="max-width:600px;margin:0 auto;">
+        <div style="text-align:center;margin-bottom:2rem;">
+          <div style="font-size:3.5rem;margin-bottom:.8rem;" id="quiz-result-emoji"></div>
+          <div style="font-family:'Libre Baskerville',serif;font-size:1.6rem;color:var(--navy);margin-bottom:.5rem;" id="quiz-result-score"></div>
+          <div id="quiz-result-sub" style="margin-bottom:1.5rem;"></div>
+          <button onclick="exitQuiz()"
+            style="background:var(--blue);color:#fff;border:none;padding:.8rem 2rem;border-radius:10px;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+            ← Back to Quizzes
+          </button>
+        </div>
+        <div id="quiz-result-review"></div>
+      </div>
+    </div>
+
     <!-- TOAST -->
     <div class="toast" id="toast"></div>
 
@@ -958,6 +967,19 @@ fbq('track', 'PageView');
         localStorage.removeItem("fws_token");
         localStorage.removeItem("fws_user");
       };
+
+      // ── SAFE HTML ESCAPING ──────────────────────────────
+      // Use for any user/admin-supplied text or URL going into
+      // innerHTML or an inline HTML attribute (onclick, href, etc).
+      function escapeHtml(str) {
+        if (str === null || str === undefined) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
 
       function showToast(msg, type = "success") {
         const t = document.getElementById("toast");
@@ -1029,6 +1051,8 @@ b2: [
       // ── GLOBAL STATE ───────────────────────────────────
       let allEnrollments = []; // full array from API
       let activeEnrollmentIdx = 0; // which tab is selected
+      let kahootTimer        = null;
+      let currentQuizAttempt = null; // { quizId, questions, answers }
 
       async function loadDashboard() {
         const token = getToken();
@@ -1085,10 +1109,10 @@ showSelectionScreen();
   const cardsWrap = document.getElementById("selection-cards");
   cardsWrap.innerHTML = allEnrollments
     .map((e, idx) => {
-      const courseName = COURSE_NAMES[e.course] || e.course;
-      const examName = e.examType || "TEF";
-      const batchName = e.batch?.batch_name || "No batch assigned";
-      const timing = e.batch?.timing || "";
+      const courseName = escapeHtml(COURSE_NAMES[e.course] || e.course);
+      const examName = escapeHtml(e.examType || "TEF");
+      const batchName = escapeHtml(e.batch?.batch_name || "No batch assigned");
+      const timing = escapeHtml(e.batch?.timing || "");
       return `
         <div class="enroll-card" onclick="chooseEnrollment(${idx})">
           <div class="enroll-card-icon">📘</div>
@@ -1102,7 +1126,16 @@ showSelectionScreen();
 }
 
 function chooseEnrollment(idx) {
-  activeEnrollmentIdx = idx;
+  // Force reset any active quiz
+  clearInterval(kahootTimer)
+  kahootTimer        = null
+  currentQuizAttempt = null
+  const attemptScreen = document.getElementById('quiz-attempt-screen')
+  const resultScreen  = document.getElementById('quiz-result-screen')
+  if (attemptScreen) attemptScreen.style.display = 'none'
+  if (resultScreen)  resultScreen.style.display  = 'none'
+
+  activeEnrollmentIdx = idx
 
   document.getElementById("selection-screen").style.display = "none";
   document.getElementById("dashboard-content").style.display = "block";
@@ -1124,7 +1157,7 @@ function chooseEnrollment(idx) {
         tabsWrap.style.display = "flex";
         tabsWrap.innerHTML = allEnrollments
           .map((e, idx) => {
-            const label = `${COURSE_NAMES[e.course] || e.course}`;
+            const label = escapeHtml(COURSE_NAMES[e.course] || e.course);
             const isActive = idx === activeEnrollmentIdx;
             return `
           <button onclick="selectEnrollment(${idx})"
@@ -1176,15 +1209,15 @@ function chooseEnrollment(idx) {
           scheduleContainer.innerHTML = `
         <div class="schedule-item">
           <div class="schedule-label">Batch</div>
-          <div class="schedule-val">${data.batch.batch_name}</div>
+          <div class="schedule-val">${escapeHtml(data.batch.batch_name)}</div>
         </div>
         <div class="schedule-item">
           <div class="schedule-label">Days</div>
-          <div class="schedule-val">${data.batch.days}</div>
+          <div class="schedule-val">${escapeHtml(data.batch.days)}</div>
         </div>
         <div class="schedule-item">
           <div class="schedule-label">Time</div>
-          <div class="schedule-val">${data.batch.timing}</div>
+          <div class="schedule-val">${escapeHtml(data.batch.timing)}</div>
         </div>
       `;
         } else {
@@ -1193,8 +1226,8 @@ function chooseEnrollment(idx) {
             .map(
               (s) => `
         <div class="schedule-item">
-          <div class="schedule-label">${s.label}</div>
-          <div class="schedule-val">${s.val}</div>
+          <div class="schedule-label">${escapeHtml(s.label)}</div>
+          <div class="schedule-val">${escapeHtml(s.val)}</div>
         </div>
       `,
             )
@@ -1206,13 +1239,14 @@ function chooseEnrollment(idx) {
         const liveContainer = document.getElementById("live-class-container");
 
         if (data.meetLink) {
+          const meetLink = escapeHtml(data.meetLink);
           meetWrap.innerHTML = `
-        <a href="${data.meetLink}" target="_blank" class="meet-btn">
+        <a href="${meetLink}" target="_blank" class="meet-btn">
           🎥 Join Live Class
         </a>`;
           liveContainer.innerHTML = `
         <div style="margin-bottom:.8rem;font-size:.85rem;color:var(--muted);">Click to join your scheduled live class:</div>
-        <a href="${data.meetLink}" target="_blank" class="meet-btn" style="display:inline-flex;">
+        <a href="${meetLink}" target="_blank" class="meet-btn" style="display:inline-flex;">
           🎥 Join Google Meet
         </a>`;
         } else {
@@ -1242,22 +1276,22 @@ function chooseEnrollment(idx) {
               (level) => `
         <div class="level-section" style="margin-bottom:2rem;">
           <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;">
-            <div style="background:var(--blue);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .9rem;border-radius:20px;">${level}</div>
-            <div style="font-family:'Libre Baskerville',serif;font-size:1.1rem;color:var(--navy);">${getLevelName(level)}</div>
+            <div style="background:var(--blue);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .9rem;border-radius:20px;">${escapeHtml(level)}</div>
+            <div style="font-family:'Libre Baskerville',serif;font-size:1.1rem;color:var(--navy);">${escapeHtml(getLevelName(level))}</div>
             <div style="font-size:.78rem;color:var(--muted);">${grouped[level].length} lecture${grouped[level].length > 1 ? "s" : ""}</div>
           </div>
           ${grouped[level]
             .map(
               (lecture, i) => `
-          <div class="lecture-card" onclick="openLecture('${lecture.id}')" 
+          <div class="lecture-card" onclick="openLecture('${escapeHtml(lecture.id)}')" 
             style="cursor:pointer;display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.5rem;">
             <div style="width:48px;height:48px;border-radius:12px;background:var(--pale);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">
               🎬
             </div>
             <div style="flex:1;min-width:0;">
               <div class="lecture-num">Lecture ${lecture.order_num || i + 1}</div>
-              <div class="lecture-title">${lecture.title}</div>
-              ${lecture.description ? `<div class="lecture-desc">${lecture.description}</div>` : ""}
+              <div class="lecture-title">${escapeHtml(lecture.title)}</div>
+              ${lecture.description ? `<div class="lecture-desc">${escapeHtml(lecture.description)}</div>` : ""}
             </div>
             <div style="color:var(--sky);font-size:1.2rem;flex-shrink:0;">▶</div>
           </div>
@@ -1325,7 +1359,7 @@ renderTests(data.testMaterials || []);
       }
 
       function openLecture(lectureId) {
-        window.location.href = `./lecture.html?id=${lectureId}`;
+        window.location.href = `./lecture.html?id=${encodeURIComponent(lectureId)}`;
       }
 
       // ── RENDER MATERIALS ───────────────────────────────
@@ -1341,8 +1375,8 @@ renderTests(data.testMaterials || []);
           container.innerHTML = `
         <div class="no-lectures">
           <div class="no-lectures-icon">📂</div>
-          <div class="no-lectures-title">${emptyTitle}</div>
-          <div class="no-lectures-sub">${emptySub}</div>
+          <div class="no-lectures-title">${escapeHtml(emptyTitle)}</div>
+          <div class="no-lectures-sub">${escapeHtml(emptySub)}</div>
         </div>`;
           return;
         }
@@ -1355,14 +1389,14 @@ renderTests(data.testMaterials || []);
           ${m.type === "pdf" ? "📄" : m.type === "link" ? "🔗" : "📎"}
         </div>
         <div style="flex:1;min-width:0;">
-          <!-- <div class="lecture-num">${m.level || "General"} · ${m.type?.toUpperCase()}</div> -->
-          <div class="lecture-title">${m.title}</div>
-          ${m.description ? `<div class="lecture-desc">${m.description}</div>` : ""}
+          <!-- <div class="lecture-num">${escapeHtml(m.level || "General")} · ${escapeHtml(m.type?.toUpperCase())}</div> -->
+          <div class="lecture-title">${escapeHtml(m.title)}</div>
+          ${m.description ? `<div class="lecture-desc">${escapeHtml(m.description)}</div>` : ""}
         </div>
         ${
           m.downloadUrl
-            ? `<a href="${m.downloadUrl}" target="_blank" 
-            onclick="openMaterial(event, '${m.downloadUrl}', '${m.type}')"
+            ? `<a href="${escapeHtml(m.downloadUrl)}" target="_blank" 
+            onclick="openMaterial(event, '${encodeURIComponent(m.downloadUrl)}', '${escapeHtml(m.type)}')"
                style="flex-shrink:0;background:var(--blue);color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:background .25s;"
                onmouseover="this.style.background='var(--sky)'"
                onmouseout="this.style.background='var(--blue)'">
@@ -1398,88 +1432,6 @@ renderTests(data.testMaterials || []);
     'No exam materials yet',
     'Exam-specific resources will appear here.'
   )
-}
-
-function renderTefTcfMaterials(classNotes) {
-  const container = document.getElementById('materials-class-container')
-  container.innerHTML = `
-    <div style="display:flex;gap:.5rem;margin-bottom:1.2rem;flex-wrap:wrap;">
-      <button onclick="switchTefTab('all')" id="tef-tab-all"
-        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
-        📚 All
-      </button>
-      <button onclick="switchTefTab('reading')" id="tef-tab-reading"
-        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
-        📖 Reading
-      </button>
-      <button onclick="switchTefTab('listening')" id="tef-tab-listening"
-        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
-        🎧 Listening
-      </button>
-      <button onclick="switchTefTab('speaking')" id="tef-tab-speaking"
-        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
-        🎙️ Speaking
-      </button>
-      <button onclick="switchTefTab('writing')" id="tef-tab-writing"
-        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
-        ✍️ Writing
-      </button>
-    </div>
-    <div id="tef-materials-content"></div>
-  `
-
-  window._tefClassNotes = classNotes
-  switchTefTab('all')
-}
-
-function switchTefTab(tab) {
-  const notes = window._tefClassNotes || []
-
-  const filtered = tab === 'all' ? notes
-    : notes.filter(m => m.section === tab)
-
-  ;['all','reading','listening','speaking','writing'].forEach(t => {
-    const btn = document.getElementById(`tef-tab-${t}`)
-    if (btn) {
-      btn.style.background = t === tab ? 'var(--blue)' : 'var(--pale)'
-      btn.style.color      = t === tab ? '#fff' : 'var(--blue)'
-    }
-  })
-
-  const content = document.getElementById('tef-materials-content')
-  if (!content) return
-
-  if (!filtered || filtered.length === 0) {
-    content.innerHTML = `
-      <div class="no-lectures">
-        <div class="no-lectures-icon">📂</div>
-        <div class="no-lectures-title">No materials ${tab === 'all' ? 'yet' : 'in ' + tab} yet</div>
-        <div class="no-lectures-sub">Saloni will upload materials here soon.</div>
-      </div>`
-    return
-  }
-
-  content.innerHTML = filtered.map(m => `
-    <div class="lecture-card" style="display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.5rem;">
-      <div style="font-size:2rem;flex-shrink:0;">
-        ${m.type === 'pdf' ? '📄' : m.type === 'link' ? '🔗' : '📎'}
-      </div>
-      <div style="flex:1;min-width:0;">
-        <div class="lecture-title">${m.title}</div>
-        ${m.description ? `<div class="lecture-desc">${m.description}</div>` : ''}
-      </div>
-      ${m.downloadUrl
-        ? `<a href="${m.downloadUrl}" target="_blank"
-            onclick="openMaterial(event, '${m.downloadUrl}', '${m.type}')"
-            style="flex-shrink:0;background:var(--blue);color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap;"
-            onmouseover="this.style.background='var(--sky)'"
-            onmouseout="this.style.background='var(--blue)'">
-            ${m.type === 'link' ? '🔗 Open' : '📖 View'}
-          </a>`
-        : `<span style="font-size:.78rem;color:var(--muted);">Unavailable</span>`
-      }
-    </div>
-  `).join('')
 }
 
 function renderTefTcfMaterials(classNotes) {
@@ -1521,14 +1473,9 @@ function renderTefTcfMaterials(classNotes) {
 function switchTefTab(tab) {
   const notes = window._tefClassNotes || []
 
-  // Filter
   const filtered = tab === 'all'
     ? notes
-    : tab === 'reading'   ? notes.filter(m => m.section === 'reading')
-    : tab === 'listening' ? notes.filter(m => m.section === 'listening')
-    : tab === 'speaking'  ? notes.filter(m => m.section === 'speaking')
-    : tab === 'writing'   ? notes.filter(m => m.section === 'writing')
-    : notes
+    : notes.filter(m => m.section === tab)
 
   // Update tab styles
   ;['all','reading','listening','speaking','writing'].forEach(t => {
@@ -1548,7 +1495,7 @@ function switchTefTab(tab) {
     content.innerHTML = `
       <div class="no-lectures">
         <div class="no-lectures-icon">📂</div>
-        <div class="no-lectures-title">No materials ${sectionLabel} yet</div>
+        <div class="no-lectures-title">No materials ${escapeHtml(sectionLabel)} yet</div>
         <div class="no-lectures-sub">Saloni will upload materials here soon.</div>
       </div>`
     return
@@ -1560,12 +1507,12 @@ function switchTefTab(tab) {
         ${m.type === 'pdf' ? '📄' : m.type === 'link' ? '🔗' : '📎'}
       </div>
       <div style="flex:1;min-width:0;">
-        <div class="lecture-title">${m.title}</div>
-        ${m.description ? `<div class="lecture-desc">${m.description}</div>` : ''}
+        <div class="lecture-title">${escapeHtml(m.title)}</div>
+        ${m.description ? `<div class="lecture-desc">${escapeHtml(m.description)}</div>` : ''}
       </div>
       ${m.downloadUrl
-        ? `<a href="${m.downloadUrl}" target="_blank"
-            onclick="openMaterial(event, '${m.downloadUrl}', '${m.type}')"
+        ? `<a href="${escapeHtml(m.downloadUrl)}" target="_blank"
+            onclick="openMaterial(event, '${encodeURIComponent(m.downloadUrl)}', '${escapeHtml(m.type)}')"
             style="flex-shrink:0;background:var(--blue);color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap;"
             onmouseover="this.style.background='var(--sky)'"
             onmouseout="this.style.background='var(--blue)'">
@@ -1576,8 +1523,10 @@ function switchTefTab(tab) {
     </div>
   `).join('')
 }
-     function openMaterial(e, url, type) {
+
+     function openMaterial(e, encodedUrl, type) {
   e.preventDefault();
+  const url = decodeURIComponent(encodedUrl);
 
   const isGoogleDrive = url.includes("drive.google.com");
   const isPdf = type === "pdf" && !isGoogleDrive;
@@ -1603,7 +1552,7 @@ function switchTefTab(tab) {
           ✕ Close
         </button>
       </div>
-      <iframe src="${url}" 
+      <iframe src="${escapeHtml(url)}" 
         style="flex:1;border:none;width:100%;"
         oncontextmenu="return false;"
         allow="autoplay">
@@ -1722,7 +1671,6 @@ function closePdfViewer() {
   pdfDoc = null;
 }
 // ── STUDENT QUIZ ─────────────────────────────────────
-let currentQuizAttempt = null // { quizId, questions, answers }
 
 async function loadQuizzesForStudent() {
   const enrollment = allEnrollments[activeEnrollmentIdx]
@@ -1766,14 +1714,14 @@ async function loadQuizzesForStudent() {
           <div style="display:flex;align-items:flex-start;gap:1.2rem;flex-wrap:wrap;">
             <div style="font-size:2.2rem;flex-shrink:0;">${emoji}</div>
             <div style="flex:1;min-width:180px;">
-              <div class="lecture-title">${q.title}</div>
+              <div class="lecture-title">${escapeHtml(q.title)}</div>
               <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.4rem;">
-                <span style="font-size:.78rem;color:var(--muted);">Level: ${q.level}</span>
+                <span style="font-size:.78rem;color:var(--muted);">Level: ${escapeHtml(q.level)}</span>
                 <span style="font-size:.78rem;color:var(--muted);">Attempts: <strong style="color:var(--green);">Unlimited</strong></span>
                 ${pct !== null ? `<span style="font-size:.78rem;color:var(--muted);">Best score: <strong style="color:var(--blue)">${pct}%</strong></span>` : ''}
               </div>
             </div>
-            <button onclick="startQuiz('${q.id}', '${q.title.replace(/'/g, "\\'")}')"
+            <button onclick="startQuiz('${escapeHtml(q.id)}', '${encodeURIComponent(q.title)}')"
               ${!q.canAttempt ? 'disabled' : ''}
               style="flex-shrink:0;background:${q.canAttempt ? 'var(--blue)' : 'var(--pale)'};color:${q.canAttempt ? '#fff' : 'var(--muted)'};border:none;padding:.6rem 1.4rem;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:${q.canAttempt ? 'pointer' : 'not-allowed'};">
               ${q.canAttempt ? (pct !== null ? '🔄 Retry' : '▶ Start') : '✅ No attempts left'}
@@ -1789,8 +1737,6 @@ async function loadQuizzesForStudent() {
 }
 
 // ── KAHOOT-STYLE QUIZ ────────────────────────────────
-let kahootTimer        = null
-let kahootAudio        = null
 
 const KAHOOT_COLORS = [
   { bg: 'var(--blue)',  hover: '#0f52a4' }, // primary blue
@@ -1801,51 +1747,9 @@ const KAHOOT_COLORS = [
 
 const SHAPES = ['▲', '●', '■', '♦']
 
-function startKahootMusic() {
-  if (kahootAudio) return
-  try {
-    // Use a royalty-free upbeat loop via Web Audio API
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
-    const notes = [261, 329, 392, 523, 392, 329, 261, 329, 392, 440, 392, 329]
-    let time = ctx.currentTime
 
-    function playLoop() {
-      notes.forEach((freq, i) => {
-        const osc  = ctx.createOscillator()
-        const gain = ctx.createGain()
-        osc.connect(gain)
-        gain.connect(ctx.destination)
-        osc.frequency.value = freq
-        osc.type = 'square'
-        gain.gain.setValueAtTime(0.04, time + i * 0.25)
-        gain.gain.exponentialRampToValueAtTime(0.001, time + i * 0.25 + 0.2)
-        osc.start(time + i * 0.25)
-        osc.stop(time + i * 0.25 + 0.25)
-      })
-      time += notes.length * 0.25
-    }
-
-    playLoop()
-    playLoop()
-    playLoop()
-    playLoop()
-
-    kahootAudio = ctx
-  } catch(e) {
-    console.log('Audio not supported:', e)
-  }
-}
-
-function stopKahootMusic() {
-  try {
-    if (kahootAudio) {
-      kahootAudio.close()
-      kahootAudio = null
-    }
-  } catch(e) {}
-}
-
-async function startQuiz(quizId, quizTitle) {
+async function startQuiz(quizId, encodedTitle) {
+  const quizTitle = decodeURIComponent(encodedTitle)
   try {
     const res  = await fetch(`${API}/quiz/${quizId}/questions`, {
       headers: { Authorization: `Bearer ${getToken()}` }
@@ -1863,33 +1767,37 @@ async function startQuiz(quizId, quizTitle) {
       return
     }
 
-    // Get timer from quiz data
-    const timerSeconds = data.timer_seconds || 20
+    const timerSeconds = data.timer_seconds || 30
 
     currentQuizAttempt = {
       quizId,
       quizTitle,
       questions,
-      answers:       {},
-      currentIndex:  0,
+      answers:      {},
+      currentIndex: 0,
       timerSeconds,
-      answered:      false
+      answered:     false
     }
 
-    // Hide list, show attempt screen
-    document.getElementById('quizzes-list-container').style.display  = 'none'
-    document.getElementById('quiz-result-screen').style.display      = 'none'
-    document.getElementById('quiz-attempt-screen').style.display     = 'block'
-    document.getElementById('quiz-attempt-title').textContent        = quizTitle
+    // Set greeting
+    const user      = getUser()
+    const firstName = user?.full_name?.split(' ')[0] || 'Student'
+    document.getElementById('quiz-greeting').textContent      = `Bonjour, ${firstName}! 👋`
+    document.getElementById('quiz-attempt-title').textContent = quizTitle
 
-    startKahootMusic()
+    // Hide dashboard, show fullscreen quiz
+    document.querySelector('header') && (document.querySelector('header').style.display = 'none')
+    document.getElementById('dashboard-content').style.display     = 'none'
+    document.getElementById('quiz-attempt-screen').style.display   = 'block'
+    document.getElementById('quiz-result-screen').style.display    = 'none'
+    document.getElementById('quizzes-list-container').style.display = 'none'
+
     showKahootQuestion(0)
 
   } catch(err) {
     showToast('Failed to load quiz questions', 'error')
   }
 }
-
 function showKahootQuestion(index) {
   if (!currentQuizAttempt) return
   clearInterval(kahootTimer)
@@ -1906,7 +1814,7 @@ function showKahootQuestion(index) {
     `${((index) / questions.length) * 100}%`
 
   // Set question text
-  document.getElementById('kahoot-question-text').innerHTML = q.question_text.replace(/\n/g, '<br>')
+  document.getElementById('kahoot-question-text').innerHTML = escapeHtml(q.question_text).replace(/\n/g, '<br>')
 
   // Hide feedback
   const feedback = document.getElementById('kahoot-feedback')
@@ -1934,7 +1842,7 @@ function showKahootQuestion(index) {
       <span style="width:32px;height:32px;border-radius:8px;background:var(--pale);color:var(--blue);font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;flex-shrink:0;">
         ${labels[i]}
       </span>
-      <span style="line-height:1.4;">${opt}</span>
+      <span style="line-height:1.4;">${escapeHtml(opt)}</span>
     </button>
   `
 }).join('')
@@ -1947,7 +1855,7 @@ function showKahootQuestion(index) {
 
   // Start countdown timer
   let timeLeft = timerSeconds
-  const circumference = 150
+  const circumference = 126
   document.getElementById('timer-display').textContent    = timeLeft
   document.getElementById('timer-circle').style.strokeDashoffset = 0
 
@@ -2027,11 +1935,11 @@ function showKahootFeedback(correct, message, btn, explanation) {
   // Show message + explanation if available
   text.innerHTML = `
     <div style="font-size:1rem;font-weight:700;margin-bottom:${explanation ? '.5rem' : '0'};">
-      ${message}
+      ${escapeHtml(message)}
     </div>
     ${explanation ? `
       <div style="font-size:.85rem;font-weight:400;color:var(--navy);opacity:.85;line-height:1.5;border-top:1px solid rgba(19,85,160,.1);padding-top:.5rem;margin-top:.3rem;">
-        💡 ${explanation}
+        💡 ${escapeHtml(explanation)}
       </div>
     ` : ''}
   `
@@ -2050,7 +1958,7 @@ function showKahootFeedback(correct, message, btn, explanation) {
 
 async function finishKahootQuiz() {
   clearInterval(kahootTimer)
-  stopKahootMusic()
+
 
   const { quizId, answers } = currentQuizAttempt
 
@@ -2102,8 +2010,8 @@ async function finishKahootQuiz() {
     document.getElementById('quiz-result-emoji').textContent = emoji
     document.getElementById('quiz-result-score').textContent = `${data.score} / ${data.total} correct`
     document.getElementById('quiz-result-sub').innerHTML = `
-      <div style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">${heading}</div>
-      <div style="font-size:.88rem;color:var(--muted);margin-bottom:.8rem;">${msg}</div>
+      <div style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">${escapeHtml(heading)}</div>
+      <div style="font-size:.88rem;color:var(--muted);margin-bottom:.8rem;">${escapeHtml(msg)}</div>
       <div style="font-size:.82rem;color:var(--muted);">You can retake this quiz anytime.</div>
     `
 
@@ -2121,10 +2029,10 @@ async function finishKahootQuiz() {
               Question ${idx + 1} — ${r.correct ? 'Correct' : 'Incorrect'}
             </span>
           </div>
-<div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;font-size:.9rem;">${r.question_text.replace(/\n/g, '<br>')}</div>
+<div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;font-size:.9rem;">${escapeHtml(r.question_text).replace(/\n/g, '<br>')}</div>
           ${!r.correct ? `
-            <div style="font-size:.82rem;color:#ef4444;margin-bottom:.2rem;">Your answer: <strong>${r.student_answer}</strong></div>
-            <div style="font-size:.82rem;color:var(--green);">Correct answer: <strong>${r.correct_answer}</strong></div>
+            <div style="font-size:.82rem;color:#ef4444;margin-bottom:.2rem;">Your answer: <strong>${escapeHtml(r.student_answer)}</strong></div>
+            <div style="font-size:.82rem;color:var(--green);">Correct answer: <strong>${escapeHtml(r.correct_answer)}</strong></div>
           ` : ''}
         </div>
       `).join('')}
@@ -2138,12 +2046,21 @@ async function finishKahootQuiz() {
 }
 
 function exitQuiz() {
+  document.querySelector('header') && (document.querySelector('header').style.display = '')
   clearInterval(kahootTimer)
-  stopKahootMusic()
+  kahootTimer        = null
   currentQuizAttempt = null
-  document.getElementById('quiz-attempt-screen').style.display    = 'none'
-  document.getElementById('quiz-result-screen').style.display     = 'none'
-  document.getElementById('quizzes-list-container').style.display = 'block'
+
+  const attemptScreen = document.getElementById('quiz-attempt-screen')
+  const resultScreen  = document.getElementById('quiz-result-screen')
+  const listContainer = document.getElementById('quizzes-list-container')
+  const dashContent   = document.getElementById('dashboard-content')
+
+  if (attemptScreen) attemptScreen.style.display = 'none'
+  if (resultScreen)  resultScreen.style.display  = 'none'
+  if (listContainer) listContainer.style.display = 'block'
+  if (dashContent)   dashContent.style.display   = 'block'
+
   loadQuizzesForStudent()
 }
 
