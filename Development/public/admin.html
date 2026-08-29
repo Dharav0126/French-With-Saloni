@@ -488,6 +488,15 @@
 .student-option:last-child{border-bottom:none;}
 .student-option-name{font-weight:700;color:var(--navy);}
 .student-option-email{font-size:.75rem;color:var(--muted);}
+.drag-handle {
+  color: var(--muted);
+  font-size: 1.1rem;
+  cursor: grab;
+  padding: 0 .5rem;
+  flex-shrink: 0;
+  user-select: none;
+}
+.drag-handle:active { cursor: grabbing; }
     </style>
   </head>
   <body>
@@ -1355,6 +1364,61 @@ async function loadStudentsCache() {
   } catch {}
 }
 
+// ── DRAG AND DROP REORDER ────────────────────────────
+let dragSrcEl = null
+
+function makeDraggable(container, onReorder) {
+  const items = Array.from(container.querySelectorAll('[data-draggable]'))
+  
+  items.forEach(item => {
+    item.setAttribute('draggable', true)
+    item.style.cursor = 'grab'
+
+    item.addEventListener('dragstart', e => {
+      dragSrcEl = item
+      item.style.opacity = '0.4'
+      e.dataTransfer.effectAllowed = 'move'
+    })
+
+    item.addEventListener('dragend', e => {
+      item.style.opacity = '1'
+      container.querySelectorAll('[data-draggable]').forEach(i => {
+        i.classList.remove('drag-over')
+        i.style.borderTop = ''
+      })
+      onReorder()
+    })
+
+    item.addEventListener('dragover', e => {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'move'
+      if (item !== dragSrcEl) {
+        container.querySelectorAll('[data-draggable]').forEach(i => i.style.borderTop = '')
+        item.style.borderTop = '3px solid var(--blue)'
+      }
+    })
+
+    item.addEventListener('dragleave', () => {
+      item.style.borderTop = ''
+    })
+
+    item.addEventListener('drop', e => {
+      e.preventDefault()
+      if (dragSrcEl !== item) {
+        const allItems = Array.from(container.querySelectorAll('[data-draggable]'))
+        const srcIdx  = allItems.indexOf(dragSrcEl)
+        const tgtIdx  = allItems.indexOf(item)
+        if (srcIdx < tgtIdx) {
+          item.parentNode.insertBefore(dragSrcEl, item.nextSibling)
+        } else {
+          item.parentNode.insertBefore(dragSrcEl, item)
+        }
+      }
+      item.style.borderTop = ''
+    })
+  })
+}
+
 function searchStudents(query) {
   const dropdown = document.getElementById('student-dropdown')
 
@@ -2116,7 +2180,6 @@ async function loadLecturesByBatch(batchId) {
     const data = await res.json()
     const all  = data.lectures || []
 
-    // Filter by selected batch
     const lectures = batchId === '__course_wide__'
       ? all.filter(l => !l.batch_id)
       : all.filter(l => l.batch_id === batchId)
@@ -2125,16 +2188,53 @@ async function loadLecturesByBatch(batchId) {
 
     if (lectures.length === 0) {
       tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No lectures for this batch yet</td></tr>`
+      // Remove save button if exists
+      const oldBtn = document.getElementById('save-lecture-order-wrap')
+      if (oldBtn) oldBtn.remove()
       return
+    }
+
+    // Add Save Order button above table if not already there
+    let btnWrap = document.getElementById('save-lecture-order-wrap')
+    if (!btnWrap) {
+      btnWrap = document.createElement('div')
+      btnWrap.id = 'save-lecture-order-wrap'
+      btnWrap.style.cssText = 'margin-bottom:1rem;display:flex;justify-content:flex-end;'
+      btnWrap.innerHTML = `
+        <button id="save-lecture-order-btn" onclick="saveLectureOrder()"
+          style="background:var(--blue);color:#fff;border:none;padding:.6rem 1.4rem;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;display:none;">
+          💾 Save Order
+        </button>
+      `
+      tableWrap.insertBefore(btnWrap, tableWrap.firstChild)
+    } else {
+      // Reset button state when batch changes
+      const btn = document.getElementById('save-lecture-order-btn')
+      if (btn) btn.style.display = 'none'
+    }
+
+    // Update thead to include drag handle column
+    const thead = tableWrap.querySelector('thead tr')
+    if (thead && !thead.querySelector('th.drag-col')) {
+      thead.innerHTML = `
+        <th class="drag-col" style="width:40px;"></th>
+        <th>Course</th>
+        <th>Level</th>
+        <th>Order</th>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Actions</th>
+      `
     }
 
     tbody.innerHTML = lectures
       .sort((a, b) => (a.order_num || 0) - (b.order_num || 0))
       .map(l => `
-        <tr>
+        <tr data-draggable data-id="${l.id}" style="transition:border-top .1s;cursor:grab;">
+          <td><span class="drag-handle">⠿</span></td>
           <td>${formatCourse(l.course)}</td>
           <td><span class="badge badge-active">${l.level || 'A1'}</span></td>
-          <td>${l.order_num}</td>
+          <td class="order-num">${l.order_num}</td>
           <td><strong>${l.title}</strong></td>
           <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.description || '—'}</td>
           <td>
@@ -2143,10 +2243,57 @@ async function loadLecturesByBatch(batchId) {
         </tr>
       `).join('')
 
+    // Make rows draggable
+    makeDraggable(tbody, () => {
+      document.getElementById('save-lecture-order-btn').style.display = 'inline-block'
+      // Update order number display
+      Array.from(tbody.querySelectorAll('[data-draggable]')).forEach((row, idx) => {
+        const orderCell = row.querySelector('.order-num')
+        if (orderCell) orderCell.textContent = idx + 1
+      })
+    })
+
   } catch(err) {
     tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load lectures</td></tr>`
   }
 }
+
+async function saveLectureOrder() {
+  const rows = Array.from(document.querySelectorAll('#lectures-body [data-draggable]'))
+  const updates = rows.map((row, idx) => ({
+    id: row.dataset.id,
+    order_num: idx + 1
+  }))
+
+  const btn = document.getElementById('save-lecture-order-btn')
+  btn.disabled = true
+  btn.textContent = 'Saving...'
+
+  try {
+    const res = await fetch(`${API}/admin/lectures/reorder`, {
+      method:  'PATCH',
+      headers: authHeaders(),
+      body:    JSON.stringify({ updates })
+    })
+
+    if (res.ok) {
+      showToast('Lecture order saved!', 'success')
+      btn.style.display = 'none'
+      // Update order_num display
+      rows.forEach((row, idx) => {
+        row.cells[3].textContent = idx + 1
+      })
+    } else {
+      showToast('Failed to save order', 'error')
+    }
+  } catch {
+    showToast('Server error', 'error')
+  } finally {
+    btn.disabled = false
+    btn.textContent = '💾 Save Order'
+  }
+}
+
 async function uploadLecture() {
   const course    = document.getElementById('lec-course').value
   const level     = document.getElementById('lec-level').value
@@ -2327,7 +2474,7 @@ async function loadMaterialsByCourse(courseValue) {
 
   tableWrap.style.display   = 'none'
   emptyPrompt.style.display = 'none'
-  tbody.innerHTML = `<tr class="empty-row"><td colspan="8">Loading...</td></tr>`
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="9">Loading...</td></tr>`
   tableWrap.style.display = 'block'
 
   try {
@@ -2335,7 +2482,6 @@ async function loadMaterialsByCourse(courseValue) {
     const data = await res.json()
     const all  = data.materials || []
 
-    // Filter by selected course/type
     let materials
     if (courseValue === 'exam_prep') {
       materials = all.filter(m => m.material_category === 'exam_prep')
@@ -2348,8 +2494,44 @@ async function loadMaterialsByCourse(courseValue) {
     countEl.textContent = `${materials.length} material${materials.length !== 1 ? 's' : ''}`
 
     if (materials.length === 0) {
-      tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No materials for this course yet</td></tr>`
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="9">No materials for this course yet</td></tr>`
+      const oldBtn = document.getElementById('save-material-order-wrap')
+      if (oldBtn) oldBtn.remove()
       return
+    }
+
+    // Add Save Order button
+    let btnWrap = document.getElementById('save-material-order-wrap')
+    if (!btnWrap) {
+      btnWrap = document.createElement('div')
+      btnWrap.id = 'save-material-order-wrap'
+      btnWrap.style.cssText = 'margin-bottom:1rem;display:flex;justify-content:flex-end;'
+      btnWrap.innerHTML = `
+        <button id="save-material-order-btn" onclick="saveMaterialOrder()"
+          style="background:var(--blue);color:#fff;border:none;padding:.6rem 1.4rem;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;display:none;">
+          💾 Save Order
+        </button>
+      `
+      tableWrap.insertBefore(btnWrap, tableWrap.firstChild)
+    } else {
+      const btn = document.getElementById('save-material-order-btn')
+      if (btn) btn.style.display = 'none'
+    }
+
+    // Update thead to include drag column
+    const thead = tableWrap.querySelector('thead tr')
+    if (thead && !thead.querySelector('th.drag-col')) {
+      thead.innerHTML = `
+        <th class="drag-col" style="width:40px;"></th>
+        <th>Type</th>
+        <th>Course / Exam</th>
+        <th>Section</th>
+        <th>Level</th>
+        <th>Order</th>
+        <th>Title</th>
+        <th>File</th>
+        <th>Actions</th>
+      `
     }
 
     tbody.innerHTML = materials.map(m => {
@@ -2383,17 +2565,18 @@ async function loadMaterialsByCourse(courseValue) {
         </select>` : `<span style="color:var(--muted);font-size:.82rem;">—</span>`
 
       return `
-        <tr>
+        <tr data-draggable data-id="${m.id}" style="transition:border-top .1s;cursor:grab;">
+          <td><span class="drag-handle">⠿</span></td>
           <td>${typeLabel}</td>
           <td>${scopeLabel}</td>
           <td>${sectionSelector}</td>
           <td><span class="badge badge-active">${m.level || 'General'}</span></td>
-          <td>${m.order_num}</td>
+          <td class="order-num">${m.order_num}</td>
           <td>
-  <span id="title-${m.id}">${m.title}</span>
-  <button onclick="editMaterialTitle('${m.id}', '${m.title.replace(/'/g, "\\'")}')"
-    style="background:none;border:none;cursor:pointer;color:var(--sky);font-size:.8rem;margin-left:.5rem;">✏️</button>
-</td>
+            <span id="title-${m.id}">${m.title}</span>
+            <button onclick="editMaterialTitle('${m.id}', '${m.title.replace(/'/g, "\\'")}')"
+              style="background:none;border:none;cursor:pointer;color:var(--sky);font-size:.8rem;margin-left:.5rem;">✏️</button>
+          </td>
           <td>${fileLink}</td>
           <td>
             <button class="btn-sm btn-reject" onclick="deleteMaterial('${m.id}')">Delete</button>
@@ -2402,10 +2585,52 @@ async function loadMaterialsByCourse(courseValue) {
       `
     }).join('')
 
+    // Make rows draggable
+    makeDraggable(tbody, () => {
+      document.getElementById('save-material-order-btn').style.display = 'inline-block'
+      Array.from(tbody.querySelectorAll('[data-draggable]')).forEach((row, idx) => {
+        const orderCell = row.querySelector('.order-num')
+        if (orderCell) orderCell.textContent = idx + 1
+      })
+    })
+
   } catch(err) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">Failed to load materials</td></tr>`
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="9">Failed to load materials</td></tr>`
   }
 }
+
+async function saveMaterialOrder() {
+  const rows = Array.from(document.querySelectorAll('#materials-body [data-draggable]'))
+  const updates = rows.map((row, idx) => ({
+    id: row.dataset.id,
+    order_num: idx + 1
+  }))
+
+  const btn = document.getElementById('save-material-order-btn')
+  btn.disabled = true
+  btn.textContent = 'Saving...'
+
+  try {
+    const res = await fetch(`${API}/admin/materials/reorder`, {
+      method:  'PATCH',
+      headers: authHeaders(),
+      body:    JSON.stringify({ updates })
+    })
+
+    if (res.ok) {
+      showToast('Material order saved!', 'success')
+      btn.style.display = 'none'
+    } else {
+      showToast('Failed to save order', 'error')
+    }
+  } catch {
+    showToast('Server error', 'error')
+  } finally {
+    btn.disabled = false
+    btn.textContent = '💾 Save Order'
+  }
+}
+
 async function addMaterial() {
   const category    = document.getElementById('mat-category').value
   const level        = document.getElementById('mat-level').value
@@ -2783,11 +3008,73 @@ async function loadQuestions(quizId) {
       </div>
     `).join('')
 
+    // Save Order button
+if (!document.getElementById('save-question-order-btn')) {
+  const btnWrap = document.createElement('div')
+  btnWrap.style.cssText = 'margin-bottom:1rem;display:flex;justify-content:flex-end;'
+  btnWrap.innerHTML = `
+    <button id="save-question-order-btn" onclick="saveQuestionOrder()"
+      style="background:var(--blue);color:#fff;border:none;padding:.6rem 1.4rem;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;display:none;">
+      💾 Save Order
+    </button>
+  `
+  document.getElementById('questions-list').before(btnWrap)
+}
+
+// Add data-draggable and data-id to each question card
+document.querySelectorAll('#questions-list > div').forEach((card, idx) => {
+  card.setAttribute('data-draggable', '')
+  card.setAttribute('data-id', questions[idx].id)
+  // Add drag handle at top of card
+  card.style.cursor = 'grab'
+  const handle = document.createElement('div')
+  handle.innerHTML = '<span class="drag-handle" style="display:block;text-align:center;margin-bottom:.5rem;font-size:1.2rem;">⠿⠿</span>'
+  card.prepend(handle)
+})
+
+makeDraggable(document.getElementById('questions-list'), () => {
+  document.getElementById('save-question-order-btn').style.display = 'inline-block'
+})
+
   } catch {
     document.getElementById('questions-list').innerHTML =
       `<div style="color:var(--muted);">Failed to load questions.</div>`
   }
 }
+
+async function saveQuestionOrder() {
+  const cards = Array.from(document.querySelectorAll('#questions-list [data-draggable]'))
+  const updates = cards.map((card, idx) => ({
+    id: card.dataset.id,
+    order_num: idx + 1
+  }))
+
+  const btn = document.getElementById('save-question-order-btn')
+  btn.disabled = true
+  btn.textContent = 'Saving...'
+
+  try {
+    const res = await fetch(`${API}/quiz/admin/${currentQuizId}/reorder`, {
+      method:  'PATCH',
+      headers: authHeaders(),
+      body:    JSON.stringify({ updates })
+    })
+
+    if (res.ok) {
+      showToast('Question order saved!', 'success')
+      btn.style.display = 'none'
+    } else {
+      showToast('Failed to save order', 'error')
+    }
+  } catch {
+    showToast('Server error', 'error')
+  } finally {
+    btn.disabled = false
+    btn.textContent = '💾 Save Order'
+  }
+}
+
+
 function editQuestion(questionId) {
   const q = loadedQuestions[questionId]
   if (!q) return

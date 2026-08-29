@@ -310,4 +310,18 @@ const { data: questions, error } = await supabase
   })
 })
 
+// PATCH reorder quiz questions
+router.patch('/admin/:id/reorder', verifyJWT, isAdmin, async (req, res) => {
+  const { updates } = req.body
+
+  try {
+    await Promise.all(updates.map(u =>
+      supabase.from('quiz_questions').update({ order_num: u.order_num }).eq('id', u.id)
+    ))
+    return res.status(200).json({ message: 'Question order updated' })
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
+})
+
 export default router

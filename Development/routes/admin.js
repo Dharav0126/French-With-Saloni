@@ -160,6 +160,35 @@ router.get('/lectures', async (req, res) => {
   return res.status(200).json({ lectures: data })
 })
 
+
+// PATCH reorder lectures
+router.patch('/lectures/reorder', async (req, res) => {
+  const { updates } = req.body // [{ id, order_num }, ...]
+
+  try {
+    await Promise.all(updates.map(u =>
+      supabase.from('lectures').update({ order_num: u.order_num }).eq('id', u.id)
+    ))
+    return res.status(200).json({ message: 'Lecture order updated' })
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
+})
+
+// PATCH reorder materials
+router.patch('/materials/reorder', async (req, res) => {
+  const { updates } = req.body
+
+  try {
+    await Promise.all(updates.map(u =>
+      supabase.from('study_materials').update({ order_num: u.order_num }).eq('id', u.id)
+    ))
+    return res.status(200).json({ message: 'Material order updated' })
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
+})
+
 // DELETE lecture
 router.delete('/lectures/:id', async (req, res) => {
   const { id } = req.params
