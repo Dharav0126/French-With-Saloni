@@ -1377,13 +1377,32 @@ renderWorksheets(data.worksheets || []);
           .join("");
       }
 
-      function renderMaterials(classNotes, examMaterials) {
+function renderMaterials(classNotes, examMaterials) {
   const currentEnrollment = allEnrollments[activeEnrollmentIdx]
-  const isTefTcf = currentEnrollment &&
-    (currentEnrollment.course === 'tef' || currentEnrollment.course === 'tcf')
+  const course = currentEnrollment?.course
+
+  const isTefTcf     = course === 'tef' || course === 'tcf'
+  const isLevelCourse = ['a1','a2','b1','b2'].includes(course)
+
+  // Update Class Notes tab label
+  const classTab = document.getElementById('mat-tab-class')
+  if (classTab) {
+    classTab.textContent = isLevelCourse ? '📚 Materials' : '📘 Class Notes'
+  }
 
   if (isTefTcf) {
     renderTefTcfMaterials(classNotes)
+    document.getElementById('mat-tab-exam').style.display = 'inline-block'
+    renderMaterialList(
+      'materials-exam-container',
+      examMaterials,
+      'No exam materials yet',
+      'Exam-specific resources will appear here.'
+    )
+  } else if (isLevelCourse) {
+    renderLevelCourseMaterials(classNotes)
+    document.getElementById('mat-tab-exam').style.display = 'none'
+    document.getElementById('materials-exam-container').style.display = 'none'
   } else {
     renderMaterialList(
       'materials-class-container',
@@ -1391,14 +1410,14 @@ renderWorksheets(data.worksheets || []);
       'No class notes yet',
       'Saloni will upload class notes and resources here.'
     )
+    document.getElementById('mat-tab-exam').style.display = 'inline-block'
+    renderMaterialList(
+      'materials-exam-container',
+      examMaterials,
+      'No exam materials yet',
+      'Exam-specific resources will appear here.'
+    )
   }
-
-  renderMaterialList(
-    'materials-exam-container',
-    examMaterials,
-    'No exam materials yet',
-    'Exam-specific resources will appear here.'
-  )
 }
 
 function renderTefTcfMaterials(classNotes) {
@@ -1435,6 +1454,80 @@ function renderTefTcfMaterials(classNotes) {
 
   // Default to All tab
   switchTefTab('all')
+}
+
+function renderLevelCourseMaterials(classNotes) {
+  const container = document.getElementById('materials-class-container')
+  container.innerHTML = `
+    <div style="display:flex;gap:.5rem;margin-bottom:1.2rem;flex-wrap:wrap;">
+      <button onclick="switchLevelTab('all')" id="level-tab-all"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
+        📚 All
+      </button>
+      <button onclick="switchLevelTab('grammar')" id="level-tab-grammar"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+        📐 Grammar
+      </button>
+      <button onclick="switchLevelTab('vocabulary')" id="level-tab-vocabulary"
+        style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+        📖 Vocabulary
+      </button>
+    </div>
+    <div id="level-materials-content"></div>
+  `
+
+  window._levelClassNotes = classNotes
+  switchLevelTab('all')
+}
+
+function switchLevelTab(tab) {
+  const notes = window._levelClassNotes || []
+
+  const filtered = tab === 'all' ? notes
+    : notes.filter(m => m.section === tab)
+
+  ;['all','grammar','vocabulary'].forEach(t => {
+    const btn = document.getElementById(`level-tab-${t}`)
+    if (btn) {
+      btn.style.background = t === tab ? 'var(--blue)' : 'var(--pale)'
+      btn.style.color      = t === tab ? '#fff' : 'var(--blue)'
+    }
+  })
+
+  const content = document.getElementById('level-materials-content')
+  if (!content) return
+
+  if (!filtered || filtered.length === 0) {
+    content.innerHTML = `
+      <div class="no-lectures">
+        <div class="no-lectures-icon">📂</div>
+        <div class="no-lectures-title">No ${tab === 'all' ? 'materials' : tab} yet</div>
+        <div class="no-lectures-sub">Saloni will upload materials here soon.</div>
+      </div>`
+    return
+  }
+
+  content.innerHTML = filtered.map(m => `
+    <div class="lecture-card" style="display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.5rem;">
+      <div style="font-size:2rem;flex-shrink:0;">
+        ${m.type === 'pdf' ? '📄' : m.type === 'link' ? '🔗' : '📎'}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div class="lecture-title">${m.title}</div>
+        ${m.description ? `<div class="lecture-desc">${m.description}</div>` : ''}
+      </div>
+      ${m.downloadUrl
+        ? `<a href="${m.downloadUrl}" target="_blank"
+            onclick="openMaterial(event, '${m.downloadUrl}', '${m.type}')"
+            style="flex-shrink:0;background:var(--blue);color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap;"
+            onmouseover="this.style.background='var(--sky)'"
+            onmouseout="this.style.background='var(--blue)'">
+            📖 View
+          </a>`
+        : `<span style="font-size:.78rem;color:var(--muted);">Unavailable</span>`
+      }
+    </div>
+  `).join('')
 }
 
 function switchTefTab(tab) {

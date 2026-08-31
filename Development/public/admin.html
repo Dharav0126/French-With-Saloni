@@ -2164,8 +2164,33 @@ async function assignBatch() {
 function toggleSectionForCourse(course) {
   const category     = document.getElementById('mat-category').value
   const sectionField = document.getElementById('mat-field-section')
+  const sectionSelect = document.getElementById('mat-section')
+
   if (category === 'class_notes') {
-    sectionField.style.display = (course === 'tef' || course === 'tcf') ? 'block' : 'none'
+    const isTefTcf = course === 'tef' || course === 'tcf'
+    const isLevelCourse = ['a1','a2','b1','b2'].includes(course)
+
+    if (isTefTcf) {
+      sectionField.style.display = 'block'
+      sectionSelect.innerHTML = `
+        <option value="">📚 General</option>
+        <option value="reading">📖 Reading</option>
+        <option value="listening">🎧 Listening</option>
+        <option value="speaking">🎙️ Speaking</option>
+        <option value="writing">✍️ Writing</option>
+      `
+    } else if (isLevelCourse) {
+      sectionField.style.display = 'block'
+      sectionSelect.innerHTML = `
+        <option value="">📚 General</option>
+        <option value="grammar">📐 Grammar</option>
+        <option value="vocabulary">📖 Vocabulary</option>
+      `
+    } else {
+      sectionField.style.display = 'none'
+    }
+  } else {
+    sectionField.style.display = 'none'
   }
 }
 
@@ -2588,18 +2613,27 @@ async function loadMaterialsByCourse(courseValue) {
           ? `<span style="color:var(--green);font-size:.82rem;">✓ Uploaded</span>`
           : `<span style="color:var(--muted);font-size:.82rem;">—</span>`
 
-      const showSectionSelector = m.material_category === 'class_notes' &&
-        (m.course === 'tef' || m.course === 'tcf')
+      const isTefTcf     = m.course === 'tef' || m.course === 'tcf'
+const isLevelCourse = ['a1','a2','b1','b2'].includes(m.course)
+const showSectionSelector = m.material_category === 'class_notes' && (isTefTcf || isLevelCourse)
 
-      const sectionSelector = showSectionSelector ? `
-        <select onchange="updateMaterialSection('${m.id}', this.value)"
-          style="padding:.3rem .5rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.78rem;max-width:120px;">
-          <option value="" ${!m.section ? 'selected' : ''}>📚 General</option>
-          <option value="reading"   ${m.section === 'reading'   ? 'selected' : ''}>📖 Reading</option>
-          <option value="listening" ${m.section === 'listening' ? 'selected' : ''}>🎧 Listening</option>
-          <option value="speaking"  ${m.section === 'speaking'  ? 'selected' : ''}>🎙️ Speaking</option>
-          <option value="writing"   ${m.section === 'writing'   ? 'selected' : ''}>✍️ Writing</option>
-        </select>` : `<span style="color:var(--muted);font-size:.82rem;">—</span>`
+const sectionOptions = isTefTcf ? `
+  <option value="" ${!m.section ? 'selected' : ''}>📚 General</option>
+  <option value="reading"    ${m.section === 'reading'    ? 'selected' : ''}>📖 Reading</option>
+  <option value="listening"  ${m.section === 'listening'  ? 'selected' : ''}>🎧 Listening</option>
+  <option value="speaking"   ${m.section === 'speaking'   ? 'selected' : ''}>🎙️ Speaking</option>
+  <option value="writing"    ${m.section === 'writing'    ? 'selected' : ''}>✍️ Writing</option>
+` : `
+  <option value="" ${!m.section ? 'selected' : ''}>📚 General</option>
+  <option value="grammar"    ${m.section === 'grammar'    ? 'selected' : ''}>📐 Grammar</option>
+  <option value="vocabulary" ${m.section === 'vocabulary' ? 'selected' : ''}>📖 Vocabulary</option>
+`
+
+const sectionSelector = showSectionSelector ? `
+  <select onchange="updateMaterialSection('${m.id}', this.value)"
+    style="padding:.3rem .5rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.78rem;max-width:130px;">
+    ${sectionOptions}
+  </select>` : `<span style="color:var(--muted);font-size:.82rem;">—</span>`
 
       return `
         <tr data-draggable data-id="${m.id}" style="transition:border-top .1s;cursor:grab;">
@@ -2783,9 +2817,9 @@ const section = (sectionEl && sectionEl.style.display !== 'none' && sectionEl.va
 }
 
 function toggleMaterialFields(category) {
-  const courseField   = document.getElementById('mat-field-course')
-  const examField     = document.getElementById('mat-field-exam')
-  const sectionField  = document.getElementById('mat-field-section')
+  const courseField  = document.getElementById('mat-field-course')
+  const examField    = document.getElementById('mat-field-exam')
+  const sectionField = document.getElementById('mat-field-section')
 
   courseField.style.display  = (category === 'class_notes' || category === 'worksheet') ? 'block' : 'none'
   examField.style.display    = category === 'exam_prep' ? 'block' : 'none'
@@ -2793,7 +2827,7 @@ function toggleMaterialFields(category) {
 
   if (category === 'class_notes') {
     const course = document.getElementById('mat-course').value
-    sectionField.style.display = (course === 'tef' || course === 'tcf') ? 'block' : 'none'
+    toggleSectionForCourse(course)
   }
 }
 
