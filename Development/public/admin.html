@@ -987,7 +987,7 @@
       <option value="clb7-4mo">CLB 7 — 4 months</option>
       <option value="1on1">1-on-1 Private</option>
       <option value="exam_prep">📝 Exam Materials (TEF/TCF)</option>
-      <option value="test">📝 Test Materials</option>
+<option value="worksheet">📋 Worksheets</option>
     </select>
     <div class="table-count" id="materials-count" style="white-space:nowrap;"></div>
   </div>
@@ -1029,12 +1029,11 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
         <div style="grid-column:1/-1;">
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">MATERIAL TYPE</label>
-          <select id="mat-category" onchange="toggleMaterialFields(this.value)"
-            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
-            <option value="class_notes">📘 Class Notes (tied to a course)</option>
-            <option value="exam_prep">📝 Exam Materials (tied to TEF/TCF)</option>
-            <option value="test">📝 Test Material (Reading/Listening/Speaking/Writing)</option>
-          </select>
+          <select id="mat-category" onchange="toggleMaterialFields(this.value)" style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+  <option value="class_notes">📘 Class Notes (tied to a course)</option>
+  <option value="exam_prep">📝 Exam Materials (tied to TEF/TCF)</option>
+  <option value="worksheet">📋 Worksheet (tied to a course)</option>
+</select>
         </div>
 
         <div id="mat-field-course">
@@ -2522,11 +2521,12 @@ async function loadMaterialsByCourse(courseValue) {
     let materials
     if (courseValue === 'exam_prep') {
       materials = all.filter(m => m.material_category === 'exam_prep')
-    } else if (courseValue === 'test') {
-      materials = all.filter(m => m.material_category === 'test')
-    } else {
-      materials = all.filter(m => m.course === courseValue && m.material_category === 'class_notes')
-    }
+    } else if (courseValue === 'worksheet') {
+  materials = all.filter(m => m.material_category === 'worksheet')
+} else {
+  materials = all.filter(m => m.course === courseValue && 
+    (m.material_category === 'class_notes' || m.material_category === 'worksheet'))
+}
 
     countEl.textContent = `${materials.length} material${materials.length !== 1 ? 's' : ''}`
 
@@ -2573,9 +2573,9 @@ async function loadMaterialsByCourse(courseValue) {
 
     tbody.innerHTML = materials.map(m => {
       const typeLabel = m.material_category === 'class_notes' ? '📘 Class Notes'
-        : m.material_category === 'exam_prep' ? '📝 Exam Prep'
-        : m.material_category === 'test' ? '📝 Test'
-        : m.material_category || '—'
+  : m.material_category === 'exam_prep' ? '📝 Exam Prep'
+  : m.material_category === 'worksheet' ? '📋 Worksheet'
+  : m.material_category || '—'
 
       const scopeLabel = m.course ? formatCourse(m.course)
         : m.exam_type ? `${m.exam_type} Canada`
@@ -2669,6 +2669,9 @@ async function saveMaterialOrder() {
 }
 
 async function addMaterial() {
+  console.log('addMaterial called')
+  console.log('category:', document.getElementById('mat-category').value)
+  console.log('course:', document.getElementById('mat-course')?.value)
   const category    = document.getElementById('mat-category').value
   const level        = document.getElementById('mat-level').value
   const order_num    = document.getElementById('mat-order').value
@@ -2685,7 +2688,7 @@ async function addMaterial() {
     return
   }
 
- const course    = category === 'class_notes' ? document.getElementById('mat-course').value  : null
+ const course    = (category === 'class_notes' || category === 'worksheet') ? document.getElementById('mat-course').value : null
 const exam_type = category === 'exam_prep'   ? document.getElementById('mat-exam').value    : null
 const sectionEl = document.getElementById('mat-section')
 const section = (sectionEl && sectionEl.style.display !== 'none' && sectionEl.value)
@@ -2784,11 +2787,10 @@ function toggleMaterialFields(category) {
   const examField     = document.getElementById('mat-field-exam')
   const sectionField  = document.getElementById('mat-field-section')
 
-  courseField.style.display  = category === 'class_notes' ? 'block' : 'none'
-  examField.style.display    = category === 'exam_prep'   ? 'block' : 'none'
-  sectionField.style.display = category === 'test'        ? 'block' : 'none'
+  courseField.style.display  = (category === 'class_notes' || category === 'worksheet') ? 'block' : 'none'
+  examField.style.display    = category === 'exam_prep' ? 'block' : 'none'
+  sectionField.style.display = 'none'
 
-  // Also toggle section for TEF/TCF class notes
   if (category === 'class_notes') {
     const course = document.getElementById('mat-course').value
     sectionField.style.display = (course === 'tef' || course === 'tcf') ? 'block' : 'none'

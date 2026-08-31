@@ -653,25 +653,10 @@ fbq('track', 'PageView');
               >
                 📚 Study Materials
               </button>
-              <button
-                onclick="switchSection('tests')"
-                id="sec-tab-tests"
-                style="
-                  padding: 0.6rem 1.4rem;
-                  border-radius: 8px 8px 0 0;
-                  font-size: 0.88rem;
-                  font-weight: 700;
-                  font-family: &quot;Nunito&quot;, sans-serif;
-                  cursor: pointer;
-                  border: none;
-                  background: var(--pale);
-                  color: var(--blue);
-                  transition: all 0.25s;
-                "
-              >
-                📝 Tests
-                
-              </button>
+              <button id="sec-tab-tests" onclick="switchSection('tests')"
+  style="padding:.6rem 1.4rem;border-radius:20px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+  📋 Worksheets
+</button>
               <button id="sec-tab-quizzes" onclick="switchSection('quizzes')"
   style="padding:.6rem 1.4rem;border-radius:20px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
   🧠 Quizzes
@@ -777,34 +762,10 @@ fbq('track', 'PageView');
               </div>
             </div>
 
-            <!-- Tests Section -->
-<div id="section-tests" style="display: none">
-  <div class="section-title">📝 Tests</div>
-
-  <!-- Section sub-tabs -->
-  <div style="display:flex;gap:.5rem;margin-bottom:1.2rem;flex-wrap:wrap;">
-    <button onclick="switchTestTab('reading')"  id="test-tab-reading"
-      style="padding:.5rem 1.1rem;border-radius:20px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
-      📖 Reading
-    </button>
-    <button onclick="switchTestTab('listening')" id="test-tab-listening"
-      style="padding:.5rem 1.1rem;border-radius:20px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
-      🎧 Listening
-    </button>
-    <button onclick="switchTestTab('speaking')"  id="test-tab-speaking"
-      style="padding:.5rem 1.1rem;border-radius:20px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
-      🎙️ Speaking
-    </button>
-    <button onclick="switchTestTab('writing')"   id="test-tab-writing"
-      style="padding:.5rem 1.1rem;border-radius:20px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
-      ✍️ Writing
-    </button>
-  </div>
-
-  <div id="tests-reading-container"></div>
-  <div id="tests-listening-container" style="display:none;"></div>
-  <div id="tests-speaking-container"  style="display:none;"></div>
-  <div id="tests-writing-container"   style="display:none;"></div>
+            <!-- Worksheets Section -->
+<div id="section-tests" style="display:none;">
+  <div class="section-title">📋 Worksheets</div>
+  <div id="worksheets-container"></div>
 </div>
 <!-- Quizzes Section -->
 <div id="section-quizzes" style="display:none;">
@@ -1312,7 +1273,7 @@ function chooseEnrollment(idx) {
 
         // Materials
        renderMaterials(data.classNotes || [], data.examMaterials || []);
-renderTests(data.testMaterials || []);
+renderWorksheets(data.worksheets || []);
       }
 
       function getLevelName(level) {
@@ -1649,25 +1610,14 @@ async function openCustomPdfViewer(url) {
       `<div style="color:#fff;text-align:center;padding:2rem;">Failed to load document. Please try again.</div>`;
   }
 }
-function switchTestTab(tab) {
-  ['reading','listening','speaking','writing'].forEach(s => {
-    document.getElementById(`tests-${s}-container`).style.display = s === tab ? 'block' : 'none'
-    const btn = document.getElementById(`test-tab-${s}`)
-    btn.style.background = s === tab ? 'var(--blue)' : 'var(--pale)'
-    btn.style.color      = s === tab ? '#fff' : 'var(--blue)'
-  })
-}
 
-function renderTests(testMaterials) {
-  ['reading','listening','speaking','writing'].forEach(section => {
-    const items = (testMaterials || []).filter(m => m.section === section)
-    renderMaterialList(
-      `tests-${section}-container`,
-      items,
-      `No ${section} tests yet`,
-      `Saloni will upload ${section} practice tests here.`
-    )
-  })
+function renderWorksheets(worksheets) {
+  renderMaterialList(
+    'worksheets-container',
+    worksheets,
+    'No worksheets yet',
+    'Saloni will upload worksheets here soon.'
+  )
 }
 
 function closePdfViewer() {

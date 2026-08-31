@@ -232,6 +232,10 @@ router.post('/materials', async (req, res) => {
     return res.status(400).json({ error: 'Exam type is required for exam materials' })
   }
 
+  if (material_category === 'worksheet' && !course) {
+  return res.status(400).json({ error: 'Course is required for worksheets' })
+}
+
   const { data, error } = await supabase
     .from('study_materials')
     .insert({
@@ -272,8 +276,12 @@ router.post('/materials/upload', upload.single('file'), async (req, res) => {
 
     // Upload file to Supabase Storage
     const fileName = `${Date.now()}-${sanitizeFilename(req.file.originalname)}`
-    const folder    = course || exam_type || 'general'
-    const filePath  = `${folder.toUpperCase()}/${fileName}`
+const folder = material_category === 'worksheet'
+  ? `WORKSHEETS/${course?.toUpperCase() || 'GENERAL'}`
+  : material_category === 'exam_prep'
+    ? `EXAM_PREP/${exam_type?.toUpperCase() || 'GENERAL'}`
+    : `${course?.toUpperCase() || 'GENERAL'}`
+const filePath = `${folder}/${fileName}`
 
     const { error: uploadError } = await supabase
       .storage
@@ -295,8 +303,8 @@ router.post('/materials/upload', upload.single('file'), async (req, res) => {
   .from('study_materials')
   .insert({
     material_category: material_category || 'class_notes',
-    course:    material_category === 'class_notes' ? course : null,
-    exam_type: material_category === 'exam_prep'    ? exam_type : null,
+    course:    (material_category === 'class_notes' || material_category === 'worksheet') ? course : null,
+    exam_type: material_category === 'exam_prep' ? exam_type : null,
     section:   section || null,
     title,
     description: description || null,

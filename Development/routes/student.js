@@ -71,10 +71,9 @@ async function buildEnrollmentData(enrollment) {
 const { data: testMaterials } = await supabase
   .from('study_materials')
   .select('*')
-  .eq('material_category', 'test')
-  .order('section', { ascending: true })
+  .eq('material_category', 'worksheet')
+  .eq('course', enrollment.course)
   .order('order_num', { ascending: true });
-
   
 
   // Generate signed URLs helper
@@ -112,7 +111,7 @@ const { data: testMaterials } = await supabase
     groupedLectures: groupedLectures,
     classNotes:      classNotesWithUrls,
     examMaterials:   examMaterialsWithUrls,
-testMaterials: await attachUrls(testMaterials || []),
+    worksheets: await attachUrls(testMaterials || []),
     meetLink:        enrollment.batches?.meet_link || settings?.meet_link || null,
     schedule:        enrollment.batches
       ? `${enrollment.batches.days} · ${enrollment.batches.timing}`
