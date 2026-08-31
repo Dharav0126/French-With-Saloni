@@ -1154,6 +1154,23 @@
 
   <!-- ALL QUIZZES TAB -->
   <div id="quiz-panel-list">
+    <div class="table-card" style="padding:1.2rem 1.5rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+  <label style="font-size:.78rem;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;">Filter by Course</label>
+  <select id="quiz-course-filter" onchange="filterQuizzesByCourse(this.value)"
+    style="flex:1;min-width:200px;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+    <option value="">All Courses</option>
+    <option value="tef">TEF Preparation</option>
+    <option value="tcf">TCF Preparation</option>
+    <option value="a1">A1 — Complete Beginner</option>
+    <option value="a2">A2 — Elementary</option>
+    <option value="b1">B1 — Intermediate</option>
+    <option value="b2">B2 — Upper Intermediate</option>
+    <option value="clb7-6mo">A1-B2 — 6 months</option>
+    <option value="clb7-4mo">CLB 7 — 4 months</option>
+    <option value="1on1">1-on-1 Private</option>
+  </select>
+  <div class="table-count" id="quizzes-count"></div>
+</div>
     <div class="table-card">
       <div class="table-header">
         <div class="table-title">All Quizzes</div>
@@ -1368,57 +1385,75 @@ async function loadStudentsCache() {
 let dragSrcEl = null
 
 function makeDraggable(container, onReorder) {
-  const items = Array.from(container.querySelectorAll('[data-draggable]'))
-  
-  items.forEach(item => {
-    item.setAttribute('draggable', true)
-    item.style.cursor = 'grab'
+  container.addEventListener('dragover', e => e.preventDefault())
+
+  const getItems = () => Array.from(container.querySelectorAll('[data-draggable]'))
+
+  getItems().forEach(item => {
+    item.setAttribute('draggable', 'true')
 
     item.addEventListener('dragstart', e => {
       dragSrcEl = item
-      item.style.opacity = '0.4'
       e.dataTransfer.effectAllowed = 'move'
+      e.dataTransfer.setData('text/plain', '')
+      setTimeout(() => {
+        item.style.opacity = '0.4'
+        item.style.background = 'rgba(19,85,160,.05)'
+      }, 0)
     })
 
-    item.addEventListener('dragend', e => {
+    item.addEventListener('dragend', () => {
       item.style.opacity = '1'
-      container.querySelectorAll('[data-draggable]').forEach(i => {
-        i.classList.remove('drag-over')
+      item.style.background = ''
+      getItems().forEach(i => {
         i.style.borderTop = ''
+        i.style.borderBottom = ''
       })
+      dragSrcEl = null
       onReorder()
+    })
+
+    item.addEventListener('dragenter', e => {
+      e.preventDefault()
+      if (item !== dragSrcEl) {
+        getItems().forEach(i => {
+          i.style.borderTop = ''
+          i.style.borderBottom = ''
+        })
+        item.style.borderTop = '3px solid var(--blue)'
+      }
     })
 
     item.addEventListener('dragover', e => {
       e.preventDefault()
       e.dataTransfer.dropEffect = 'move'
-      if (item !== dragSrcEl) {
-        container.querySelectorAll('[data-draggable]').forEach(i => i.style.borderTop = '')
-        item.style.borderTop = '3px solid var(--blue)'
-      }
     })
 
-    item.addEventListener('dragleave', () => {
-      item.style.borderTop = ''
+    item.addEventListener('dragleave', e => {
+      if (!item.contains(e.relatedTarget)) {
+        item.style.borderTop = ''
+        item.style.borderBottom = ''
+      }
     })
 
     item.addEventListener('drop', e => {
       e.preventDefault()
-      if (dragSrcEl !== item) {
-        const allItems = Array.from(container.querySelectorAll('[data-draggable]'))
-        const srcIdx  = allItems.indexOf(dragSrcEl)
-        const tgtIdx  = allItems.indexOf(item)
+      e.stopPropagation()
+      if (dragSrcEl && dragSrcEl !== item) {
+        const items   = getItems()
+        const srcIdx  = items.indexOf(dragSrcEl)
+        const tgtIdx  = items.indexOf(item)
         if (srcIdx < tgtIdx) {
-          item.parentNode.insertBefore(dragSrcEl, item.nextSibling)
+          container.insertBefore(dragSrcEl, item.nextSibling)
         } else {
-          item.parentNode.insertBefore(dragSrcEl, item)
+          container.insertBefore(dragSrcEl, item)
         }
       }
-      item.style.borderTop = ''
+      item.style.borderTop    = ''
+      item.style.borderBottom = ''
     })
   })
 }
-
 function searchStudents(query) {
   const dropdown = document.getElementById('student-dropdown')
 
@@ -1817,6 +1852,8 @@ if (searchInput) searchInput.value = ''
     tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load students</td></tr>`;
   }
 }
+
+
 
       // ── ENROLLMENTS ────────────────────────────────────
       async function loadEnrollments() {
@@ -2814,10 +2851,10 @@ async function loadQuizzes() {
   try {
     const res  = await fetch(`${API}/quiz/admin`, { headers: authHeaders() })
     const data = await res.json()
-    const quizzes = data.quizzes || []
-
-    document.getElementById('quizzes-count').textContent = `${quizzes.length} quizzes`
-
+    allQuizzesForFilter = data.quizzes || []
+const filterEl = document.getElementById('quiz-course-filter')
+if (filterEl) filterEl.value = ''
+renderQuizzesTable(allQuizzesForFilter)
     if (quizzes.length === 0) {
       tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No quizzes yet — create one!</td></tr>`
       return
@@ -2853,6 +2890,132 @@ async function loadQuizzes() {
     tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load quizzes</td></tr>`
   }
 }
+let allQuizzesForFilter = []
+
+function filterQuizzesByCourse(courseValue) {
+  const filtered = courseValue
+    ? allQuizzesForFilter.filter(q => q.course === courseValue)
+    : allQuizzesForFilter
+  renderQuizzesTable(filtered)
+}
+
+function renderQuizzesTable(quizzes) {
+  const tbody   = document.getElementById('quizzes-body')
+  const countEl = document.getElementById('quizzes-count')
+
+  countEl.textContent = `${quizzes.length} quizzes`
+
+  if (quizzes.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No quizzes found</td></tr>`
+    const oldBtn = document.getElementById('save-quiz-order-wrap')
+    if (oldBtn) oldBtn.remove()
+    return
+  }
+
+  // Add Save Order button
+  const tableCard = tbody.closest('.table-card')
+  let btnWrap = document.getElementById('save-quiz-order-wrap')
+  if (!btnWrap) {
+    btnWrap = document.createElement('div')
+    btnWrap.id = 'save-quiz-order-wrap'
+    btnWrap.style.cssText = 'margin-bottom:1rem;display:flex;justify-content:flex-end;'
+    btnWrap.innerHTML = `
+      <button id="save-quiz-order-btn" onclick="saveQuizOrder()"
+        style="background:var(--blue);color:#fff;border:none;padding:.6rem 1.4rem;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;display:none;">
+        💾 Save Order
+      </button>
+    `
+    tableCard.insertBefore(btnWrap, tableCard.firstChild)
+  } else {
+    const btn = document.getElementById('save-quiz-order-btn')
+    if (btn) btn.style.display = 'none'
+  }
+
+  // Sort by order_num
+  const sorted = [...quizzes].sort((a, b) => (a.order_num || 0) - (b.order_num || 0))
+
+  tbody.innerHTML = sorted.map(q => `
+    <tr data-draggable data-id="${q.id}" style="transition:border-top .1s;cursor:grab;">
+      <td><span class="drag-handle">⠿</span></td>
+      <td>${formatCourse(q.course)}</td>
+      <td><span class="badge badge-active">${q.level || 'General'}</span></td>
+      <td class="order-num">${q.order_num || 1}</td>
+      <td><strong>${q.title}</strong></td>
+      <td>
+        <span class="badge ${q.is_active ? 'badge-active' : 'badge-inactive'}">
+          ${q.is_active ? 'Active' : 'Inactive'}
+        </span>
+      </td>
+      <td>
+        <div class="btn-actions">
+          <button class="btn-sm btn-approve" onclick="openQuizQuestions('${q.id}', '${q.title.replace(/'/g, "\\'")}')">
+            📝 Questions
+          </button>
+          <button class="btn-sm" onclick="toggleQuizStatus('${q.id}', ${q.is_active})"
+            style="background:rgba(240,192,64,.15);color:#b45309;border:none;padding:.3rem .8rem;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;">
+            ${q.is_active ? 'Deactivate' : 'Activate'}
+          </button>
+          <button class="btn-sm btn-reject" onclick="deleteQuiz('${q.id}')">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('')
+
+  // Update thead to include drag column and order column
+  const thead = tbody.closest('table').querySelector('thead tr')
+  if (thead && !thead.querySelector('th.drag-col')) {
+    thead.innerHTML = `
+      <th class="drag-col" style="width:40px;"></th>
+      <th>Course</th>
+      <th>Level</th>
+      <th>Order</th>
+      <th>Title</th>
+      <th>Status</th>
+      <th>Actions</th>
+    `
+  }
+
+  makeDraggable(tbody, () => {
+    document.getElementById('save-quiz-order-btn').style.display = 'inline-block'
+    Array.from(tbody.querySelectorAll('[data-draggable]')).forEach((row, idx) => {
+      const orderCell = row.querySelector('.order-num')
+      if (orderCell) orderCell.textContent = idx + 1
+    })
+  })
+}
+
+async function saveQuizOrder() {
+  const rows = Array.from(document.querySelectorAll('#quizzes-body [data-draggable]'))
+  const updates = rows.map((row, idx) => ({
+    id: row.dataset.id,
+    order_num: idx + 1
+  }))
+
+  const btn = document.getElementById('save-quiz-order-btn')
+  btn.disabled = true
+  btn.textContent = 'Saving...'
+
+  try {
+    const res = await fetch(`${API}/quiz/admin/reorder`, {
+      method:  'PATCH',
+      headers: authHeaders(),
+      body:    JSON.stringify({ updates })
+    })
+
+    if (res.ok) {
+      showToast('Quiz order saved!', 'success')
+      btn.style.display = 'none'
+    } else {
+      showToast('Failed to save order', 'error')
+    }
+  } catch {
+    showToast('Server error', 'error')
+  } finally {
+    btn.disabled = false
+    btn.textContent = '💾 Save Order'
+  }
+}
+
 
 async function createQuiz() {
   const title    = document.getElementById('new-quiz-title').value.trim()
@@ -2970,8 +3133,9 @@ async function loadQuestions(quizId) {
     }
 
     container.innerHTML = questions.map((q, idx) => `
-      <div style="border:1.5px solid rgba(19,85,160,.08);border-radius:10px;padding:1.2rem;margin-bottom:.8rem;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+  <div data-draggable data-id="${q.id}" style="border:1.5px solid rgba(19,85,160,.08);border-radius:10px;padding:1.2rem;margin-bottom:.8rem;cursor:grab;">
+    <div style="text-align:center;color:var(--muted);font-size:1.1rem;margin-bottom:.5rem;letter-spacing:.2em;">⠿ ⠿ ⠿</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
           <div style="flex:1;">
             <div style="font-size:.72rem;font-weight:700;color:var(--sky);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem;">
               Q${idx + 1} · ${q.question_type === 'mcq' ? 'Multiple Choice' : 'Short Answer'}
@@ -3009,28 +3173,24 @@ async function loadQuestions(quizId) {
     `).join('')
 
     // Save Order button
-if (!document.getElementById('save-question-order-btn')) {
-  const btnWrap = document.createElement('div')
-  btnWrap.style.cssText = 'margin-bottom:1rem;display:flex;justify-content:flex-end;'
-  btnWrap.innerHTML = `
+let qBtnWrap = document.getElementById('save-question-order-wrap')
+if (!qBtnWrap) {
+  qBtnWrap = document.createElement('div')
+  qBtnWrap.id = 'save-question-order-wrap'
+  qBtnWrap.style.cssText = 'margin-bottom:1rem;display:flex;justify-content:flex-end;'
+  qBtnWrap.innerHTML = `
     <button id="save-question-order-btn" onclick="saveQuestionOrder()"
       style="background:var(--blue);color:#fff;border:none;padding:.6rem 1.4rem;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;display:none;">
       💾 Save Order
     </button>
   `
-  document.getElementById('questions-list').before(btnWrap)
+  document.getElementById('questions-list').before(qBtnWrap)
+} else {
+  const btn = document.getElementById('save-question-order-btn')
+  if (btn) btn.style.display = 'none'
 }
 
-// Add data-draggable and data-id to each question card
-document.querySelectorAll('#questions-list > div').forEach((card, idx) => {
-  card.setAttribute('data-draggable', '')
-  card.setAttribute('data-id', questions[idx].id)
-  // Add drag handle at top of card
-  card.style.cursor = 'grab'
-  const handle = document.createElement('div')
-  handle.innerHTML = '<span class="drag-handle" style="display:block;text-align:center;margin-bottom:.5rem;font-size:1.2rem;">⠿⠿</span>'
-  card.prepend(handle)
-})
+
 
 makeDraggable(document.getElementById('questions-list'), () => {
   document.getElementById('save-question-order-btn').style.display = 'inline-block'
