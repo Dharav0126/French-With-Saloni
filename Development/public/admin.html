@@ -2615,7 +2615,7 @@ async function loadMaterialsByCourse(courseValue) {
 
       const isTefTcf     = m.course === 'tef' || m.course === 'tcf'
 const isLevelCourse = ['a1','a2','b1','b2'].includes(m.course)
-const showSectionSelector = m.material_category === 'class_notes' && (isTefTcf || isLevelCourse)
+const showSectionSelector = (m.material_category === 'class_notes' || m.material_category === 'worksheet') && (isTefTcf || isLevelCourse)
 
 const sectionOptions = isTefTcf ? `
   <option value="" ${!m.section ? 'selected' : ''}>📚 General</option>
