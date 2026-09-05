@@ -6,117 +6,120 @@ const router = Router();
 
 // Helper: build full dashboard payload for ONE enrollment
 async function buildEnrollmentData(enrollment) {
-  // Get lectures — by batch if assigned, otherwise by course
-  let lectureQuery = supabase
-    .from("lectures")
-    .select(
-      "id, title, description, video_path, order_num, level, course, batch_id",
-    )
-    .order("order_num", { ascending: true });
 
-  if (enrollment.batch_id) {
-    lectureQuery = lectureQuery.eq("batch_id", enrollment.batch_id);
-  } else {
-    lectureQuery = lectureQuery
-      .eq("course", enrollment.course)
-      .is("batch_id", null);
+  // ── STEP 1: Run all DB queries in PARALLEL ──────────
+  const lectureQuery = enrollment.batch_id
+    ? supabase.from('lectures')
+        .select('id,title,description,video_path,order_num,level,course,batch_id')
+        .eq('batch_id', enrollment.batch_id)
+        .order('order_num', { ascending: true })
+    : supabase.from('lectures')
+        .select('id,title,description,video_path,order_num,level,course,batch_id')
+        .eq('course', enrollment.course)
+        .is('batch_id', null)
+        .order('order_num', { ascending: true })
+
+  const [
+    lectureResult,
+    classNotesResult,
+    examMaterialsResult,
+    worksheetsResult,
+    settingsResult
+  ] = await Promise.all([
+    lectureQuery,
+    supabase.from('study_materials')
+      .select('id,title,description,type,file_path,url,level,order_num,material_category,section')
+      .eq('material_category', 'class_notes')
+      .eq('course', enrollment.course)
+      .order('order_num', { ascending: true }),
+    supabase.from('study_materials')
+      .select('id,title,description,type,file_path,url,level,order_num,material_category')
+      .eq('material_category', 'exam_prep')
+      .eq('exam_type', enrollment.exam_type || 'TEF')
+      .order('order_num', { ascending: true }),
+    supabase.from('study_materials')
+      .select('id,title,description,type,file_path,url,level,order_num,material_category,section')
+      .eq('material_category', 'worksheet')
+      .eq('course', enrollment.course)
+      .order('order_num', { ascending: true }),
+    supabase.from('course_settings')
+      .select('meet_link,meet_schedule')
+      .eq('course', enrollment.course)
+      .single()
+  ])
+
+  const lectures      = lectureResult.data      || []
+  const classNotes    = classNotesResult.data    || []
+  const examMaterials = examMaterialsResult.data || []
+  const worksheets    = worksheetsResult.data    || []
+  const settings      = settingsResult.data
+
+  // ── STEP 2: Batch signed URL generation ─────────────
+  async function attachUrls(items, bucket) {
+    const pathField = bucket === 'Lectures' ? 'video_path' : 'file_path'
+    const urlField  = bucket === 'Lectures' ? 'url' : 'downloadUrl'
+
+    const withPaths = items.filter(item => item[pathField])
+    if (withPaths.length === 0) {
+      return items.map(item => ({ ...item, [urlField]: item.url || null }))
+    }
+
+    // ONE batch API call instead of one per file
+    const { data: signedUrls } = await supabase.storage
+      .from(bucket)
+      .createSignedUrls(withPaths.map(item => item[pathField]), 7200)
+
+    const urlMap = {}
+    ;(signedUrls || []).forEach(({ path, signedUrl }) => {
+      urlMap[path] = signedUrl
+    })
+
+    return items.map(item => ({
+      ...item,
+      [urlField]: item[pathField]
+        ? (urlMap[item[pathField]] || null)
+        : (item.url || null)
+    }))
   }
 
-  const { data: lectures } = await lectureQuery;
+  // ── STEP 3: Generate all signed URLs in PARALLEL ────
+  const [
+    lecturesWithUrls,
+    classNotesWithUrls,
+    examMaterialsWithUrls,
+    worksheetsWithUrls
+  ] = await Promise.all([
+    attachUrls(lectures,      'Lectures'),
+    attachUrls(classNotes,    'Material'),
+    attachUrls(examMaterials, 'Material'),
+    attachUrls(worksheets,    'Material')
+  ])
 
-  // Generate signed URLs for each lecture
-  const lecturesWithUrls = await Promise.all(
-    (lectures || []).map(async (lecture) => {
-      const { data: signedUrl } = await supabase.storage
-        .from("Lectures")
-        .createSignedUrl(lecture.video_path, 7200);
+  // ── STEP 4: Group lectures by level ─────────────────
+  const groupedLectures = {}
+  lecturesWithUrls.forEach(lecture => {
+    const level = lecture.level || 'General'
+    if (!groupedLectures[level]) groupedLectures[level] = []
+    groupedLectures[level].push(lecture)
+  })
 
-      return {
-        ...lecture,
-        url: signedUrl?.signedUrl || null,
-      };
-    }),
-  );
-
-  // Group lectures by level
-  const groupedLectures = {};
-  lecturesWithUrls.forEach((lecture) => {
-    const level = lecture.level || "General";
-    if (!groupedLectures[level]) groupedLectures[level] = [];
-    groupedLectures[level].push(lecture);
-  });
-
-  // Get class notes (tied to course)
- const { data: classNotes } = await supabase
-  .from("study_materials")
-  .select(
-    "id, title, description, type, file_path, url, level, order_num, material_category, section",
-  )
-  .eq("material_category", "class_notes")
-  .eq("course", enrollment.course)
-  .order("order_num", { ascending: true });
-
-
-  // Get exam materials (tied to exam_type)
-  const { data: examMaterials } = await supabase
-    .from("study_materials")
-    .select(
-      "id, title, description, type, file_path, url, level, order_num, material_category",
-    )
-    .eq("material_category", "exam_prep")
-    .eq("exam_type", enrollment.exam_type || "TEF")
-    .order("order_num", { ascending: true });
-  
-  // Fetch test materials (section-based)
-const { data: testMaterials } = await supabase
-  .from('study_materials')
-  .select('*')
-  .eq('material_category', 'worksheet')
-  .eq('course', enrollment.course)
-  .order('order_num', { ascending: true });
-  
-
-  // Generate signed URLs helper
-  async function attachUrls(items) {
-    return Promise.all(
-      (items || []).map(async (material) => {
-        if (material.file_path) {
-          const { data: signedUrl } = await supabase.storage
-            .from("Material")
-            .createSignedUrl(material.file_path, 7200);
-          return { ...material, downloadUrl: signedUrl?.signedUrl || null };
-        }
-        return { ...material, downloadUrl: material.url || null };
-      }),
-    );
-  }
-
-  const classNotesWithUrls = await attachUrls(classNotes);
-  const examMaterialsWithUrls = await attachUrls(examMaterials);
-
-  // Get Meet link and schedule for this course
-  const { data: settings } = await supabase
-    .from("course_settings")
-    .select("meet_link, meet_schedule")
-    .eq("course", enrollment.course)
-    .single();
-
+  // ── STEP 5: Return full enrollment data ─────────────
   return {
     enrollmentId:    enrollment.id,
     course:          enrollment.course,
-    examType:        enrollment.exam_type || "TEF",
+    examType:        enrollment.exam_type || 'TEF',
     enrolledAt:      enrollment.enrolled_at,
     batch:           enrollment.batches || null,
     lectures:        lecturesWithUrls,
     groupedLectures: groupedLectures,
     classNotes:      classNotesWithUrls,
     examMaterials:   examMaterialsWithUrls,
-    worksheets: await attachUrls(testMaterials || []),
+    worksheets:      worksheetsWithUrls,
     meetLink:        enrollment.batches?.meet_link || settings?.meet_link || null,
     schedule:        enrollment.batches
       ? `${enrollment.batches.days} · ${enrollment.batches.timing}`
       : settings?.meet_schedule || null,
-  };
+  }
 }
 
 // GET student dashboard — returns ALL active enrollments

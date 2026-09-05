@@ -1092,7 +1092,7 @@ showSelectionScreen();
     .join("");
 }
 
-function chooseEnrollment(idx) {
+async function chooseEnrollment(idx) {
   // Force reset any active quiz
   clearInterval(kahootTimer)
   kahootTimer        = null
@@ -1104,12 +1104,45 @@ function chooseEnrollment(idx) {
 
   activeEnrollmentIdx = idx
 
-  document.getElementById("selection-screen").style.display = "none";
-  document.getElementById("dashboard-content").style.display = "block";
-  document.getElementById("btn-change-course").style.display = "inline-block";
+  document.getElementById('selection-screen').style.display  = 'none'
+  document.getElementById('dashboard-content').style.display = 'block'
+  document.getElementById('btn-change-course').style.display = 'inline-block'
 
-  renderEnrollmentTabs();
-  renderEnrollment(allEnrollments[idx]);
+  const enrollment = allEnrollments[idx]
+
+  // ── Use cached data if already loaded ──────────────
+  if (enrollment.lectures) {
+    renderEnrollmentTabs()
+    renderEnrollment(enrollment)
+    return
+  }
+
+  // ── First time — fetch full course data ────────────
+  document.getElementById('welcome-title').textContent = `Bonjour, ${getUser()?.full_name?.split(' ')[0] || 'Student'}! 👋`
+  document.getElementById('welcome-sub').textContent   = 'Loading your course...'
+
+  try {
+    const res = await fetch(`${API}/student/dashboard?enrollmentId=${enrollment.enrollmentId}`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      showToast('Failed to load course data. Please try again.', 'error')
+      return
+    }
+
+    // Cache full data back into allEnrollments so next click is instant
+    allEnrollments[idx] = { ...enrollment, ...data.enrollment }
+
+    renderEnrollmentTabs()
+    renderEnrollment(allEnrollments[idx])
+
+  } catch (err) {
+    console.error('chooseEnrollment error:', err)
+    showToast('Failed to load course data. Please try again.', 'error')
+  }
 }
       // ── ENROLLMENT TABS ─────────────────────────────────
       function renderEnrollmentTabs() {
