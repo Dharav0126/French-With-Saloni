@@ -44,8 +44,6 @@ router.get('/dashboard', verifyJWT, async (req, res) => {
 
 // POST forgot password
 router.post('/forgot-password', async (req, res) => {
-  console.log('CLIENT_URL:', process.env.CLIENT_URL)
-  console.log('redirectTo:', `${process.env.CLIENT_URL}/resetPassword.html`)
   const { email } = req.body
 
   if (!email) {
