@@ -18,6 +18,7 @@ const verifyJWT = async (req, res, next) => {
 
     req.user = {
       sub:   user.id,
+      id:    user.id,
       email: user.email,
       role:  user.role
     }

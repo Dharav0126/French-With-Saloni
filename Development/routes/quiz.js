@@ -225,6 +225,64 @@ router.get('/course/:course', verifyJWT, async (req, res) => {
   return res.status(200).json({ quizzes: quizzesWithAttempts })
 })
 
+// GET quiz attempt history for a student
+router.get('/history/:course', verifyJWT, async (req, res) => {
+  const { course } = req.params
+  const studentId  = req.user.id
+
+  // Get all quizzes for this course
+  const { data: quizzes, error: quizError } = await supabase
+    .from('quizzes')
+    .select('id, title, level')
+    .eq('course', course)
+    .eq('is_active', true)
+
+  if (quizError) return res.status(500).json({ error: quizError.message })
+
+  // Get all attempts for this student for these quizzes
+  const quizIds = (quizzes || []).map(q => q.id)
+
+  if (quizIds.length === 0) {
+    return res.status(200).json({ history: [] })
+  }
+
+  const { data: attempts, error: attemptError } = await supabase
+    .from('quiz_attempts')
+    .select('id, quiz_id, score, total, attempted_at')
+    .eq('student_id', studentId)
+    .in('quiz_id', quizIds)
+    .order('attempted_at', { ascending: false })
+
+  if (attemptError) return res.status(500).json({ error: attemptError.message })
+
+  // Group attempts by quiz
+  const quizMap = {}
+  quizzes.forEach(q => { quizMap[q.id] = { ...q, attempts: [] } })
+  ;(attempts || []).forEach(a => {
+    if (quizMap[a.quiz_id]) {
+      quizMap[a.quiz_id].attempts.push({
+        id:          a.id,
+        score:       a.score,
+        total:       a.total,
+        percentage:  Math.round((a.score / a.total) * 100),
+        attemptedAt: a.attempted_at
+      })
+    }
+  })
+
+  const history = Object.values(quizMap)
+    .filter(q => q.attempts.length > 0)
+    .map(q => ({
+      quizId:   q.id,
+      title:    q.title,
+      level:    q.level,
+      attempts: q.attempts,
+      bestScore: Math.max(...q.attempts.map(a => a.percentage))
+    }))
+
+  return res.status(200).json({ history })
+})
+
 // GET questions for a quiz (student — no correct answers)
 router.get('/:id/questions', verifyJWT, async (req, res) => {
   const { id } = req.params
@@ -316,5 +374,7 @@ router.post('/:id/submit', verifyJWT, async (req, res) => {
     review
   })
 })
+
+
 
 export default router

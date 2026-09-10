@@ -771,6 +771,17 @@ fbq('track', 'PageView');
 <div id="section-quizzes" style="display:none;">
   <div class="section-title">🧠 Quizzes</div>
   <div id="quizzes-list-container"></div>
+  <!-- Score History Screen -->
+<div id="quiz-score-history" style="display:none;">
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+    <button onclick="hideScoreHistory()"
+      style="background:var(--pale);color:var(--blue);border:none;padding:.5rem 1rem;border-radius:8px;font-size:.82rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+      ← Back to Quizzes
+    </button>
+    <div style="font-family:'Libre Baskerville',serif;font-size:1.1rem;color:var(--navy);">📊 My Quiz Scores</div>
+  </div>
+  <div id="score-history-content"></div>
+</div>
 </div>
           </div>
 
@@ -1410,6 +1421,8 @@ renderWorksheets(data.worksheets || []);
           .join("");
       }
 
+
+
 function renderMaterials(classNotes, examMaterials) {
   const currentEnrollment = allEnrollments[activeEnrollmentIdx]
   const course = currentEnrollment?.course
@@ -1941,6 +1954,20 @@ async function loadQuizzesForStudent() {
       return
     }
 
+    // Add My Scores button at top
+const scoresBtn = document.getElementById('my-scores-btn')
+if (!scoresBtn) {
+  const btnDiv = document.createElement('div')
+  btnDiv.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:1rem;'
+  btnDiv.innerHTML = `
+    <button id="my-scores-btn" onclick="showScoreHistory()"
+      style="background:var(--pale);color:var(--blue);border:none;padding:.55rem 1.2rem;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+      📊 My Scores
+    </button>
+  `
+  container.before(btnDiv)
+}
+
     container.innerHTML = quizzes.map(q => {
       const pct = q.bestScore !== null ? q.bestScore : null
       const emoji = pct === null ? '📝'
@@ -2301,6 +2328,81 @@ function exitQuiz() {
   if (dashContent)   dashContent.style.display   = 'block'
 
   loadQuizzesForStudent()
+}
+
+async function showScoreHistory() {
+  const enrollment = allEnrollments[activeEnrollmentIdx]
+  if (!enrollment) return
+
+  document.getElementById('quizzes-list-container').style.display = 'none'
+  document.getElementById('quiz-score-history').style.display     = 'block'
+
+  const content = document.getElementById('score-history-content')
+  content.innerHTML = `<div style="color:var(--muted);font-size:.85rem;padding:1rem;">Loading your scores...</div>`
+
+  try {
+    const res  = await fetch(`${API}/quiz/history/${enrollment.course}`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+    const data = await res.json()
+    const history = data.history || []
+
+    if (history.length === 0) {
+      content.innerHTML = `
+        <div class="no-lectures">
+          <div class="no-lectures-icon">📊</div>
+          <div class="no-lectures-title">No attempts yet</div>
+          <div class="no-lectures-sub">Complete a quiz to see your scores here.</div>
+        </div>`
+      return
+    }
+
+    content.innerHTML = history.map(q => `
+      <div style="background:#fff;border-radius:14px;padding:1.5rem;margin-bottom:1rem;border:1px solid rgba(19,85,160,.08);box-shadow:0 2px 8px rgba(10,35,66,.05);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+          <div>
+            <div style="font-weight:700;color:var(--navy);font-size:.95rem;">${q.title}</div>
+            <div style="font-size:.75rem;color:var(--muted);margin-top:.2rem;">Level: ${q.level} · Best score: <strong style="color:${q.bestScore >= 80 ? 'var(--green)' : q.bestScore >= 60 ? 'var(--blue)' : '#ef4444'}">${q.bestScore}%</strong></div>
+          </div>
+          <button onclick="toggleAttempts('${q.quizId}')"
+            style="background:var(--pale);color:var(--blue);border:none;padding:.4rem .9rem;border-radius:6px;font-size:.78rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+            ${q.attempts.length} attempt${q.attempts.length > 1 ? 's' : ''} ▾
+          </button>
+        </div>
+
+        <!-- Attempts list (collapsed by default) -->
+        <div id="attempts-${q.quizId}" style="display:none;border-top:1px solid var(--pale);padding-top:1rem;">
+          ${q.attempts.map((a, idx) => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;${idx < q.attempts.length - 1 ? 'border-bottom:1px solid var(--pale);' : ''}">
+              <div style="font-size:.82rem;color:var(--muted);">
+                Attempt ${q.attempts.length - idx} · ${new Date(a.attemptedAt).toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' })}
+              </div>
+              <div style="display:flex;align-items:center;gap:1rem;">
+                <span style="font-size:.82rem;color:var(--navy);font-weight:600;">${a.score}/${a.total}</span>
+                <span style="font-size:.82rem;font-weight:700;color:${a.percentage >= 80 ? 'var(--green)' : a.percentage >= 60 ? 'var(--blue)' : '#ef4444'};">
+                  ${a.percentage}%
+                </span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')
+
+  } catch (err) {
+    content.innerHTML = `<div style="color:var(--muted);padding:1rem;">Failed to load scores.</div>`
+  }
+}
+
+function hideScoreHistory() {
+  document.getElementById('quiz-score-history').style.display     = 'none'
+  document.getElementById('quizzes-list-container').style.display = 'block'
+}
+
+function toggleAttempts(quizId) {
+  const el  = document.getElementById(`attempts-${quizId}`)
+  if (!el) return
+  el.style.display = el.style.display === 'none' ? 'block' : 'none'
 }
 
 
