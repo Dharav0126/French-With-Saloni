@@ -518,6 +518,7 @@ fbq('track', 'PageView');
     src="https://www.facebook.com/tr?id=1170055101779735&ev=PageView&noscript=1"/>
 </noscript>
 <!-- End Meta Pixel Code -->
+ <script src="/js/utils.js"></script>
   </head>
   <body>
     <!-- HEADER -->
@@ -932,20 +933,7 @@ fbq('track', 'PageView');
     <div class="toast" id="toast"></div>
 
     <script>
-      const API =
-        window.location.hostname === "127.0.0.1" ||
-        window.location.hostname === "localhost"
-          ? "http://localhost:3000"
-          : window.location.origin;
-
-      const getToken = () => localStorage.getItem("fws_token");
-      const getUser = () =>
-        JSON.parse(localStorage.getItem("fws_user") || "null");
-      const clearAuth = () => {
-        localStorage.removeItem("fws_token");
-        localStorage.removeItem("fws_user");
-      };
-
+    
       // ── SAFE HTML ESCAPING ──────────────────────────────
       // Use for any user/admin-supplied text or URL going into
       // innerHTML or an inline HTML attribute (onclick, href, etc).
@@ -959,12 +947,7 @@ fbq('track', 'PageView');
           .replace(/'/g, "&#39;");
       }
 
-      function showToast(msg, type = "success") {
-        const t = document.getElementById("toast");
-        t.textContent = msg;
-        t.className = `toast ${type} show`;
-        setTimeout(() => t.classList.remove("show"), 3500);
-      }
+     
 
       function handleSignOut() {
         clearAuth();

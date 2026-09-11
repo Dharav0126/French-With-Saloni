@@ -498,7 +498,9 @@
 }
 .drag-handle:active { cursor: grabbing; }
     </style>
+    <script src="/js/utils.js"></script>
   </head>
+
   <body>
     <!-- ── LOGIN SCREEN ── -->
     <div class="login-screen" id="loginScreen">
@@ -1360,11 +1362,7 @@
     <div class="toast" id="toast"></div>
 
     <script>
-      const API =
-        window.location.hostname === "127.0.0.1" ||
-        window.location.hostname === "localhost"
-          ? "http://localhost:3000"
-          : window.location.origin;
+     
       let adminToken = localStorage.getItem("fws_admin_token");
       let currentPage = "dashboard";
       let loadedQuestions = {} // id → question object
@@ -1597,37 +1595,11 @@ function renderStudentsTable() {
     .join("");
 }
 
-      // ── TOAST ─────────────────────────────────────────
-      function showToast(msg, type = "success") {
-        const t = document.getElementById("toast");
-        t.textContent = msg;
-        t.className = `toast ${type} show`;
-        setTimeout(() => t.classList.remove("show"), 3500);
-      }
+      
 
-      // ── FORMAT HELPERS ─────────────────────────────────
-      function formatDate(d) {
-        return new Date(d).toLocaleDateString("en-CA", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        });
-      }
+      
 
-      function formatCourse(course) {
-  const map = {
-    tef: "TEF Preparation",
-    tcf: "TCF Preparation",
-    a1: "A1 — Complete Beginner",
-    a2: "A2 — Elementary",
-    b1: "B1 — Intermediate",
-    b2: "B2 — Upper Intermediate",
-    "clb7-6mo": "CLB 7 — 6 months",
-    "clb7-4mo": "CLB 7 — 4 months",
-    "1on1": "1-on-1 Private",
-  };
-  return map[course] || course || "—";
-}
+      
 
       // ── LOGIN ──────────────────────────────────────────
       async function handleAdminLogin() {

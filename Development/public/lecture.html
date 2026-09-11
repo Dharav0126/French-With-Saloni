@@ -58,6 +58,7 @@ fbq('track', 'PageView');
     src="https://www.facebook.com/tr?id=1170055101779735&ev=PageView&noscript=1"/>
 </noscript>
 <!-- End Meta Pixel Code -->
+ <script src="/js/utils.js"></script>
 </head>
 <body>
 
@@ -102,12 +103,7 @@ fbq('track', 'PageView');
 </div>
 
 <script>
-  const API = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
-    ? 'http://localhost:3000'
-    : window.location.origin
-
-  const getToken = () => localStorage.getItem('fws_token')
-
+  
   async function loadLecture() {
     const token = getToken()
     if (!token) {
