@@ -196,6 +196,17 @@
         color: var(--sky);
       }
 
+      @media (max-width: 640px) {
+  .nav-logout {
+    display: none;
+  }
+  #nav-user a {
+    font-size: .72rem;
+    padding: .4rem .7rem;
+    max-width: 130px;
+  }
+}
+
             .nav-right {
         display: flex;
         align-items: center;
@@ -1970,6 +1981,15 @@
         color: var(--navy);
         font-weight: 600;
       }
+
+      @media (max-width: 768px) {
+  .nav-name-label {
+    display: none;
+  }
+  .nav-logout {
+    display: none;
+  }
+}
     </style>
     <!-- Meta Pixel Code -->
 <script>
@@ -2378,16 +2398,14 @@ fbq('track', 'PageView');
         </div>
         <!-- Logged IN state -->
         <div class="nav-user" id="nav-user">
-          <span
-            class="nav-user-name"
-            id="nav-user-name"
-            onclick="window.location.href = './dashboard.html'"
-            style="cursor: pointer"
-            title="Go to my dashboard"
-          >
-          </span>
-          <button class="nav-logout" onclick="handleLogout()">Sign Out</button>
-        </div>
+  <a href="./dashboard.html" id="nav-dashboard-btn"
+    style="background:var(--blue);color:#fff;padding:.45rem 1.1rem;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;font-family:'Nunito',sans-serif;transition:background .25s;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap;"
+    onmouseover="this.style.background='var(--sky)'"
+    onmouseout="this.style.background='var(--blue)'">
+    🎓 <span id="nav-user-name" class="nav-name-label"></span><span class="nav-name-label"> — </span>Dashboard
+  </a>
+  <button class="nav-logout" onclick="handleLogout()">Sign Out</button>
+</div>
         <button class="nav-toggle" id="navToggle" onclick="toggleMobileNav()" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
           <span></span>
           <span></span>
