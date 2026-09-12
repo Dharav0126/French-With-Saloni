@@ -130,6 +130,7 @@
       /* ── SIDEBAR ── */
       .sidebar {
         width: var(--sidebar-w);
+        overflow-y: auto;
         background: var(--navy);
         min-height: 100vh;
         display: flex;
@@ -561,6 +562,9 @@
 </div>
 <div class="nav-item" onclick="showPage('quizzes', event)">
   <span class="nav-icon">📝</span> Quizzes
+</div>
+<div class="nav-item" onclick="showPage('exam-questions', event)">
+  <span class="nav-icon">📝</span> Exam Questions
 </div>
       </nav>
       <div class="sidebar-footer">
@@ -1354,6 +1358,101 @@
     </div>
   </div>
 </div>
+<!-- EXAM QUESTIONS -->
+<div class="page" id="page-exam-questions">
+  <div class="page-title">Exam Questions</div>
+  <div class="page-sub">Manage recent TEF/TCF exam questions for students.</div>
+
+  <!-- Tab buttons -->
+  <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:2px solid var(--pale);padding-bottom:.5rem;">
+    <button onclick="switchExamQTab('list')" id="examq-tab-list"
+      style="padding:.6rem 1.4rem;border-radius:8px 8px 0 0;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
+      📋 All Questions
+    </button>
+    <button onclick="switchExamQTab('add')" id="examq-tab-add"
+      style="padding:.6rem 1.4rem;border-radius:8px 8px 0 0;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+      + Add Question
+    </button>
+  </div>
+
+  <!-- ALL QUESTIONS TAB -->
+  <div id="examq-panel-list">
+    <!-- Filters -->
+    <div class="table-card" style="padding:1.2rem 1.5rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <select id="examq-filter-type" onchange="loadExamQuestions()"
+        style="padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+        <option value="">All Exams</option>
+        <option value="TEF">TEF</option>
+        <option value="TCF">TCF</option>
+      </select>
+      <select id="examq-filter-section" onchange="loadExamQuestions()"
+        style="padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+        <option value="">All Sections</option>
+        <option value="writing">✍️ Writing</option>
+        <option value="speaking">🎙️ Speaking</option>
+      </select>
+      <div class="table-count" id="examq-count"></div>
+    </div>
+
+    <div id="examq-list-container"></div>
+  </div>
+
+  <!-- ADD QUESTION TAB -->
+  <div id="examq-panel-add" style="display:none;">
+    <div class="table-card" style="padding:2rem;max-width:700px;">
+      <div class="table-title" style="margin-bottom:1.5rem;">Add New Exam Question</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">EXAM TYPE</label>
+          <select id="examq-type" onchange="updateSubSections()"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="TEF">TEF</option>
+            <option value="TCF">TCF</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">SECTION</label>
+          <select id="examq-section" onchange="updateSubSections()"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;">
+            <option value="writing">✍️ Writing</option>
+            <option value="speaking">🎙️ Speaking</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">SUB-SECTION</label>
+          <select id="examq-subsection" ...>
+  <option value="Part-1">Part 1</option>
+  <option value="Part-2">Part 2</option>
+</select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">YEAR (optional)</label>
+          <input id="examq-year" type="number" placeholder="e.g. 2024"
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">QUESTION TEXT</label>
+          <textarea id="examq-question" placeholder="Enter the exam question here..."
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;resize:vertical;min-height:100px;"></textarea>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">MODEL ANSWER (optional)</label>
+          <textarea id="examq-answer" placeholder="Enter the model answer here..."
+            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;resize:vertical;min-height:120px;"></textarea>
+        </div>
+      </div>
+
+      <div id="examq-error" style="display:none;background:#FEE2E2;color:#991B1B;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
+      <div id="examq-success" style="display:none;background:#D1FAE5;color:#065F46;padding:.6rem .9rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;"></div>
+
+      <button onclick="addExamQuestion()" id="examq-btn"
+        style="background:var(--blue);color:#fff;border:none;padding:.7rem 2rem;border-radius:8px;font-size:.88rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">
+        + Add Question
+      </button>
+    </div>
+  </div>
+</div>
+
 </main>
     <!-- BATCHES -->
 
@@ -3473,6 +3572,184 @@ async function deleteQuestion(questionId) {
   }
 }
 
+// ── EXAM QUESTIONS ──────────────────────────────────
+function switchExamQTab(tab) {
+  ['list','add'].forEach(t => {
+    document.getElementById(`examq-panel-${t}`).style.display = t === tab ? 'block' : 'none'
+    const btn = document.getElementById(`examq-tab-${t}`)
+    btn.style.background = t === tab ? 'var(--blue)' : 'var(--pale)'
+    btn.style.color      = t === tab ? '#fff' : 'var(--blue)'
+  })
+}
+
+function updateSubSections() {
+  const section   = document.getElementById('examq-section').value
+  const subSelect = document.getElementById('examq-subsection')
+
+  if (section === 'writing') {
+    subSelect.innerHTML = `
+      <option value="Part-1">Part 1</option>
+      <option value="Part-2">Part 2</option>
+    `
+  } else {
+    subSelect.innerHTML = `
+      <option value="Part-1">Part 1</option>
+      <option value="Part-2">Part 2</option>
+      <option value="Part-3">Part 3</option>
+    `
+  }
+}
+
+async function loadExamQuestions() {
+  const container = document.getElementById('examq-list-container')
+  const countEl   = document.getElementById('examq-count')
+  const examType  = document.getElementById('examq-filter-type').value
+  const section   = document.getElementById('examq-filter-section').value
+
+  container.innerHTML = '<div style="color:var(--muted);padding:1rem;">Loading...</div>'
+
+  try {
+    let url = `${API}/exam-questions/admin`
+    const params = []
+    if (examType) params.push(`exam_type=${examType}`)
+    if (section)  params.push(`section=${section}`)
+    if (params.length) url += '?' + params.join('&')
+
+    const res  = await fetch(url, { headers: authHeaders() })
+    const data = await res.json()
+    const questions = data.questions || []
+
+    countEl.textContent = `${questions.length} questions`
+
+    if (questions.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:3rem;color:var(--muted);">
+          <div style="font-size:2rem;margin-bottom:.5rem;">📝</div>
+          <div>No questions yet — add one!</div>
+        </div>`
+      return
+    }
+
+    // Group by sub_section
+    const grouped = {}
+    questions.forEach(q => {
+      if (!grouped[q.sub_section]) grouped[q.sub_section] = []
+      grouped[q.sub_section].push(q)
+    })
+
+    container.innerHTML = Object.entries(grouped).map(([sub, qs]) => `
+      <div style="margin-bottom:2rem;">
+        <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;">
+          <div style="background:var(--blue);color:#fff;font-size:.75rem;font-weight:700;padding:.3rem .9rem;border-radius:20px;">${sub}</div>
+          <div style="font-size:.85rem;color:var(--muted);">${qs.length} question${qs.length > 1 ? 's' : ''}</div>
+        </div>
+        ${qs.map(q => `
+          <div style="background:#fff;border:1.5px solid rgba(19,85,160,.08);border-radius:12px;padding:1.2rem;margin-bottom:.8rem;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+              <div style="flex:1;">
+                <div style="display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap;">
+                  <span style="background:${q.section === 'writing' ? 'rgba(99,102,241,.1)' : 'rgba(16,185,129,.1)'};color:${q.section === 'writing' ? '#4f46e5' : '#059669'};font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;">
+                    ${q.section === 'writing' ? '✍️ Writing' : '🎙️ Speaking'}
+                  </span>
+                  <span style="background:var(--pale);color:var(--blue);font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;">
+                    ${q.exam_type}
+                  </span>
+                  ${q.source_year ? `<span style="background:rgba(240,192,64,.15);color:#b45309;font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;">${q.source_year}</span>` : ''}
+                </div>
+                <div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;font-size:.9rem;">${q.question_text}</div>
+                ${q.model_answer ? `
+                  <details style="margin-top:.5rem;">
+                    <summary style="font-size:.78rem;color:var(--sky);cursor:pointer;font-weight:700;">📋 View Model Answer</summary>
+                    <div style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-top:.5rem;padding:.8rem;background:var(--frost);border-radius:8px;">${q.model_answer}</div>
+                  </details>
+                ` : ''}
+              </div>
+              <button onclick="deleteExamQuestion('${q.id}')"
+                style="background:#FEE2E2;color:#991B1B;border:none;padding:.3rem .7rem;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;flex-shrink:0;">
+                Delete
+              </button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `).join('')
+
+  } catch(err) {
+    container.innerHTML = `<div style="color:var(--muted);padding:1rem;">Failed to load questions.</div>`
+  }
+}
+
+async function addExamQuestion() {
+  const exam_type     = document.getElementById('examq-type').value
+  const section       = document.getElementById('examq-section').value
+  const sub_section   = document.getElementById('examq-subsection').value
+  const question_text = document.getElementById('examq-question').value.trim()
+  const model_answer  = document.getElementById('examq-answer').value.trim()
+  const source_year   = document.getElementById('examq-year').value
+
+  document.getElementById('examq-error').style.display   = 'none'
+  document.getElementById('examq-success').style.display = 'none'
+
+  if (!question_text) {
+    document.getElementById('examq-error').textContent = 'Please enter the question text.'
+    document.getElementById('examq-error').style.display = 'block'
+    return
+  }
+
+  const btn = document.getElementById('examq-btn')
+  btn.disabled = true
+  btn.textContent = 'Saving...'
+
+  try {
+    const res  = await fetch(`${API}/exam-questions/admin`, {
+      method:  'POST',
+      headers: authHeaders(),
+      body:    JSON.stringify({
+        exam_type, section, sub_section, question_text,
+        model_answer: model_answer || null,
+        source_year:  source_year  || null,
+        order_num: 1
+      })
+    })
+    const data = await res.json()
+
+    if (!res.ok) {
+      document.getElementById('examq-error').textContent = data.error || 'Failed to add question.'
+      document.getElementById('examq-error').style.display = 'block'
+    } else {
+      document.getElementById('examq-success').textContent = '✅ Question added!'
+      document.getElementById('examq-success').style.display = 'block'
+      document.getElementById('examq-question').value = ''
+      document.getElementById('examq-answer').value   = ''
+      document.getElementById('examq-year').value     = ''
+      switchExamQTab('list')
+      loadExamQuestions()
+    }
+  } catch {
+    document.getElementById('examq-error').textContent = 'Server error. Please try again.'
+    document.getElementById('examq-error').style.display = 'block'
+  } finally {
+    btn.disabled = false
+    btn.textContent = '+ Add Question'
+  }
+}
+
+async function deleteExamQuestion(id) {
+  if (!confirm('Delete this question?')) return
+
+  const res = await fetch(`${API}/exam-questions/admin/${id}`, {
+    method:  'DELETE',
+    headers: authHeaders()
+  })
+
+  if (res.ok) {
+    showToast('Question deleted', 'success')
+    loadExamQuestions()
+  } else {
+    showToast('Failed to delete', 'error')
+  }
+}
+
 // ── PAGE NAVIGATION ────────────────────────────────
       function showPage(page) {
         document
@@ -3494,6 +3771,7 @@ async function deleteQuestion(questionId) {
         if (page === 'lectures') loadLectures()
         if (page === 'materials') loadMaterials()
         if (page === 'quizzes') loadQuizzes()
+        if (page === 'exam-questions') loadExamQuestions()
       }
 
 

@@ -13,6 +13,7 @@ import reviewRoutes from './routes/reviews.js'
 import adminRoutes from './routes/admin.js'
 import studentRoutes from './routes/student.js'
 import quizRoutes from './routes/quiz.js'
+import examQuestionRoutes from './routes/examQuestions.js'
 
 
 const __filename = fileURLToPath(import.meta.url)
@@ -63,6 +64,7 @@ app.use('/contact',     contactRoutes)
 app.use('/reviews', reviewRoutes)
 app.use('/admin', adminRoutes)
 app.use('/quiz', quizRoutes)
+app.use('/exam-questions', examQuestionRoutes)
 
 // ── Health check
 app.get('/health', (_, res) => res.json({ status: 'ok' }))

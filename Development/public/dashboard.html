@@ -662,6 +662,10 @@ fbq('track', 'PageView');
   style="padding:.6rem 1.4rem;border-radius:20px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
   🧠 Quizzes
 </button>
+<button id="sec-tab-examq" onclick="switchSection('examq')"
+  style="padding:.6rem 1.4rem;border-radius:20px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+  📝 Exam Questions
+</button>
             </div>
 
             <!-- Lectures Section -->
@@ -783,6 +787,27 @@ fbq('track', 'PageView');
   </div>
   <div id="score-history-content"></div>
 </div>
+</div>
+<!-- Exam Questions Section -->
+<div id="section-examq" style="display:none;">
+  <div class="section-title">📝 Recent Exam Questions</div>
+
+  <!-- Writing / Speaking tabs -->
+<div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+  <button onclick="switchExamQSection('writing')" id="examq-sec-writing"
+    style="padding:.5rem 1.2rem;border-radius:20px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:all .25s;">
+    ✍️ Writing
+  </button>
+  <button onclick="switchExamQSection('speaking')" id="examq-sec-speaking"
+    style="padding:.5rem 1.2rem;border-radius:20px;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:var(--pale);color:var(--blue);transition:all .25s;">
+    🎙️ Speaking
+  </button>
+</div>
+
+<!-- Part sub-tabs (shown after section is selected) -->
+<div id="examq-part-tabs" style="display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;"></div>
+
+<div id="examq-student-content"></div>
 </div>
           </div>
 
@@ -1321,10 +1346,11 @@ renderWorksheets(data.worksheets || []);
   document.getElementById("section-materials").style.display = "none";
   document.getElementById("section-tests").style.display     = "none";
   document.getElementById("section-quizzes").style.display   = "none";
+  document.getElementById("section-examq").style.display     = "none";
 
   document.getElementById(`section-${section}`).style.display = "block";
 
-  ["lectures", "materials", "tests", "quizzes"].forEach((s) => {
+  ["lectures", "materials", "tests", "quizzes", "examq"].forEach((s) => {
     const tab = document.getElementById(`sec-tab-${s}`);
     if (tab) {
       tab.style.background = s === section ? "var(--blue)" : "var(--pale)";
@@ -1333,6 +1359,7 @@ renderWorksheets(data.worksheets || []);
   });
 
   if (section === "quizzes") loadQuizzesForStudent();
+  if (section === "examq")   loadExamQuestionsForStudent();
 }
 
       function switchMaterialTab(tab) {
@@ -2388,6 +2415,161 @@ function toggleAttempts(quizId) {
   el.style.display = el.style.display === 'none' ? 'block' : 'none'
 }
 
+
+async function loadExamQuestionsForStudent() {
+  const enrollment = allEnrollments[activeEnrollmentIdx]
+  if (!enrollment) return
+
+  // Only show for TEF/TCF
+  const examType = enrollment.examType || enrollment.course?.toUpperCase()
+  if (!['TEF', 'TCF'].includes(examType)) {
+    document.getElementById('examq-student-content').innerHTML = `
+      <div class="no-lectures">
+        <div class="no-lectures-icon">📝</div>
+        <div class="no-lectures-title">Not available for this course</div>
+        <div class="no-lectures-sub">Exam questions are only available for TEF and TCF preparation courses.</div>
+      </div>`
+    return
+  }
+
+  switchExamQSection('writing')
+}
+
+let currentExamQSection = 'writing'
+let currentExamQPart    = 'Part-1'
+let cachedExamQuestions = {} // cache by section
+
+async function loadExamQuestionsForStudent() {
+  const enrollment = allEnrollments[activeEnrollmentIdx]
+  if (!enrollment) return
+
+  const examType = enrollment.examType || 'TEF'
+  if (!['TEF', 'TCF'].includes(examType)) {
+    document.getElementById('examq-student-content').innerHTML = `
+      <div class="no-lectures">
+        <div class="no-lectures-icon">📝</div>
+        <div class="no-lectures-title">Not available for this course</div>
+        <div class="no-lectures-sub">Exam questions are only available for TEF and TCF courses.</div>
+      </div>`
+    document.getElementById('examq-part-tabs').innerHTML = ''
+    return
+  }
+
+  cachedExamQuestions = {}
+  currentExamQSection = 'writing'
+  currentExamQPart    = 'Part-1'
+  await switchExamQSection('writing')
+}
+
+async function switchExamQSection(section) {
+  currentExamQSection = section
+  currentExamQPart    = 'Part-1'
+
+  ;['writing','speaking'].forEach(s => {
+    const btn = document.getElementById(`examq-sec-${s}`)
+    if (btn) {
+      btn.style.background = s === section ? 'var(--blue)' : 'var(--pale)'
+      btn.style.color      = s === section ? '#fff' : 'var(--blue)'
+    }
+  })
+
+  const enrollment = allEnrollments[activeEnrollmentIdx]
+  const examType   = enrollment?.examType || 'TEF'
+
+  // Fetch if not cached
+  if (!cachedExamQuestions[section]) {
+    const res  = await fetch(`${API}/exam-questions/${examType}?section=${section}`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+    const data = await res.json()
+    cachedExamQuestions[section] = data.questions || []
+  }
+
+  const questions = cachedExamQuestions[section]
+
+  // Get unique parts
+  const parts = [...new Set(questions.map(q => q.sub_section))].sort()
+
+  // Render part tabs
+  const partTabs = document.getElementById('examq-part-tabs')
+  partTabs.innerHTML = parts.map(p => `
+    <button onclick="switchExamQPart('${p}')" id="examq-part-${p.replace('-','')}"
+      style="padding:.45rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:${p === 'Part-1' ? 'var(--navy)' : 'var(--pale)'};color:${p === 'Part-1' ? '#fff' : 'var(--blue)'};transition:all .25s;">
+      ${p}
+    </button>
+  `).join('')
+
+  // Show first part
+  if (parts.length > 0) {
+    switchExamQPart(parts[0])
+  } else {
+    document.getElementById('examq-student-content').innerHTML = `
+      <div class="no-lectures">
+        <div class="no-lectures-icon">📝</div>
+        <div class="no-lectures-title">No ${section} questions yet</div>
+        <div class="no-lectures-sub">Saloni will add questions here soon.</div>
+      </div>`
+  }
+}
+
+function switchExamQPart(part) {
+  currentExamQPart = part
+  const questions  = cachedExamQuestions[currentExamQSection] || []
+  const parts      = [...new Set(questions.map(q => q.sub_section))].sort()
+
+  // Update part tab styles
+  parts.forEach(p => {
+    const btn = document.getElementById(`examq-part-${p.replace('-','')}`)
+    if (btn) {
+      btn.style.background = p === part ? 'var(--navy)' : 'var(--pale)'
+      btn.style.color      = p === part ? '#fff' : 'var(--blue)'
+    }
+  })
+
+  // Filter questions for this part
+  const filtered = questions.filter(q => q.sub_section === part)
+  const content  = document.getElementById('examq-student-content')
+
+  if (filtered.length === 0) {
+    content.innerHTML = `
+      <div class="no-lectures">
+        <div class="no-lectures-icon">📝</div>
+        <div class="no-lectures-title">No questions for ${part} yet</div>
+        <div class="no-lectures-sub">Saloni will add questions here soon.</div>
+      </div>`
+    return
+  }
+
+  const startingNum = 1
+
+  content.innerHTML = filtered.map((q, idx) => `
+    <div class="lecture-card" style="padding:1.5rem;margin-bottom:.8rem;">
+      <div style="display:flex;align-items:flex-start;gap:1rem;">
+        <div style="min-width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;">
+          ${idx +1}
+        </div>
+        <div style="flex:1;min-width:0;">
+          ${q.source_year ? `<div style="font-size:.72rem;color:var(--muted);margin-bottom:.4rem;">📅 ${q.source_year}</div>` : ''}
+          <div style="font-weight:700;color:var(--navy);font-size:.95rem;line-height:1.6;margin-bottom:.8rem;">${q.question_text.replace(/\n/g, '<br>')}</div>
+          ${q.model_answer ? `
+            <details>
+              <summary style="font-size:.82rem;color:var(--blue);cursor:pointer;font-weight:700;padding:.4rem 0;">
+                💡 View Model Answer
+              </summary>
+              <div style="font-size:.85rem;color:#334155;line-height:1.8;margin-top:.6rem;padding:1rem;background:var(--frost);border-radius:10px;border-left:3px solid var(--blue);">
+                ${q.model_answer.replace(/\n/g, '<br>')}
+              </div>
+            </details>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('')
+}
+
+function getSubSectionName(sub) {
+  return sub // already "Part-1", "Part-2" etc.
+}
 
       // Load on page open
       loadDashboard();

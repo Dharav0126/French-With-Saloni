@@ -2281,6 +2281,9 @@ fbq('track', 'PageView');
       </div>
     </div>
 
+
+    
+
     <!-- ── STUDENT DASHBOARD MODAL ── -->
     <div class="dash-overlay" id="dashModal">
       <div class="dash-modal">
@@ -2845,6 +2848,41 @@ fbq('track', 'PageView');
         </button>
       </div>
     </section>
+
+    <!-- Exam Questions Teaser -->
+<section style="padding:5rem 1.5rem;background:var(--frost);">
+  <div style="max-width:900px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:3rem;">
+      <div style="display:inline-block;background:rgba(19,85,160,.08);color:var(--blue);font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.4rem 1.2rem;border-radius:20px;margin-bottom:1rem;">
+        📝 Recent Exam Questions
+      </div>
+      <h2 style="font-family:'Libre Baskerville',serif;font-size:2rem;color:var(--navy);margin-bottom:.8rem;">
+        Practice with real TEF/TCF questions
+      </h2>
+      <p style="color:var(--muted);font-size:.95rem;max-width:550px;margin:0 auto;">
+        Saloni curates recently asked exam questions with model answers to help you prepare effectively.
+      </p>
+    </div>
+
+    <!-- Teaser cards -->
+    <div id="examq-teaser-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;margin-bottom:2.5rem;">
+      <div style="text-align:center;color:var(--muted);padding:2rem;grid-column:1/-1;">Loading sample questions...</div>
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center;">
+      <button onclick="openModal('register')"
+        style="background:var(--blue);color:#fff;border:none;padding:.9rem 2.5rem;border-radius:10px;font-size:.95rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;transition:background .25s;"
+        onmouseover="this.style.background='var(--sky)'"
+        onmouseout="this.style.background='var(--blue)'">
+        Get Full Access — Register Free
+      </button>
+      <div style="font-size:.8rem;color:var(--muted);margin-top:.8rem;">
+        Enrolled students get model answers + full question bank
+      </div>
+    </div>
+  </div>
+</section>
 
     <!-- COURSES / PRICING -->
     <section class="section" id="courses">
@@ -3951,6 +3989,42 @@ async function loadReviews() {
         document.getElementById("dashModal").classList.remove("open");
         document.body.style.overflow = "";
       }
+
+      async function loadExamTeaser() {
+  try {
+    const res  = await fetch(`${API}/exam-questions/teaser`)
+    const data = await res.json()
+    const questions = data.questions || []
+
+    const container = document.getElementById('examq-teaser-container')
+
+    if (questions.length === 0) {
+      container.style.display = 'none'
+      return
+    }
+
+    container.innerHTML = questions.map(q => `
+      <div style="background:#fff;border-radius:14px;padding:1.8rem;border:1px solid rgba(19,85,160,.08);box-shadow:0 2px 12px rgba(10,35,66,.06);">
+        <div style="display:flex;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap;">
+          <span style="background:var(--pale);color:var(--blue);font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;">${q.exam_type}</span>
+          <span style="background:${q.section === 'writing' ? 'rgba(99,102,241,.1)' : 'rgba(16,185,129,.1)'};color:${q.section === 'writing' ? '#4f46e5' : '#059669'};font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;">
+            ${q.section === 'writing' ? '✍️ Writing' : '🎙️ Speaking'} · ${q.sub_section}
+          </span>
+        </div>
+        <div style="font-weight:700;color:var(--navy);font-size:.9rem;line-height:1.6;margin-bottom:.8rem;">${q.question_text}</div>
+        <div style="font-size:.8rem;color:var(--muted);font-style:italic;">
+          🔒 Model answer available for enrolled students
+        </div>
+      </div>
+    `).join('')
+
+  } catch(err) {
+    console.error('Teaser load error:', err)
+  }
+}
+
+// Call on page load
+loadExamTeaser()
 
       document
         .getElementById("dashModal")
