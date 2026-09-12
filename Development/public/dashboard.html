@@ -855,6 +855,20 @@ fbq('track', 'PageView');
                   for your course.
                 </div>
               </div>
+              <!-- Progress Map (A1/A2/B1/B2 only) -->
+<div id="progress-map-card" style="display:none;background:#fff;border-radius:14px;padding:1.5rem;border:1px solid rgba(19,85,160,.08);box-shadow:0 2px 8px rgba(10,35,66,.05);margin-top:1rem;">
+  <div style="font-size:.7rem;font-weight:700;color:var(--sky);letter-spacing:.1em;text-transform:uppercase;margin-bottom:1rem;">📊 My Progress</div>
+  <div id="progress-map-content">
+    <div style="font-size:.82rem;color:var(--muted);">Loading...</div>
+  </div>
+  <div style="margin-top:1rem;background:var(--pale);border-radius:20px;height:8px;overflow:hidden;">
+    <div id="progress-bar-fill" style="background:linear-gradient(90deg,var(--blue),var(--sky));height:100%;width:0%;transition:width .8s ease;border-radius:20px;"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;margin-top:.4rem;">
+    <div style="font-size:.72rem;color:var(--muted);" id="progress-label">0 of 0 attempted</div>
+    <div style="font-size:.72rem;font-weight:700;color:var(--blue);" id="progress-pct">0%</div>
+  </div>
+</div>
             </div>
           </div>
         </div>
@@ -1325,6 +1339,7 @@ async function chooseEnrollment(idx) {
 
         // Materials
        renderMaterials(data.classNotes || [], data.examMaterials || []);
+       renderProgressMap(data)
 renderWorksheets(data.worksheets || []);
       }
 
@@ -2565,6 +2580,109 @@ function switchExamQPart(part) {
       </div>
     </div>
   `).join('')
+}
+
+async function renderProgressMap(enrollment) {
+  const course        = enrollment.course
+  const isLevelCourse = ['a1','a2','b1','b2'].includes(course)
+  const card          = document.getElementById('progress-map-card')
+
+  if (!isLevelCourse) {
+    card.style.display = 'none'
+    return
+  }
+
+  card.style.display = 'block'
+
+  try {
+    // Fetch quizzes for this course
+    const [quizzesRes, historyRes] = await Promise.all([
+      fetch(`${API}/quiz/course/${course}`, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      }),
+      fetch(`${API}/quiz/history/${course}`, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      })
+    ])
+
+    const quizzesData = await quizzesRes.json()
+    const historyData = await historyRes.json()
+
+    const quizzes = quizzesData.quizzes || []
+    const history = historyData.history || []
+
+    // Build attempt map: quizId → { attempted, bestScore }
+    const attemptMap = {}
+    history.forEach(h => {
+      attemptMap[h.quizId] = {
+        attempted:  true,
+        bestScore:  h.bestScore,
+        attempts:   h.attempts.length
+      }
+    })
+
+    const attempted = quizzes.filter(q => attemptMap[q.id]?.attempted).length
+    const total     = quizzes.length
+    const pct       = total > 0 ? Math.round((attempted / total) * 100) : 0
+
+    // Update progress bar
+    document.getElementById('progress-bar-fill').style.width = `${pct}%`
+    document.getElementById('progress-label').textContent    = `${attempted} of ${total} attempted`
+    document.getElementById('progress-pct').textContent      = `${pct}%`
+
+    // Render roadmap
+    const content = document.getElementById('progress-map-content')
+
+    if (quizzes.length === 0) {
+      content.innerHTML = `<div style="font-size:.82rem;color:var(--muted);">No quizzes yet for this course.</div>`
+      return
+    }
+
+    content.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:.5rem;max-height:280px;overflow-y:auto;padding-right:.3rem;">
+        ${quizzes.map((q, idx) => {
+          const info      = attemptMap[q.id]
+          const attempted = info?.attempted || false
+          const score     = info?.bestScore ?? null
+          const locked    = idx > 0 && !attemptMap[quizzes[idx - 1].id]?.attempted
+
+          const statusColor = !attempted ? 'rgba(19,85,160,.08)'
+            : score >= 80 ? 'rgba(16,185,129,.15)'
+            : score >= 60 ? 'rgba(240,192,64,.15)'
+            : 'rgba(239,68,68,.1)'
+
+          const statusBorder = !attempted ? 'rgba(19,85,160,.12)'
+            : score >= 80 ? 'rgba(16,185,129,.3)'
+            : score >= 60 ? 'rgba(240,192,64,.4)'
+            : 'rgba(239,68,68,.3)'
+
+          const badge = !attempted
+  ? `<span style="font-size:.7rem;color:var(--muted);">○</span>`
+            : score >= 80
+              ? `<span style="font-size:.7rem;background:rgba(16,185,129,.2);color:#059669;padding:.1rem .4rem;border-radius:10px;font-weight:700;">${score}% ★</span>`
+              : score >= 60
+                ? `<span style="font-size:.7rem;background:rgba(240,192,64,.2);color:#b45309;padding:.1rem .4rem;border-radius:10px;font-weight:700;">${score}%</span>`
+                : `<span style="font-size:.7rem;background:rgba(239,68,68,.1);color:#ef4444;padding:.1rem .4rem;border-radius:10px;font-weight:700;">${score}%</span>`
+
+          return `
+            <div style="display:flex;align-items:center;gap:.7rem;padding:.5rem .7rem;border-radius:8px;background:${statusColor};border:1px solid ${statusBorder};transition:all .2s;">
+              <div style="width:22px;height:22px;border-radius:50%;background:${attempted ? (score >= 80 ? 'var(--green)' : score >= 60 ? '#f59e0b' : '#ef4444') : 'var(--pale)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.65rem;font-weight:700;color:${attempted ? '#fff' : 'var(--muted)'};">
+                ${attempted ? '✓' : idx + 1}
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:.78rem;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${q.title}</div>
+              </div>
+              ${badge}
+            </div>
+          `
+        }).join('')}
+      </div>
+    `
+
+  } catch(err) {
+    document.getElementById('progress-map-content').innerHTML =
+      `<div style="font-size:.82rem;color:var(--muted);">Could not load progress.</div>`
+  }
 }
 
 function getSubSectionName(sub) {
