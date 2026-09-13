@@ -107,7 +107,7 @@ async function buildEnrollmentData(enrollment) {
   return {
     enrollmentId:    enrollment.id,
     course:          enrollment.course,
-    examType:        enrollment.exam_type || 'TEF',
+    examType:        enrollment.exam_type || null,
     enrolledAt:      enrollment.enrolled_at,
     batch:           enrollment.batches || null,
     lectures:        lecturesWithUrls,

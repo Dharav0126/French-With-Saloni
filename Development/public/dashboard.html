@@ -2431,24 +2431,6 @@ function toggleAttempts(quizId) {
 }
 
 
-async function loadExamQuestionsForStudent() {
-  const enrollment = allEnrollments[activeEnrollmentIdx]
-  if (!enrollment) return
-
-  // Only show for TEF/TCF
-  const examType = enrollment.examType || enrollment.course?.toUpperCase()
-  if (!['TEF', 'TCF'].includes(examType)) {
-    document.getElementById('examq-student-content').innerHTML = `
-      <div class="no-lectures">
-        <div class="no-lectures-icon">📝</div>
-        <div class="no-lectures-title">Not available for this course</div>
-        <div class="no-lectures-sub">Exam questions are only available for TEF and TCF preparation courses.</div>
-      </div>`
-    return
-  }
-
-  switchExamQSection('writing')
-}
 
 let currentExamQSection = 'writing'
 let currentExamQPart    = 'Part-1'
@@ -2458,8 +2440,10 @@ async function loadExamQuestionsForStudent() {
   const enrollment = allEnrollments[activeEnrollmentIdx]
   if (!enrollment) return
 
-  const examType = enrollment.examType || 'TEF'
-  if (!['TEF', 'TCF'].includes(examType)) {
+  const course   = enrollment?.course || ''
+  const examType = course === 'tcf' ? 'TCF' : 'TEF'
+
+  if (!['tef', 'tcf'].includes(course)) {
     document.getElementById('examq-student-content').innerHTML = `
       <div class="no-lectures">
         <div class="no-lectures-icon">📝</div>
@@ -2473,7 +2457,7 @@ async function loadExamQuestionsForStudent() {
   cachedExamQuestions = {}
   currentExamQSection = 'writing'
   currentExamQPart    = 'Part-1'
-  await switchExamQSection('writing')
+  await switchExamQSection('writing', examType)
 }
 
 async function switchExamQSection(section) {
@@ -2489,7 +2473,8 @@ async function switchExamQSection(section) {
   })
 
   const enrollment = allEnrollments[activeEnrollmentIdx]
-  const examType   = enrollment?.examType || 'TEF'
+  const course   = enrollment?.course || ''
+const examType = course === 'tcf' ? 'TCF' : 'TEF'
 
   // Fetch if not cached
   if (!cachedExamQuestions[section]) {
@@ -2556,7 +2541,6 @@ function switchExamQPart(part) {
   }
 
   content.innerHTML = filtered.map((q, idx) => {
-  console.log('question:', q.question_text, 'image_path:', q.image_path);
   return `
     <div class="lecture-card" style="padding:1.5rem;margin-bottom:.8rem;">
       <div style="display:flex;align-items:flex-start;gap:1rem;">
