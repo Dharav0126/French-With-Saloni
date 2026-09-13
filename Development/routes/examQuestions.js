@@ -29,29 +29,70 @@ router.get('/admin', verifyJWT, isAdmin, async (req, res) => {
 
 // POST create exam question
 router.post('/admin', verifyJWT, isAdmin, async (req, res) => {
-  const { exam_type, section, sub_section, question_text, model_answer, source_year, order_num } = req.body
+ const { exam_type, section, sub_section, question_text, model_answer, source_year, order_num, image_path } = req.body
 
   if (!exam_type || !section || !sub_section || !question_text) {
     return res.status(400).json({ error: 'exam_type, section, sub_section and question_text are required' })
   }
 
   const { data, error } = await supabase
-    .from('exam_questions')
-    .insert({
-      exam_type,
-      section,
-      sub_section,
-      question_text,
-      model_answer:  model_answer || null,
-      source_year:   source_year  || null,
-      order_num:     parseInt(order_num) || 1
-    })
+  .from('exam_questions')
+  .insert({
+    exam_type,
+    section,
+    sub_section,
+    question_text,
+    model_answer:  model_answer || null,
+    source_year:   source_year  || null,
+    image_path:    image_path   || null,
+    order_num:     parseInt(order_num) || 1
+  })
     .select()
     .single()
 
   if (error) return res.status(500).json({ error: error.message })
   return res.status(201).json({ message: 'Question added', question: data })
 })
+
+
+// POST upload image for exam question
+router.post('/admin/upload-image', verifyJWT, isAdmin, upload.single('image'), async (req, res) => {
+  try {
+    const { exam_type, section } = req.body
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'Image file is required' })
+    }
+
+    const safeName  = `${Date.now()}-${req.file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '-')}`
+    const filePath  = `${exam_type}/${section}/${safeName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('ExamImages')
+      .upload(filePath, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: false
+      })
+
+    if (uploadError) {
+      return res.status(500).json({ error: `Upload failed: ${uploadError.message}` })
+    }
+
+    // Get public URL
+    const { data: publicUrl } = supabase.storage
+      .from('ExamImages')
+      .getPublicUrl(filePath)
+
+    return res.status(200).json({
+      message:    'Image uploaded',
+      image_path: publicUrl.publicUrl
+    })
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
+})
+
 
 // PATCH update exam question
 router.patch('/admin/:id', verifyJWT, isAdmin, async (req, res) => {
@@ -106,7 +147,7 @@ router.get('/:examType', verifyJWT, async (req, res) => {
 
   let query = supabase
     .from('exam_questions')
-    .select('id, exam_type, section, sub_section, question_text, model_answer, source_year, order_num')
+    .select('id, exam_type, section, sub_section, question_text, model_answer, source_year, order_num, image_path')
     .eq('exam_type', examType.toUpperCase())
     .eq('is_active', true)
     .order('sub_section', { ascending: true })

@@ -1431,10 +1431,18 @@
             style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;"/>
         </div>
         <div style="grid-column:1/-1;">
-          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">QUESTION TEXT</label>
-          <textarea id="examq-question" placeholder="Enter the exam question here..."
-            style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;resize:vertical;min-height:100px;"></textarea>
-        </div>
+  <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">IMAGE (optional — for image-based questions)</label>
+  <input type="file" id="examq-image" accept="image/*"
+    style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;background:#fff;"/>
+  <div id="examq-image-preview" style="display:none;margin-top:.8rem;">
+    <img id="examq-image-preview-img" style="max-width:100%;max-height:200px;border-radius:8px;border:1.5px solid rgba(19,85,160,.1);"/>
+  </div>
+</div>
+<div style="grid-column:1/-1;">
+  <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">QUESTION TEXT</label>
+  <textarea id="examq-question" placeholder="Enter the exam question here..."
+    style="width:100%;padding:.6rem;border:1.5px solid rgba(19,85,160,.15);border-radius:6px;font-family:'Nunito',sans-serif;font-size:.85rem;resize:vertical;min-height:100px;"></textarea>
+</div>
         <div style="grid-column:1/-1;">
           <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;">MODEL ANSWER (optional)</label>
           <textarea id="examq-answer" placeholder="Enter the model answer here..."
@@ -3581,23 +3589,18 @@ function switchExamQTab(tab) {
     btn.style.color      = t === tab ? '#fff' : 'var(--blue)'
   })
 }
-
 function updateSubSections() {
   const section   = document.getElementById('examq-section').value
+  const examType  = document.getElementById('examq-type').value
   const subSelect = document.getElementById('examq-subsection')
 
-  if (section === 'writing') {
-    subSelect.innerHTML = `
-      <option value="Part-1">Part 1</option>
-      <option value="Part-2">Part 2</option>
-    `
-  } else {
-    subSelect.innerHTML = `
-      <option value="Part-1">Part 1</option>
-      <option value="Part-2">Part 2</option>
-      <option value="Part-3">Part 3</option>
-    `
-  }
+  // TEF Writing: 2 parts, TCF Writing: 3 parts
+  // TEF Speaking: 2 parts, TCF Speaking: 3 parts
+  const count = (examType === 'TCF') ? 3 : 2
+
+  subSelect.innerHTML = Array.from({ length: count }, (_, i) =>
+    `<option value="Part-${i + 1}">Part ${i + 1}</option>`
+  ).join('')
 }
 
 async function loadExamQuestions() {
@@ -3656,6 +3659,7 @@ async function loadExamQuestions() {
                   </span>
                   ${q.source_year ? `<span style="background:rgba(240,192,64,.15);color:#b45309;font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;">${q.source_year}</span>` : ''}
                 </div>
+                ${q.image_path ? `<img src="${q.image_path}" style="max-width:100%;max-height:150px;border-radius:8px;margin-bottom:.6rem;object-fit:contain;border:1.5px solid rgba(19,85,160,.1);"/>` : ''}
                 <div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;font-size:.9rem;">${q.question_text}</div>
                 ${q.model_answer ? `
                   <details style="margin-top:.5rem;">
@@ -3686,6 +3690,7 @@ async function addExamQuestion() {
   const question_text = document.getElementById('examq-question').value.trim()
   const model_answer  = document.getElementById('examq-answer').value.trim()
   const source_year   = document.getElementById('examq-year').value
+  const imageFile     = document.getElementById('examq-image').files[0]
 
   document.getElementById('examq-error').style.display   = 'none'
   document.getElementById('examq-success').style.display = 'none'
@@ -3701,13 +3706,44 @@ async function addExamQuestion() {
   btn.textContent = 'Saving...'
 
   try {
+    let image_path = null
+
+    // Upload image if provided
+    if (imageFile) {
+      const safeName  = `${Date.now()}-${imageFile.name.replace(/[^a-zA-Z0-9.\-_]/g, '-')}`
+      const filePath  = `${exam_type}/${section}/${safeName}`
+
+      const formData = new FormData()
+formData.append('image', imageFile)
+formData.append('exam_type', exam_type)
+formData.append('section', section)
+
+const uploadRes  = await fetch(`${API}/exam-questions/admin/upload-image`, {
+  method:  'POST',
+  headers: { 'Authorization': `Bearer ${adminToken}` },
+  body:    formData
+})
+const uploadData = await uploadRes.json()
+
+if (!uploadRes.ok) {
+  document.getElementById('examq-error').textContent = uploadData.error || 'Image upload failed.'
+  document.getElementById('examq-error').style.display = 'block'
+  btn.disabled = false
+  btn.textContent = '+ Add Question'
+  return
+}
+
+image_path = uploadData.image_path
+    }
+
     const res  = await fetch(`${API}/exam-questions/admin`, {
       method:  'POST',
       headers: authHeaders(),
       body:    JSON.stringify({
         exam_type, section, sub_section, question_text,
-        model_answer: model_answer || null,
-        source_year:  source_year  || null,
+        model_answer:  model_answer  || null,
+        source_year:   source_year   || null,
+        image_path:    image_path    || null,
         order_num: 1
       })
     })
@@ -3722,6 +3758,8 @@ async function addExamQuestion() {
       document.getElementById('examq-question').value = ''
       document.getElementById('examq-answer').value   = ''
       document.getElementById('examq-year').value     = ''
+      document.getElementById('examq-image').value    = ''
+      document.getElementById('examq-image-preview').style.display = 'none'
       switchExamQTab('list')
       loadExamQuestions()
     }
@@ -3749,6 +3787,23 @@ async function deleteExamQuestion(id) {
     showToast('Failed to delete', 'error')
   }
 }
+
+document.getElementById('examq-image').addEventListener('change', function() {
+  const file    = this.files[0]
+  const preview = document.getElementById('examq-image-preview')
+  const img     = document.getElementById('examq-image-preview-img')
+
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = e => {
+      img.src = e.target.result
+      preview.style.display = 'block'
+    }
+    reader.readAsDataURL(file)
+  } else {
+    preview.style.display = 'none'
+  }
+})
 
 // ── PAGE NAVIGATION ────────────────────────────────
       function showPage(page) {
