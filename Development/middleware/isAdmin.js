@@ -3,16 +3,14 @@ import supabase from '../lib/supabase.js'
 const isAdmin = async (req, res, next) => {
   const { data: student } = await supabase
     .from('students')
-    .select('role, assigned_courses')
+    .select('role')
     .eq('id', req.user.sub)
     .single()
 
-  if (!student || !['super_admin', 'administration'].includes(student.role)) {
+  if (!student || student.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access required' })
   }
 
-  req.adminRole       = student.role
-  req.assignedCourses = student.assigned_courses || []
   next()
 }
 

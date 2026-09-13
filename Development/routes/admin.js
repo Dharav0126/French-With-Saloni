@@ -3,8 +3,6 @@ import supabase from '../lib/supabase.js'
 import verifyJWT from '../middleware/verifyJWT.js'
 import isAdmin from '../middleware/isAdmin.js'
 import multer from 'multer'
-import isTutor      from '../middleware/isTutor.js'
-import isSuperAdmin from '../middleware/isSuperAdmin.js'
 
 const router = Router()
 
@@ -24,7 +22,7 @@ const upload = multer({
 })
 
 // GET all students
-router.get('/students', verifyJWT, isAdmin, async (req, res) => {
+router.get('/students', async (req, res) => {
   const { data, error } = await supabase
     .from('students')
     .select('*')
@@ -35,7 +33,7 @@ router.get('/students', verifyJWT, isAdmin, async (req, res) => {
 })
 
 // GET all contacts
-router.get('/contacts', verifyJWT, isAdmin, async (req, res) => {
+router.get('/contacts', async (req, res) => {
   const { data, error } = await supabase
     .from('contacts')
     .select('*')
@@ -72,7 +70,7 @@ router.patch('/course-settings/:course', async (req, res) => {
 })
 
 // POST upload lecture with video file
-router.post('/lectures/upload', upload.single('video'),verifyJWT, isTutor, async (req, res) => {
+router.post('/lectures/upload', upload.single('video'), async (req, res) => {
   try {
     let { course, title, description, level, order_num, batch_id } = req.body
 
@@ -219,7 +217,7 @@ router.get('/materials', async (req, res) => {
 
 
 // POST create material
-router.post('/materials', verifyJWT, isTutor, async (req, res) => {
+router.post('/materials', async (req, res) => {
   const { material_category, course, title, description, type, url, level, order_num, exam_type, section } = req.body
 
   if (!title || !url) {
@@ -260,7 +258,7 @@ router.post('/materials', verifyJWT, isTutor, async (req, res) => {
 })
 
 // POST upload material as a file (PDF/Doc) to Supabase Storage
-router.post('/materials/upload', verifyJWT, isTutor, upload.single('file'), async (req, res) => {
+router.post('/materials/upload', upload.single('file'), async (req, res) => {
   try {
     const { material_category, course, title, description, level, order_num, exam_type,section} = req.body
 
@@ -344,7 +342,7 @@ router.delete('/materials/:id', async (req, res) => {
 })
 
 // GET all batches
-router.get('/batches', verifyJWT, isAdmin, async (req, res) => {
+router.get('/batches', async (req, res) => {
   const { data, error } = await supabase
     .from('batches')
     .select('*')
@@ -356,7 +354,7 @@ router.get('/batches', verifyJWT, isAdmin, async (req, res) => {
 })
 
 // POST create batch
-router.post('/batches', verifyJWT, isAdmin, async (req, res) => {
+router.post('/batches', async (req, res) => {
   const { course, batch_name, days, timing, meet_link } = req.body
 
   if (!course || !batch_name || !days || !timing) {
