@@ -814,8 +814,8 @@ fbq('track', 'PageView');
           <!-- RIGHT COLUMN — Sidebar -->
           <div class="sidebar">
             <!-- Course Info -->
-            <div class="info-card">
-              <div class="info-card-title">My Course</div>
+           <div class="info-card" id="my-course-card">
+  <div class="info-card-title">MY COURSE</div>
               <div class="info-row">
                 <div class="info-label">Course</div>
                 <div class="info-val" id="info-course">—</div>
@@ -835,9 +835,9 @@ fbq('track', 'PageView');
             </div>
 
             <!-- Schedule -->
-            <div class="info-card">
-              <div class="info-card-title">📅 Class Schedule</div>
-              <div id="schedule-container"></div>
+            <div class="info-card" id="schedule-card">
+  <div class="info-card-title">🗓️ CLASS SCHEDULE</div>
+  <div id="schedule-container">
             </div>
 
             <!-- Live Class -->
@@ -1228,6 +1228,25 @@ async function chooseEnrollment(idx) {
         document.getElementById("info-exam").textContent = data.examType
           ? `${data.examType} Canada`
           : "TEF Canada";
+        // Hide MY COURSE card for self-paced batches
+const myCourseCard = document.getElementById('my-course-card')
+if (myCourseCard) {
+  const timing = data.batch?.timing || ''
+  const isSelfPaced = timing.toLowerCase().includes('self')
+  myCourseCard.style.display = isSelfPaced ? 'none' : 'block'
+  
+  // Make main content full width for self-paced
+const dashGrid = document.querySelector('.dashboard-grid')
+const sidebar  = document.querySelector('.dashboard-grid .sidebar')
+
+if (isSelfPaced) {
+  if (dashGrid) dashGrid.style.gridTemplateColumns = '1fr'
+  if (sidebar)  sidebar.style.display              = 'none'
+} else {
+  if (dashGrid) dashGrid.style.gridTemplateColumns = '1fr 320px'
+  if (sidebar)  sidebar.style.display              = 'block'
+}
+}
         document.getElementById("info-enrolled").textContent = data.enrolledAt
           ? new Date(data.enrolledAt).toLocaleDateString("en-CA", {
               year: "numeric",
@@ -1236,23 +1255,33 @@ async function chooseEnrollment(idx) {
             })
           : "—";
 
-        // Schedule
-        const scheduleContainer = document.getElementById("schedule-container");
-        if (data.batch) {
-          scheduleContainer.innerHTML = `
-        <div class="schedule-item">
-          <div class="schedule-label">Batch</div>
-          <div class="schedule-val">${escapeHtml(data.batch.batch_name)}</div>
-        </div>
-        <div class="schedule-item">
-          <div class="schedule-label">Days</div>
-          <div class="schedule-val">${escapeHtml(data.batch.days)}</div>
-        </div>
-        <div class="schedule-item">
-          <div class="schedule-label">Time</div>
-          <div class="schedule-val">${escapeHtml(data.batch.timing)}</div>
-        </div>
-      `;
+const scheduleContainer = document.getElementById("schedule-container")
+const scheduleCard      = document.getElementById("schedule-card")
+
+if (data.batch) {
+  const timing = data.batch.timing || ''
+  const isSelfPaced = timing.toLowerCase().includes('self')
+
+  if (isSelfPaced) {
+    // Hide entire schedule card for self-paced batches
+    if (scheduleCard) scheduleCard.style.display = 'none'
+  } else {
+    if (scheduleCard) scheduleCard.style.display = 'block'
+    scheduleContainer.innerHTML = `
+      <div class="schedule-item">
+        <div class="schedule-label">Batch</div>
+        <div class="schedule-val">${data.batch.batch_name}</div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-label">Days</div>
+        <div class="schedule-val">${data.batch.days}</div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-label">Time</div>
+        <div class="schedule-val">${data.batch.timing}</div>
+      </div>
+    `
+  }
         } else {
           const schedule = SCHEDULES[data.course] || [];
           scheduleContainer.innerHTML = schedule
