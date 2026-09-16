@@ -1130,6 +1130,7 @@ async function chooseEnrollment(idx) {
   clearInterval(kahootTimer)
   kahootTimer        = null
   currentQuizAttempt = null
+  cachedExamQuestions = {}
   const attemptScreen = document.getElementById('quiz-attempt-screen')
   const resultScreen  = document.getElementById('quiz-result-screen')
   if (attemptScreen) attemptScreen.style.display = 'none'
@@ -2507,6 +2508,7 @@ const examType = course === 'tcf' ? 'TCF' : 'TEF'
 
   // Fetch if not cached
   if (!cachedExamQuestions[section]) {
+    //alert(`Fetching: ${API}/exam-questions/${examType}?section=${section}`)
     const res  = await fetch(`${API}/exam-questions/${examType}?section=${section}`, {
       headers: { Authorization: `Bearer ${getToken()}` }
     })
