@@ -1780,11 +1780,6 @@ function renderStudentsTable() {
               fetch(`${API}/enrollments`, { headers: authHeaders() }),
               fetch(`${API}/admin/contacts`, { headers: authHeaders() }),
             ]);
-            
-        console.log('reviews:', reviewsRes.status)
-console.log('students:', studentsRes.status)
-console.log('enrollments:', enrollmentsRes.status)
-console.log('contacts:', contactsRes.status)
 
           const reviewsData = await reviewsRes.json();
           const studentsData = await studentsRes.json();
